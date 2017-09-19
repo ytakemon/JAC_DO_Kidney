@@ -18,7 +18,7 @@ library(gridExtra)
 # Load data
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 args <- commandArgs(trailingOnly = TRUE)
-output <- list.files(pattern = args[[1]], recursive = TRUE)
+output <- list.files(pattern = paste0("^",args[[1]]), recursive = TRUE)
 output <- read.csv(output[[1]])
 
 # 1.1 mRNA - Age (adjusted for sex and generation)

@@ -1,14 +1,14 @@
-# Open interactive session on Cadillac
+# Go to Cadillac scripts directory
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney
 
-# Load modules
-# module load R/3.3.2
-
-# ANOVA analysis using Petr's Rscirpt (take < 30mins)
+# ANOVA analysis using Petr's Rscirpt (takes < 30mins)
 # https://github.com/simecek/TheAgingProteome/blob/master/code/anova_tests.R
-qsub -v I=DO188b_kidney_noprobs.RData,script=anova_tests.R
+# qsub -v I="input.Rdata output.csv",script=rscript_name
+qsub -v I="../RNAseq_data/DO188b_kidney_noprobs.RData ../Anova_output/kidney_anova_output.csv",script=anova_tests Rsubmit_args.R
 
-# Calculate fdr/pval-BH for every p-value calculatedin Petr's code
+# Calculate fdr/pval-BH for every p-value calculated in Petr's code
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
+qsub -v I="kidney_anova_output.csv kidney_anova_fdr_output.csv",script=Kidney_ANOVA_fdr Rsubmit_args.sh
 
 
 

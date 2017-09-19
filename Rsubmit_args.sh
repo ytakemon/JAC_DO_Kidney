@@ -8,4 +8,4 @@ cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
 module load R/3.3.2
 
 # I is the input variable
-R --no-save --args ${I} < ${script}.R > ${script}.${I}.Rout
+R --no-save --args ${I} < ${script}.R > ${script}.Rout
