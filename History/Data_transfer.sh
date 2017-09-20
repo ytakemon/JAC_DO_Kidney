@@ -1,3 +1,6 @@
+# Copy data to my directory on Cadillac ----------------------------------------
+
+#RNAseq data
 cd /projects/cgd/QTL_mapping/kidney2/
 cp DO188b_kidney* /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data
 
@@ -17,5 +20,12 @@ cp DO188b_kidney* /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data
 ## raw.protein - Raw protein
 ## snps - 64K Marker id, chrom, posisiton
 
+# phenotype data
 cd /hpcdata/gac/projects/JAC_DO_Phenotypes
 cp -r * /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Phenotype/
+
+# Copy Petr's codes from cadillac to desktop GitHub ----------------------------
+
+# Copy QTL mapping codes
+cd /data/cgd/QTL_mapping/kidney2
+scp -r scripts/ ytakemon@mdg-gandalf:~/GitHub/JAC_DO_Kidney/Petrs_codes/QTLmapping
