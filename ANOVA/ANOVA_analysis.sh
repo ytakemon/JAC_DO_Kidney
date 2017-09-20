@@ -4,7 +4,7 @@
 # https://github.com/simecek/TheAgingProteome/blob/master/code/anova_tests.R
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney
 # qsub -v I="input.Rdata output.csv",script=rscript_name
-qsub -v I="../RNAseq_data/DO188b_kidney_noprobs.RData ../Anova_output/kidney_anova_output.csv",script=anova_tests Rsubmit_args.R
+qsub -v I="../RNAseq_data/DO188b_kidney_noprobs.RData ../Anova_output/kidney_anova_output.csv",script=anova_tests Rsubmit_args.sh
 
 # Calculate fdr/pval-BH for every p-value calculated from Petr's code
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
