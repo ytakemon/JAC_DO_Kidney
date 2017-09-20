@@ -14,3 +14,9 @@ qsub -v I="kidney_anova_output.csv kidney_anova_fdr_output.csv",script=Kidney_AN
 # Plot p-values and fdr from ANOVA output
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
 qsub -v I=kidney_anova_fdr_output.csv,script=Kidney_ANOVA_pval_hist Rsubmit_args.sh
+
+# Identify significant genes if p-value and fdr are both <= 0.05
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
+qsub -v I="kidney_anova_fdr_output.csv kidney_anova_sig_output.csv",script=Kidney_ANOVA_significant Rsubmit_args.sh
+
+#
