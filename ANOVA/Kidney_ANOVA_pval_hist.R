@@ -9,7 +9,7 @@
 
 # Usage on Cadillac
 # cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts
-# qsub -v I=kidney_anova_fdr_output.csv,script=Kidney_ANOVA_pval_hist Rsubmit_args.R
+# qsub -v I=kidney_anova_fdr_output.csv,script=Kidney_ANOVA_pval_hist Rsubmit_args.sh
 
 # R/3.3.2
 library(ggplot2)
@@ -116,7 +116,7 @@ grid.arrange(pval_mRNA_age, pval_mRNA_sex, pval_mRNA_int,
 dev.off()
 
 pdf("./Plot/protein-histograms.pdf", width = 12, height = 6)
-grid.arrange(pval_protein_age, pval_protein_sex, pval_protein_int, 
-             fdr_protein_age, fdr_protein_sex, fdr_protein_int, 
+grid.arrange(pval_protein_age, pval_protein_sex, pval_protein_int,
+             fdr_protein_age, fdr_protein_sex, fdr_protein_int,
              ncol = 3)
 dev.off()
