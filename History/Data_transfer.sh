@@ -24,8 +24,18 @@ cp DO188b_kidney* /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data
 cd /hpcdata/gac/projects/JAC_DO_Phenotypes
 cp -r * /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Phenotype/
 
+# Copy QTL mapping codes
+cd /data/cgd/QTL_mapping/kidney2
+cp -r scripts/* /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping/
+# rename .r to .R
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping/
+rename .r .R *.r
+
+
 # Copy Petr's codes from cadillac to desktop GitHub ----------------------------
 
 # Copy QTL mapping codes
 cd /data/cgd/QTL_mapping/kidney2
 scp -r scripts/ ytakemon@mdg-gandalf:~/GitHub/JAC_DO_Kidney/Petrs_codes/QTLmapping
+
+# rename .r to .R
