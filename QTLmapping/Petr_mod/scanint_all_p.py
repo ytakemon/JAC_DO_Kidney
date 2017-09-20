@@ -1,7 +1,7 @@
-batch_size = 1000
-N = 22312 # or 6145
-shell_script = 'scan_one_m.sh'
-f = open('scan_all_m.sh', 'w+')
+batch_size = 200
+N = 6716 # or 6145
+shell_script = 'scanint_one_p.sh'
+f = open('scanint_all_p.sh', 'w+')
 
 
 i = 0
