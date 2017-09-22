@@ -57,4 +57,6 @@ ls -l intscan_prot/Sex/ | wc -l # 6717
 ls -l intscan_prot/Age/ | wc -l # 6717
 # Looks good
 
-# 
+# Run QTLmrna.R
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping
+qsub -v script=QTLmrna Rsubmit_args.sh
