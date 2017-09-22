@@ -6,7 +6,8 @@ print(plist)
 library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
-load("DO188b_kidney.RData")
+setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
+load("./RNAseq_data/DO188b_kidney.RData")
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
@@ -19,7 +20,7 @@ plist <- plist[plist<=ncol(expr.protein)]
 
 for (p in plist) {
 
-  cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")  
+  cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
 
   present <- !is.na(expr.protein[,p])
   for (j in 1:20)
@@ -32,26 +33,25 @@ for (p in plist) {
     addcovar <- model.matrix(~ Sex + Age, data=annot.samples[present, ])
     intcovar <- model.matrix(~ Sex, data=annot.samples[present, ])
     intcovar2<- model.matrix(~ Age, data=annot.samples[present, ])
-  }  
+  }
 
   # lod score
   lod1 <- scan1(genoprobs=probs[present,],
                kinship=Glist2,
                pheno=expr.protein[present,p],
                addcovar=addcovar[,-1],
-               intcovar=intcovar[,-1], 
+               intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
   # save lod object
   lod2 <- scan1(genoprobs=probs[present,],
                kinship=Glist2,
                pheno=expr.protein[present,p],
                addcovar=addcovar[,-1],
-               intcovar=intcovar2[,-1], 
+               intcovar=intcovar2[,-1],
                cores=10, reml=TRUE)
   # save lod object
-  file_name1 <- paste0("intscan_prot/Sex/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
-  file_name2 <- paste0("intscan_prot/Age/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+  file_name1 <- paste0("./QTLscan/intscan_prot/Sex/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+  file_name2 <- paste0("./QTLscan/intscan_prot/Age/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(lod1, file=file_name1)
   saveRDS(lod2, file=file_name2)
 }
-
