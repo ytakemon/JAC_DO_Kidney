@@ -41,8 +41,20 @@ library(qtl2convert)
 # No errors? good.
 
 # Submit scan all scripts ------------------------------------------------------
-bash scan_all_m.sh
-bash scan_all_p.sh
-bash scanint_all_m.sh
-bash scanint_all_m2.sh
-bash scanint_all_p.sh
+bash scan_all_m.sh # Time ~ 4 hours
+bash scan_all_p.sh # Time ~ 25 mins
+bash scanint_all_m.sh # Time ~ 1 hour 20 mins
+bash scanint_all_m2.sh # Time ~ 1 hour 20 mins
+bash scanint_all_p.sh # Time ~ 1 hour 20 mins
+
+# Confirm file counts
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping/QTLscan/
+ls -l addscan_mrna/ | wc -l # 22244
+ls -l addscan_prot/ | wc -l # 6717
+ls -l intscan_mrna/Sex/ | wc -l # 22244
+ls -l intscan_mrna/Age/ | wc -l # 22244
+ls -l intscan_prot/Sex/ | wc -l # 6717
+ls -l intscan_prot/Age/ | wc -l # 6717
+# Looks good
+
+# 
