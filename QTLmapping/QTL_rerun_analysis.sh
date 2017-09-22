@@ -40,6 +40,9 @@ library(qtl2scan)
 library(qtl2convert)
 # No errors? good.
 
-
-
+# Submit scan all scripts ------------------------------------------------------
 bash scan_all_m.sh
+bash scan_all_p.sh
+bash scanint_all_m.sh
+bash scanint_all_m2.sh
+bash scanint_all_p.sh
