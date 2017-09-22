@@ -38,7 +38,7 @@ install_github("rqtl/qtl2")
 library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
-# No error? good.
+# No errors? good.
 
 
 
