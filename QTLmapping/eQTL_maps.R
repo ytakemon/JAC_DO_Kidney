@@ -53,7 +53,7 @@ Int_age$q_gbm <- q.gmb
 
 ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
-      scale_x_continuous("QTL position") +
+      scale_x_continuous("QTL position", breaks = ) +
       scale_y_continuous("Gene position") +
       labs( title = "Interactive-Age eQTLs") +
       theme_bw()
