@@ -30,14 +30,16 @@ python scanint_all_p.py
 module load R/3.4.1
 R # R console
 
-# Install packages
-install.packages(c("devtools", "yaml", "jsonlite", "data.table", "RcppEigen"))
+# Check and install missing packages
+list.of.packages <- c("devtools", "yaml", "jsonlite", "data.table", "RcppEigen", "ggplot2")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
 library(devtools)
 install_github("rqtl/qtl2")
-# load libraries to test it works
 library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
+library(ggplot2)
 # No errors? good.
 q() #don't save workspace
 
