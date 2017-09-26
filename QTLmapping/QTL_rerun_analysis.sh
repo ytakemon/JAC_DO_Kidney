@@ -39,8 +39,10 @@ library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
 # No errors? good.
+q() #don't save workspace
 
 # Submit scan all scripts ------------------------------------------------------
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping
 bash scan_all_m.sh # Time ~ 4 hours
 bash scan_all_p.sh # Time ~ 25 mins
 bash scanint_all_m.sh # Time ~ 1 hour 20 mins
@@ -57,11 +59,11 @@ ls -l intscan_prot/Sex/ | wc -l # 6717
 ls -l intscan_prot/Age/ | wc -l # 6717
 # Looks good
 
-# Run QTLmrna.R
+# Compile eQTL and pQTL --------------------------------------------------------
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping
 qsub -v script=QTLmrna Rsubmit_args.sh #  took about 8 hours, ppn 10
 qsub -v script=QTLprot Rsubmit_args.sh #
 
-# Plot eQTL
+# Plot best eQTL and pQTL ------------------------------------------------------
 qsub -v script=eQTL_IntAge_map Rsubmit_args.sh
 qsub -v script=pQTL_IntAge_map Rsubmit_args.sh
