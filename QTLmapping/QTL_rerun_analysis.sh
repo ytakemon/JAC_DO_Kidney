@@ -64,3 +64,4 @@ qsub -v script=QTLprot Rsubmit_args.sh #
 
 # Plot eQTL
 qsub -v script=eQTL_IntAge_map Rsubmit_args.sh
+qsub -v script=pQTL_IntAge_map Rsubmit_args.sh
