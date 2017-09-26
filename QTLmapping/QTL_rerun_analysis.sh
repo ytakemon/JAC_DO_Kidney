@@ -33,7 +33,11 @@ R # R console
 # Check and install missing packages
 list.of.packages <- c("devtools", "yaml", "jsonlite", "data.table", "RcppEigen", "ggplot2")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+
+if(length(new.packages) > 0){
+  install.packages(new.packages)
+}
+
 library(devtools)
 install_github("rqtl/qtl2")
 library(qtl2geno)

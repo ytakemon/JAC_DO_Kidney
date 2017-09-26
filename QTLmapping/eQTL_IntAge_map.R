@@ -55,7 +55,7 @@ Int_age$q_gbm <- q.gmb
 # Custom lablels & lines
 # Only display chr1:19,X
 chrtick <- chrsum[1:20]
-# Shift thick to half way point
+# Shift axis tick to half way point
 max <- max(Int_age$q_gbm)
 chrtick_half <- NULL
 for (i in 1:length(chrtick)){
