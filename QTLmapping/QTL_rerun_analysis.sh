@@ -61,3 +61,6 @@ ls -l intscan_prot/Age/ | wc -l # 6717
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping
 qsub -v script=QTLmrna Rsubmit_args.sh #  took about 8 hours, ppn 10
 qsub -v script=QTLprot Rsubmit_args.sh #
+
+# Plot eQTL
+qsub -v script=eQTL_IntAge_map Rsubmit_args.sh

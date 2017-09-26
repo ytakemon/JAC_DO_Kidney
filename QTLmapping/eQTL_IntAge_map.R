@@ -71,7 +71,7 @@ for (i in 1:length(chrtick)){
 }
 
 # eQTL plot
-pdf(".QTLscan/output/eQTL_IntAge.pdf", width = 6, height =6)
+pdf("./QTLscan/output/plots/eQTL_IntAge.pdf", width = 6, heigh =6)
 ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
