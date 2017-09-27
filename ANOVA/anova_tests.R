@@ -128,7 +128,7 @@ anova_tests_3 <- function(x,y) {
 
 ## test for interaction between Age and Sex
 anova_tests_int <- function(x,y) {
-  # full model without interaction
+  # full model with interaction
   lm.x <- tidy(lm(x ~ Age * Sex + Generation, data=annot.samples))
   lm.y <- tidy(lm(y ~ Age * Sex + Generation, data=annot.samples))
   lm.x.y <- tidy(lm(x ~ Age * Sex + Generation + y, data=annot.samples))
