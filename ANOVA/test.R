@@ -68,11 +68,32 @@ common_Prot_age_anova_neg <- Prot_age_anova_neg[Prot_age_anova_neg$gene_id %in% 
 ## duplicate <- common_Prot_age_anova_pos[common_Prot_age_anova_pos$gene_id == common_Prot_age_anova_pos$gene_id[duplicated(common_Prot_age_anova_pos$gene_id)],]
 # duplicate found in protein data, has unique pval and coef value. Keep.
 
-# Are sig postive mRNA gene always postive Protein?
+# Are sig postive mRNA gene always postive Protein? This should add up to 74
 pos_m_p <- common_mRNA_age_anova_pos[common_mRNA_age_anova_pos$gene_id %in% common_Prot_age_anova_pos$gene_id,]
 not_pos_m_p <- common_mRNA_age_anova_pos[!(common_mRNA_age_anova_pos$gene_id %in% common_Prot_age_anova_pos$gene_id),]
-# Are sig neg mRNA gene always neg Protein?
-neg_m_p <- common_
+# Are sig neg mRNA gene always neg Protein? This should add up to 33
+neg_m_p <- common_mRNA_age_anova_neg[common_mRNA_age_anova_neg$gene_id %in% common_Prot_age_anova_neg$gene_id,]
+not_neg_m_p <- common_mRNA_age_anova_neg[!(common_mRNA_age_anova_neg$gene_id %in% common_Prot_age_anova_neg$gene_id),]
+
+# Process genes through PANTHER
+write.table(pos_m_p$gene_id,
+            file = "./Anova_output/gene_lists/Increase_age.csv",
+            sep =",",
+            quote = FALSE,
+            row.names = FALSE)
+write.table(neg_m_p$gene_id,
+            file = "./Anova_output/gene_lists/Decrease_age.csv",
+            sep =",",
+            quote = FALSE,
+            row.names = FALSE)
+
+
+
+
+
+
+
+
 
 
 
