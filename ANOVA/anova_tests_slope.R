@@ -68,7 +68,7 @@ anova_tests_2 <- function(x) {
 
   pres <- !is.na(x) # must be calculated on the same observations
   tmp.age  <- lm(Age ~ Sex + Generation, data=annot.samples[pres,])
-  tmp.sex  <- lm(Sex ~ Age + Generation, data=annot.samples[pres,])
+  tmp.sex  <- lm(Sex ~ Age + Generation, data=annot.samples[pres,])       #PROBLEM HERE!!!!!!!!!!!!! NEED TO COMPARE TO ORIGINAL PETER'S SCRIPTS!
   sigma.full <- sd(tmp.full$resid, na.rm = TRUE)
   sigma.age <- sd(tmp.age$resid, na.rm = TRUE)
   sigma.sex <- sd(tmp.sex$resid, na.rm = TRUE)
@@ -149,23 +149,31 @@ anova_tests_int <- function(x,y) {
   return(pvalues)
 }
 
-result.table <- matrix(NA, N[["pairs"]], 32)
+result.table <- matrix(NA, N[["pairs"]], 46)
 colnames(result.table) <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
                             "r.mRNA_Age.Sex", "r.mRNA_Sex.Age",
+                            "m.mRNA_Age.Sex", "m.mRNA_Sex.Age",
                             "p.Prot_Age.Sex", "p.Prot_Sex.Age",
                             "r.Prot_Age.Sex", "r.Prot_Sex.Age",
+                            "m.Prot_Age.Sex", "m.Prot_Sex.Age",
                             "p.mRNA_Age.SexProt", "p.mRNA_Sex.AgeProt",
                             "p.mRNA_Prot.SexAge", "p.mRNA_Prot.Sex",
                             "p.mRNA_Prot.Age",
                             "r.mRNA_Age.SexProt", "r.mRNA_Sex.AgeProt",
                             "r.mRNA_Prot.SexAge", "r.mRNA_Prot.Sex",
                             "r.mRNA_Prot.Age",
+                            "m.mRNA_Age.SexProt", "m.mRNA_Sex.AgeProt",
+                            "m.mRNA_Prot.SexAge", "m.mRNA_Prot.Sex",
+                            "m.mRNA_Prot.Age",
                             "p.Prot_Age.SexmRNA", "p.Prot_Sex.AgemRNA",
                             "p.Prot_mRNA.SexAge", "p.Prot_mRNA.Sex",
                             "p.Prot_mRNA.Age",
                             "r.Prot_Age.SexmRNA", "r.Prot_Sex.AgemRNA",
                             "r.Prot_mRNA.SexAge", "r.Prot_mRNA.Sex",
                             "r.Prot_mRNA.Age",
+                            "m.Prot_Age.SexmRNA", "m.Prot_Sex.AgemRNA",
+                            "m.Prot_mRNA.SexAge", "m.Prot_mRNA.Sex",
+                            "m.Prot_mRNA.Age",
                             "p.mRNA_Interaction", "p.Prot_Interaction",
                             "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA")
 
@@ -173,7 +181,7 @@ colnames(result.table) <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
 print("Testing for interaction between Age and Sex...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) == c("p.mRNA_Interaction","p.Prot_Interaction","p.mRNA_Interaction.Prot","p.Prot_Interaction.mRNA"))] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
+  result.table[i, which(colnames(result.table) %in% c("p.mRNA_Interaction","p.Prot_Interaction","p.mRNA_Interaction.Prot","p.Prot_Interaction.mRNA"))] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
 }
 
 ## normalize verything to mean=0, sd=1
@@ -190,7 +198,8 @@ print("Testing for dependence between mRNA and Age/Sex...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
   result.table[i, which(colnames(result.table) %in% c("p.mRNA_Age.Sex","p.mRNA_Sex.Age",
-                                                      "r.mRNA_Age.Sex","r.mRNA_Sex.Age"))] <- anova_tests_2(expr.mrna[,i])
+                                                      "r.mRNA_Age.Sex","r.mRNA_Sex.Age",
+                                                      "m.mRNA_Age.Sex","m.mRNA_Sex.Age"))] <- anova_tests_2(expr.mrna[,i])
 }
 
 # ANOVA for proteins
@@ -198,7 +207,8 @@ print("Testing for dependence between mRNA and Age/Sex...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
   result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.Sex","p.Prot_Sex.Age",
-                                                      "r.Prot_Age.Sex","r.Prot_Sex.Age"))] <- anova_tests_2(expr.protein[,i])
+                                                      "r.Prot_Age.Sex","r.Prot_Sex.Age",
+                                                      "m.Prot_Age.Sex","m.Prot_Sex.Age"))] <- anova_tests_2(expr.protein[,i])
 }
 
 # ANOVA for mRNA | Protein expression
@@ -206,7 +216,8 @@ print("Testing for dependence between mRNA and Age/Sex conditioned on Protein...
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
   result.table[i, which(colnames(result.table) %in% c("p.mRNA_Age.SexProt","p.mRNA_Sex.AgeProt","p.mRNA_Prot.SexAge","p.mRNA_Prot.Sex","p.mRNA_Prot.Age",
-                                                    "r.mRNA_Age.SexProt","r.mRNA_Sex.AgeProt","r.mRNA_Prot.SexAge","r.mRNA_Prot.Sex","r.mRNA_Prot.Age"))] <- anova_tests_3(expr.mrna[,i], expr.protein[,i])
+                                                      "r.mRNA_Age.SexProt","r.mRNA_Sex.AgeProt","r.mRNA_Prot.SexAge","r.mRNA_Prot.Sex","r.mRNA_Prot.Age",
+                                                      "m.mRNA_Age.SexProt","m.mRNA_Sex.AgeProt","m.mRNA_Prot.SexAge","m.mRNA_Prot.Sex","m.mRNA_Prot.Age"))] <- anova_tests_3(expr.mrna[,i], expr.protein[,i])
 }
 
 # ANOVA for mRNA | Protein expression
@@ -214,7 +225,8 @@ print("Testing for dependence between mRNA and Age/Sex conditioned on Protein...
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
   result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.SexmRNA","p.Prot_Sex.AgemRNA","p.Prot_mRNA.SexAge","p.Prot_mRNA.Sex","p.Prot_mRNA.Age",
-                                                      "r.Prot_Age.SexmRNA","r.Prot_Sex.AgemRNA","r.Prot_mRNA.SexAge","r.Prot_mRNA.Sex","r.Prot_mRNA.Age"))] <- anova_tests_3(expr.protein[,i], expr.mrna[,i])
+                                                      "r.Prot_Age.SexmRNA","r.Prot_Sex.AgemRNA","r.Prot_mRNA.SexAge","r.Prot_mRNA.Sex","r.Prot_mRNA.Age"
+                                                      "m.Prot_Age.SexmRNA","m.Prot_Sex.AgemRNA","m.Prot_mRNA.SexAge","m.Prot_mRNA.Sex","m.Prot_mRNA.Age"))] <- anova_tests_3(expr.protein[,i], expr.mrna[,i])
 }
 
 # reorder columns - p-values first, corelation coefs second
