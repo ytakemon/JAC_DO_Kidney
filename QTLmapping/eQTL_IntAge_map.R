@@ -72,7 +72,7 @@ for (i in 1:length(save_int_age$IntAgeChr)) {
   }
 }
 # save annotated list for sharing
-write.csv(save_int_age, "./Threshold_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
+write.csv(save_int_age, "./QTLscan/output/Threshold_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
 
 # Convert transcript and qtl position relative to chromosome positions
 # Convert to megabases
