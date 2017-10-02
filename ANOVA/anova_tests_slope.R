@@ -150,7 +150,12 @@ anova_tests_int <- function(x,y) {
                subset(lm.x.y, term=="Age:SexM")$p.value,
                subset(lm.y.x, term=="Age:SexM")$p.value)
 
-  return(pvalues)
+  slopes  <- c(subset(lm.x, term=="Age:SexM")$estimate,
+               subset(lm.y, term=="Age:SexM")$estimate,
+               subset(lm.x.y, term=="Age:SexM")$estimate,
+               subset(lm.y.x, term=="Age:SexM")$estimate)
+
+  return(c(pvalues, slopes))
 }
 
 result.table <- matrix(NA, N[["pairs"]], 46)
@@ -179,13 +184,17 @@ colnames(result.table) <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
                             "m.Prot_mRNA.SexAge", "m.Prot_mRNA.Sex",
                             "m.Prot_mRNA.Age",
                             "p.mRNA_Interaction", "p.Prot_Interaction",
-                            "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA")
+                            "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA",
+                            "m.mRNA_Interaction", "m.Prot_Interaction",
+                            "m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
 
 # interaction tests
 print("Testing for interaction between Age and Sex...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) %in% c("p.mRNA_Interaction","p.Prot_Interaction","p.mRNA_Interaction.Prot","p.Prot_Interaction.mRNA"))] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
+  cols <- c("p.mRNA_Interaction","p.Prot_Interaction","p.mRNA_Interaction.Prot","p.Prot_Interaction.mRNA",
+            "m.mRNA_Interaction", "m.Prot_Interaction","m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
+  result.table[i, which(colnames(result.table) %in% cols)] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
 }
 
 ## normalize verything to mean=0, sd=1

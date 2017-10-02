@@ -15,3 +15,5 @@ qsub -v I="kidney_anova_fdr_output.csv kidney_anova_sig_output.csv",script=Kidne
 
 # Modified ANOVA analysis to inlude slope of regression line.
 qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_slope_output.csv",script=anova_tests_slope Rsubmit_args.sh
+# Plot slopes 
+qsub -v I=kidney_anova_slope_output.csv,script=ANOVA_slope_plot Rsubmit_args.sh
