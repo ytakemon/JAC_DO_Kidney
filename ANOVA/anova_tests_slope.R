@@ -2,6 +2,10 @@
 #
 # Calculates averages and fit several ANOVA models.
 #
+# References:
+# https://stats.stackexchange.com/questions/76815/multiple-regression-or-partial-correlation-coefficient-and-relations-between-th
+# https://stats.stackexchange.com/questions/32464/how-does-the-correlation-coefficient-differ-from-regression-slope
+#
 # Usage:
 #
 # Rscript anova_tests.R input.RData output.csv
