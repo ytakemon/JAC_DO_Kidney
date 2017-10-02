@@ -225,16 +225,17 @@ print("Testing for dependence between mRNA and Age/Sex conditioned on Protein...
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
   result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.SexmRNA","p.Prot_Sex.AgemRNA","p.Prot_mRNA.SexAge","p.Prot_mRNA.Sex","p.Prot_mRNA.Age",
-                                                      "r.Prot_Age.SexmRNA","r.Prot_Sex.AgemRNA","r.Prot_mRNA.SexAge","r.Prot_mRNA.Sex","r.Prot_mRNA.Age"
+                                                      "r.Prot_Age.SexmRNA","r.Prot_Sex.AgemRNA","r.Prot_mRNA.SexAge","r.Prot_mRNA.Sex","r.Prot_mRNA.Age",
                                                       "m.Prot_Age.SexmRNA","m.Prot_Sex.AgemRNA","m.Prot_mRNA.SexAge","m.Prot_mRNA.Sex","m.Prot_mRNA.Age"))] <- anova_tests_3(expr.protein[,i], expr.mrna[,i])
 }
 
 # reorder columns - p-values first, corelation coefs second
 
-pcols <- grep("^p", colnames(result.table))
-rcols <- grep("^r", colnames(result.table))
+pcols <- grep("^p.", colnames(result.table))
+rcols <- grep("^r.", colnames(result.table))
+mcols <- grep("^m.", colnames(result.table))
 
-result.table <- result.table[,c(pcols,rcols)]
+result.table <- result.table[,c(pcols,rcols,mcols)]
 
 
 # LOD (Log-Likelihood) statistics -----------------------------------------
