@@ -158,35 +158,37 @@ anova_tests_int <- function(x,y) {
   return(c(pvalues, slopes))
 }
 
-result.table <- matrix(NA, N[["pairs"]], 46)
-colnames(result.table) <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
-                            "r.mRNA_Age.Sex", "r.mRNA_Sex.Age",
-                            "m.mRNA_Age.Sex", "m.mRNA_Sex.Age",
-                            "p.Prot_Age.Sex", "p.Prot_Sex.Age",
-                            "r.Prot_Age.Sex", "r.Prot_Sex.Age",
-                            "m.Prot_Age.Sex", "m.Prot_Sex.Age",
-                            "p.mRNA_Age.SexProt", "p.mRNA_Sex.AgeProt",
-                            "p.mRNA_Prot.SexAge", "p.mRNA_Prot.Sex",
-                            "p.mRNA_Prot.Age",
-                            "r.mRNA_Age.SexProt", "r.mRNA_Sex.AgeProt",
-                            "r.mRNA_Prot.SexAge", "r.mRNA_Prot.Sex",
-                            "r.mRNA_Prot.Age",
-                            "m.mRNA_Age.SexProt", "m.mRNA_Sex.AgeProt",
-                            "m.mRNA_Prot.SexAge", "m.mRNA_Prot.Sex",
-                            "m.mRNA_Prot.Age",
-                            "p.Prot_Age.SexmRNA", "p.Prot_Sex.AgemRNA",
-                            "p.Prot_mRNA.SexAge", "p.Prot_mRNA.Sex",
-                            "p.Prot_mRNA.Age",
-                            "r.Prot_Age.SexmRNA", "r.Prot_Sex.AgemRNA",
-                            "r.Prot_mRNA.SexAge", "r.Prot_mRNA.Sex",
-                            "r.Prot_mRNA.Age",
-                            "m.Prot_Age.SexmRNA", "m.Prot_Sex.AgemRNA",
-                            "m.Prot_mRNA.SexAge", "m.Prot_mRNA.Sex",
-                            "m.Prot_mRNA.Age",
-                            "p.mRNA_Interaction", "p.Prot_Interaction",
-                            "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA",
-                            "m.mRNA_Interaction", "m.Prot_Interaction",
-                            "m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
+cols <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
+          "r.mRNA_Age.Sex", "r.mRNA_Sex.Age",
+          "m.mRNA_Age.Sex", "m.mRNA_Sex.Age",
+          "p.Prot_Age.Sex", "p.Prot_Sex.Age",
+          "r.Prot_Age.Sex", "r.Prot_Sex.Age",
+          "m.Prot_Age.Sex", "m.Prot_Sex.Age",
+          "p.mRNA_Age.SexProt", "p.mRNA_Sex.AgeProt",
+          "p.mRNA_Prot.SexAge", "p.mRNA_Prot.Sex",
+          "p.mRNA_Prot.Age",
+          "r.mRNA_Age.SexProt", "r.mRNA_Sex.AgeProt",
+          "r.mRNA_Prot.SexAge", "r.mRNA_Prot.Sex",
+          "r.mRNA_Prot.Age",
+          "m.mRNA_Age.SexProt", "m.mRNA_Sex.AgeProt",
+          "m.mRNA_Prot.SexAge", "m.mRNA_Prot.Sex",
+          "m.mRNA_Prot.Age",
+          "p.Prot_Age.SexmRNA", "p.Prot_Sex.AgemRNA",
+          "p.Prot_mRNA.SexAge", "p.Prot_mRNA.Sex",
+          "p.Prot_mRNA.Age",
+          "r.Prot_Age.SexmRNA", "r.Prot_Sex.AgemRNA",
+          "r.Prot_mRNA.SexAge", "r.Prot_mRNA.Sex",
+          "r.Prot_mRNA.Age",
+          "m.Prot_Age.SexmRNA", "m.Prot_Sex.AgemRNA",
+          "m.Prot_mRNA.SexAge", "m.Prot_mRNA.Sex",
+          "m.Prot_mRNA.Age",
+          "p.mRNA_Interaction", "p.Prot_Interaction",
+          "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA",
+          "m.mRNA_Interaction", "m.Prot_Interaction",
+          "m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
+
+result.table <- matrix(NA, N[["pairs"]], length(cols))
+colnames(result.table) <- cols
 
 # interaction tests
 print("Testing for interaction between Age and Sex...")
