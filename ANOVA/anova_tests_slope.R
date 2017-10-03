@@ -72,7 +72,7 @@ anova_tests_2 <- function(x) {
 
   pres <- !is.na(x) # must be calculated on the same observations
   tmp.age  <- lm(Age ~ Sex + Generation, data=annot.samples[pres,])
-  tmp.sex  <- lm(Sex ~ Age + Generation, data=annot.samples[pres,])       #PROBLEM HERE!!!!!!!!!!!!! NEED TO COMPARE TO ORIGINAL PETER'S SCRIPTS!
+  tmp.sex  <- lm(Sex ~ Age + Generation, data=annot.samples[pres,])       
   sigma.full <- sd(tmp.full$resid, na.rm = TRUE)
   sigma.age <- sd(tmp.age$resid, na.rm = TRUE)
   sigma.sex <- sd(tmp.sex$resid, na.rm = TRUE)
