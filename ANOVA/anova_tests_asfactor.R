@@ -18,187 +18,182 @@ library(broom)
 args <- commandArgs(trailingOnly = TRUE)
 
 # for kidney
-# args <- list("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData", "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/kidney_anova_table.csv")
+# args <- list("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData", "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/kidney_anova_factor_table.csv")
 #
 
 # two arguments expected (input and output files)
 stopifnot(length(args)==2)
-
 input.file = args[[1]]
 stopifnot(file.exists(input.file))
 output.file = args[[2]]
-
 load(input.file)
 
+# ANOVA FACTORS (p-values, normalized coefs, and slopes) -----------------------------------
 
-# Averages per group -------------------------------------------------------
-## calculates mean expression for each group
-## (for example mRNA average expression of Age==6 samples)
-
-averages.mrna <- NULL
-vars <- c("Age", "Sex", "Generation")
-for (v in vars)
-  for (u in sort(unique(annot.samples[,v]))) {
-    sel <- annot.samples[,v] == u
-    new.average <- colMeans(expr.mrna[sel,1:N[["pairs"]]], na.rm=TRUE)
-    averages.mrna <- cbind(averages.mrna, new.average)
-    colnames(averages.mrna)[ncol(averages.mrna)] <- paste("average", "mRNA", v, u, sep=".")
-  }
-
-averages.protein <- NULL
-vars <- c("Age", "Sex", "Generation")
-for (v in vars)
-  for (u in sort(unique(annot.samples[,v]))) {
-    sel <- annot.samples[,v] == u
-    new.average <- colMeans(expr.protein[sel,1:N[["pairs"]]], na.rm=TRUE)
-    averages.protein <- cbind(averages.protein, new.average)
-    colnames(averages.protein)[ncol(averages.protein)] <- paste("average", "Prot", v, u, sep=".")
-  }
-
-
-# ANOVA (p-values, normalized coefs, and slopes) -----------------------------------
-
-## test for dependence between Age/Sex and x (x is mRNA/Prot expression)
+## test for dependence between Age/Sex as factors and x (x is mRNA/Prot expression)
 anova_tests_2 <- function(x) {
-  # full model without interaction
-  tmp.full <- lm(x ~ Age + Sex + Generation, data=annot.samples)
-  lm.full <- tidy(tmp.full)
+  # Find adjusted p.values using TukeyHSD
+  fit_aov <- aov(x ~ Age + Sex + Generation, data=annot.samples)
+  HSD <- TukeyHSD(fit_aov, ordered = TRUE)$Age
+  # Determine direction for HSDx
+  if (any(rownames(HSD) == "6-12") | any(rownames(HSD) == "12-6")){
+    if(any(rownames(HSD) == "6-12")){
+      age6_12 <- "6-12"
+    } else if (any(rownames(HSD) == "12-6")){
+      age6_12 <- "12-6"
+    }
+  }
+  if (any(rownames(HSD) == "12-18") | any(rownames(HSD) == "18-12")){
+    if(any(rownames(HSD) == "12-18")){
+      age12_18 <- "12-18"
+    } else if (any(rownames(HSD) == "18-12")){
+      age12_18 <- "18-12"
+    }
+  }
+  if (any(rownames(HSD) == "6-18") | any(rownames(HSD) == "18-6")){
+    if(any(rownames(HSD) == "6-18")){
+      age6_18 <- "6-18"
+    } else if (any(rownames(HSD) == "18-6")){
+      age6_18 <- "18-6"
+    }
+  }
+  pvalues <- c(HSD[age6_12, "p adj"],
+               HSD[age12_18, "p adj"],
+               HSD[age6_18, "p adj"])
+  # Find coefficients via individual lm per comparison group
+  # 6-12
+  sub <- which(annot.samples$Age %in% c(6, 12))
+  y <- x[sub]
+  fit_lm <- lm(y ~ Age + Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,12),])
+  slope6_12 <- fit_lm$coefficients[["Age12"]]
+ # 12-18
+  sub <- which(annot.samples$Age %in% c(12, 18))
+  y <- x[sub]
+  fit_lm <- lm(y ~ Age + Sex + Generation, data=annot.samples[annot.samples$Age %in% c(12,18),])
+  slope12_18 <- fit_lm$coefficients[["Age18"]]
+ # 6-18
+  sub <- which(annot.samples$Age %in% c(6, 18))
+  y <- x[sub]
+  fit_lm <- lm(y ~ Age + Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,18),])
+  slope6_18 <- fit_lm$coefficients[["Age18"]]
+  slopes <- c(slope6_12, slope12_18, slope6_18)
 
-  pvalues <- c(subset(lm.full, term=="Age12")$p.value,
-               subset(lm.full, term=="Age18")$p.value,
-               subset(lm.full, term=="Sex")$p.value)
-
-  # partial correlation coefficient equals normalized beta * CONST
-  # see http://stats.stackexchange.com/questions/76815/multiple-regression-or-partial-correlation-coefficient-and-relations-between-th
-
-  pres <- !is.na(x) # must be calculated on the same observations
-  tmp.age  <- lm(as.numeric(as.character.factor(Age)) ~ Sex + Generation, data=annot.samples[pres,])
-  tmp.sex  <- lm(Sex ~ Age + Generation, data=annot.samples[pres,])
-  sigma.full <- sd(tmp.full$resid, na.rm = TRUE)
-  sigma.age <- sd(tmp.age$resid, na.rm = TRUE)
-  sigma.sex <- sd(tmp.sex$resid, na.rm = TRUE)
-
-  coefs <- c(subset(lm.full, term=="Age")$estimate * sigma.age,
-             subset(lm.full, term=="Sex")$estimate * sigma.sex) / sigma.full
-  slopes <- c(subset(lm.full, term=="Age")$estimate,
-             subset(lm.full, term=="Sex")$estimate)
-
-  return(c(pvalues,coefs,slopes))
-}
-
-## test for dependence between Age/Sex and x (x is mRNA/Prot expression)
-## conditioned on y (y is Prot/mRNA expression)
-anova_tests_3 <- function(x,y) {
-  # full model without interaction
-  tmp.full <- lm(x ~ Age + Sex + Generation + y, data=annot.samples)
-  lm.full <- tidy(tmp.full)
-  # the model without Age
-  tmp.noage <- lm(x ~ Sex + Generation + y, data=annot.samples)
-  lm.sex <- tidy(tmp.noage)
-  # the model without Sex
-  tmp.nosex <- lm(x ~ Age + Generation + y, data=annot.samples)
-  lm.age <- tidy(tmp.nosex)
-
-  pvalues <- c(subset(lm.full, term=="Age")$p.value,
-               subset(lm.full, term=="Sex")$p.value,
-               subset(lm.full, term=="y")$p.value,
-               subset(lm.sex, term=="y")$p.value,
-               subset(lm.age, term=="y")$p.value)
-
-  # partial correlation coefficient equals normalized beta * CONST
-  # see http://stats.stackexchange.com/questions/76815/multiple-regression-or-partial-correlation-coefficient-and-relations-between-th
-
-  pres <- !is.na(x) & !is.na(y) # must be calculated on the same observations
-  tmp.age  <- lm(Age ~ Sex + Generation + y[pres], data=annot.samples[pres,])
-  tmp.sex  <- lm(Sex ~ Age + Generation + y[pres], data=annot.samples[pres,])
-  tmp.y    <- lm(y[pres] ~ Sex + Age + Generation, data=annot.samples[pres,])
-  sigma.full <- sd(tmp.full$resid, na.rm = TRUE)
-  sigma.age <- sd(tmp.age$resid, na.rm = TRUE)
-  sigma.sex <- sd(tmp.sex$resid, na.rm = TRUE)
-  sigma.y <- sd(tmp.y$resid, na.rm = TRUE)
-  tmp.noage.y <- lm(y[pres] ~ Sex + Generation, data=annot.samples[pres,])
-  tmp.nosex.y <- lm(y[pres] ~ Age + Generation, data=annot.samples[pres,])
-  sigma.noage <- sd(tmp.noage$resid, na.rm = TRUE)
-  sigma.noage.y <- sd(tmp.noage.y$resid, na.rm = TRUE)
-  sigma.nosex <- sd(tmp.nosex$resid, na.rm = TRUE)
-  sigma.nosex.y <- sd(tmp.nosex.y$resid, na.rm = TRUE)
-
-  coefs <- c(subset(lm.full, term=="Age")$estimate * sigma.age / sigma.full,
-             subset(lm.full, term=="Sex")$estimate * sigma.sex / sigma.full,
-             subset(lm.full, term=="y")$estimate * sigma.y / sigma.full,
-             subset(lm.sex, term=="y")$estimate * sigma.noage.y /sigma.noage,
-             subset(lm.age, term=="y")$estimate * sigma.nosex.y / sigma.nosex)
-
-  slopes <- c(subset(lm.full, term=="Age")$estimate,
-             subset(lm.full, term=="Sex")$estimate,
-             subset(lm.full, term=="y")$estimate,
-             subset(lm.sex, term=="y")$estimate,
-             subset(lm.age, term=="y")$estimate)
-
-  return(c(pvalues,coefs,slopes))
+  return(c(pvalues,slopes))
 }
 
 ## test for interaction between Age and Sex
 anova_tests_int <- function(x,y) {
   # full model with interaction
-  lm.x <- tidy(lm(x ~ Age * Sex + Generation, data=annot.samples))
-  lm.y <- tidy(lm(y ~ Age * Sex + Generation, data=annot.samples))
-  lm.x.y <- tidy(lm(x ~ Age * Sex + Generation + y, data=annot.samples))
-  lm.y.x <- tidy(lm(y ~ Age * Sex + Generation + x, data=annot.samples))
+  fitx_aov <- aov(x ~ Age * Sex + Generation, data=annot.samples)
+  fity_aov <- aov(y ~ Age * Sex + Generation, data=annot.samples)
+  HSDx <- TukeyHSD(fitx_aov, which = "Age", ordered = TRUE)$Age
+  HSDy <- TukeyHSD(fity_aov, which = "Age", ordered = TRUE)$Age # weirdly does not like to flip names, but values have changed
+  # Determine direction for HSDx
+  if (any(rownames(HSDx) == "6-12") | any(rownames(HSDx) == "12-6")){
+    if(any(rownames(HSDx) == "6-12")){
+      agex6_12 <- "6-12"
+    } else if (any(rownames(HSDx) == "12-6")){
+      agex6_12 <- "12-6"
+    }
+  }
+  if (any(rownames(HSDx) == "12-18") | any(rownames(HSDx) == "18-12")){
+    if(any(rownames(HSDx) == "12-18")){
+      agex12_18 <- "12-18"
+    } else if (any(rownames(HSDx) == "18-12")){
+      agex12_18 <- "18-12"
+    }
+  }
+  if (any(rownames(HSDx) == "6-18") | any(rownames(HSDx) == "18-6")){
+    if(any(rownames(HSDx) == "6-18")){
+      agex6_18 <- "6-18"
+    } else if (any(rownames(HSDx) == "18-6")){
+      agex6_18 <- "18-6"
+    }
+  }
+  # Determine direction for HSDy
+  if (any(rownames(HSDy) == "6-12") | any(rownames(HSDy) == "12-6")){
+    if(any(rownames(HSDy) == "6-12")){
+      agey6_12 <- "6-12"
+    } else if (any(rownames(HSDy) == "12-6")){
+      agey6_12 <- "12-6"
+    }
+  }
+  if (any(rownames(HSDy) == "12-18") | any(rownames(HSDy) == "18-12")){
+    if(any(rownames(HSDy) == "12-18")){
+      agey12_18 <- "12-18"
+    } else if (any(rownames(HSDy) == "18-12")){
+      agey12_18 <- "18-12"
+    }
+  }
+  if (any(rownames(HSDy) == "6-18") | any(rownames(HSDy) == "18-6")){
+    if(any(rownames(HSDy) == "6-18")){
+      agey6_18 <- "6-18"
+    } else if (any(rownames(HSDy) == "18-6")){
+      agey6_18 <- "18-6"
+    }
+  }
 
-  pvalues <- c(subset(lm.x, term=="Age:SexM")$p.value,
-               subset(lm.y, term=="Age:SexM")$p.value,
-               subset(lm.x.y, term=="Age:SexM")$p.value,
-               subset(lm.y.x, term=="Age:SexM")$p.value)
+  # Determine p-value
+  pvalues <- c(HSDx[agex6_12, "p adj"],
+               HSDx[agex12_18, "p adj"],
+               HSDx[agex6_18, "p adj"],
+               HSDy[agey6_12, "p adj"],
+               HSDy[agey12_18, "p adj"],
+               HSDy[agey6_18, "p adj"])
 
-  slopes  <- c(subset(lm.x, term=="Age:SexM")$estimate,
-               subset(lm.y, term=="Age:SexM")$estimate,
-               subset(lm.x.y, term=="Age:SexM")$estimate,
-               subset(lm.y.x, term=="Age:SexM")$estimate)
+  # Find coefficients via individual lm per comparison group
+  # x = mRNA
+  # 6-12
+  sub <- which(annot.samples$Age %in% c(6, 12))
+  x_sub <- x[sub]
+  fit_lm <- lm(x_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,12),])
+  slopex6_12 <- fit_lm$coefficients[["Age12"]]
+ # 12-18
+  sub <- which(annot.samples$Age %in% c(12, 18))
+  x_sub <- x[sub]
+  fit_lm <- lm(x_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(12,18),])
+  slopex12_18 <- fit_lm$coefficients[["Age18"]]
+ # 6-18
+  sub <- which(annot.samples$Age %in% c(6, 18))
+  x_sub <- x[sub]
+  fit_lm <- lm(x_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,18),])
+  slopex6_18 <- fit_lm$coefficients[["Age18"]]
+  slopex <- c(slopex6_12, slopex12_18, slopex6_18)
 
-  return(c(pvalues, slopes))
+  # y = Protein
+  # 6-12
+  sub <- which(annot.samples$Age %in% c(6, 12))
+  y_sub <- y[sub]
+  fit_lm <- lm(y_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,12),])
+  slopey6_12 <- fit_lm$coefficients[["Age12"]]
+ # 12-18
+  sub <- which(annot.samples$Age %in% c(12, 18))
+  y_sub <- y[sub]
+  fit_lm <- lm(y_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(12,18),])
+  slopey12_18 <- fit_lm$coefficients[["Age18"]]
+ # 6-18
+  sub <- which(annot.samples$Age %in% c(6, 18))
+  y_sub <- y[sub]
+  fit_lm <- lm(y_sub ~ Age * Sex + Generation, data=annot.samples[annot.samples$Age %in% c(6,18),])
+  slopey6_18 <- fit_lm$coefficients[["Age18"]]
+  slopey <- c(slopey6_12, slopey12_18, slopey6_18)
+
+  return(c(pvalues, slopex, slopey))
 }
 
-cols <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
-          "r.mRNA_Age.Sex", "r.mRNA_Sex.Age",
-          "m.mRNA_Age.Sex", "m.mRNA_Sex.Age",
-          "p.Prot_Age.Sex", "p.Prot_Sex.Age",
-          "r.Prot_Age.Sex", "r.Prot_Sex.Age",
-          "m.Prot_Age.Sex", "m.Prot_Sex.Age",
-          "p.mRNA_Age.SexProt", "p.mRNA_Sex.AgeProt",
-          "p.mRNA_Prot.SexAge", "p.mRNA_Prot.Sex",
-          "p.mRNA_Prot.Age",
-          "r.mRNA_Age.SexProt", "r.mRNA_Sex.AgeProt",
-          "r.mRNA_Prot.SexAge", "r.mRNA_Prot.Sex",
-          "r.mRNA_Prot.Age",
-          "m.mRNA_Age.SexProt", "m.mRNA_Sex.AgeProt",
-          "m.mRNA_Prot.SexAge", "m.mRNA_Prot.Sex",
-          "m.mRNA_Prot.Age",
-          "p.Prot_Age.SexmRNA", "p.Prot_Sex.AgemRNA",
-          "p.Prot_mRNA.SexAge", "p.Prot_mRNA.Sex",
-          "p.Prot_mRNA.Age",
-          "r.Prot_Age.SexmRNA", "r.Prot_Sex.AgemRNA",
-          "r.Prot_mRNA.SexAge", "r.Prot_mRNA.Sex",
-          "r.Prot_mRNA.Age",
-          "m.Prot_Age.SexmRNA", "m.Prot_Sex.AgemRNA",
-          "m.Prot_mRNA.SexAge", "m.Prot_mRNA.Sex",
-          "m.Prot_mRNA.Age",
-          "p.mRNA_Interaction", "p.Prot_Interaction",
-          "p.mRNA_Interaction.Prot", "p.Prot_Interaction.mRNA",
-          "m.mRNA_Interaction", "m.Prot_Interaction",
-          "m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
+cols <- c("p.mRNA_Int_fact_6_12", "p.mRNA_Int_fact_12_18", "p.mRNA_Int_fact_6_18",
+          "p.Prot_Int_fact_6_12", "p.Prot_Int_fact_12_18", "p.Prot_Int_fact_6_18",
+          "m.mRNA_Int_fact_6_12", "m.mRNA_Int_fact_12_18", "m.mRNA_Int_fact_6_18",
+          "m.Prot_Int_fact_6_12", "m.Prot_Int_fact_12_18", "m.Prot_Int_fact_6_18",
+          "p.mRNA_Age.Sex_fact_6_12","p.mRNA_Age.Sex_fact_12_18","p.mRNA_Age.Sex_fact_6_18",
+          "m.mRNA_Age.Sex_fact_6_12","m.mRNA_Age.Sex_fact_12_18","m.mRNA_Age.Sex_fact_6_18",
+          "p.Prot_Age.Sex_fact_6_12","p.Prot_Age.Sex_fact_12_18","p.Prot_Age.Sex_fact_6_18",
+          "m.Prot_Age.Sex_fact_6_12","m.Prot_Age.Sex_fact_12_18","m.Prot_Age.Sex_fact_6_18")
 
 result.table <- matrix(NA, N[["pairs"]], length(cols))
 colnames(result.table) <- cols
-
-# interaction tests
-print("Testing for interaction between Age and Sex...")
-for (i in 1:N[["pairs"]]) {
-  if (i %% 100 == 0) print(i)
-  cols <- c("p.mRNA_Interaction","p.Prot_Interaction","p.mRNA_Interaction.Prot","p.Prot_Interaction.mRNA",
-            "m.mRNA_Interaction", "m.Prot_Interaction","m.mRNA_Interaction.Prot", "m.Prot_Interaction.mRNA")
-  result.table[i, which(colnames(result.table) %in% cols)] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
-}
+annot.samples$Age <- factor(annot.samples$Age)
+annot.samples$Sex <- factor(annot.samples$Sex)
 
 ## normalize verything to mean=0, sd=1
 ## for easy calculation of partial correlation coefficients
@@ -207,100 +202,43 @@ for (i in 1:N[["pairs"]]) {
   expr.protein[,i] <- scale(expr.protein[,i])
 }
 
-annot.samples$Age <- factor(annot.samples$Age)
-annot.samples$Sex <- scale(as.numeric(factor(annot.samples$Sex)))
-
-# ANOVA for genes
-print("Testing for dependence between mRNA and Age/Sex...")
+# interaction tests as a factor
+print("Testing for interaction between Age and Sex as factors...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) %in% c("p.mRNA_Age.Sex","p.mRNA_Sex.Age",
-                                                      "r.mRNA_Age.Sex","r.mRNA_Sex.Age",
-                                                      "m.mRNA_Age.Sex","m.mRNA_Sex.Age"))] <- anova_tests_2(expr.mrna[,i])
+  cols <- c("p.mRNA_Int_fact_6_12", "p.mRNA_Int_fact_12_18", "p.mRNA_Int_fact_6_18",
+            "p.Prot_Int_fact_6_12", "p.Prot_Int_fact_12_18", "p.Prot_Int_fact_6_18",
+            "m.mRNA_Int_fact_6_12", "m.mRNA_Int_fact_12_18", "m.mRNA_Int_fact_6_18",
+            "m.Prot_Int_fact_6_12", "m.Prot_Int_fact_12_18", "m.Prot_Int_fact_6_18")
+  result.table[i, which(colnames(result.table) %in% cols)] <- anova_tests_int(expr.mrna[,i], expr.protein[,i])
 }
 
-# ANOVA for proteins
-print("Testing for dependence between mRNA and Age/Sex...")
+# ANOVA for mRNA as a factor
+print("Testing for dependence between mRNA and Age/Sex as factors...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.Sex","p.Prot_Sex.Age",
-                                                      "r.Prot_Age.Sex","r.Prot_Sex.Age",
-                                                      "m.Prot_Age.Sex","m.Prot_Sex.Age"))] <- anova_tests_2(expr.protein[,i])
+  result.table[i, which(colnames(result.table) %in% c("p.mRNA_Age.Sex_fact_6_12","p.mRNA_Age.Sex_fact_12_18","p.mRNA_Age.Sex_fact_6_18",
+                                                      "m.mRNA_Age.Sex_fact_6_12","m.mRNA_Age.Sex_fact_12_18","m.mRNA_Age.Sex_fact_6_18"))] <- anova_tests_2(expr.mrna[,i])
 }
 
-# ANOVA for mRNA | Protein expression
-print("Testing for dependence between mRNA and Age/Sex conditioned on Protein...")
+# ANOVA for proteins as a factor
+print("Testing for dependence between mRNA and Age/Sex as factors...")
 for (i in 1:N[["pairs"]]) {
   if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) %in% c("p.mRNA_Age.SexProt","p.mRNA_Sex.AgeProt","p.mRNA_Prot.SexAge","p.mRNA_Prot.Sex","p.mRNA_Prot.Age",
-                                                      "r.mRNA_Age.SexProt","r.mRNA_Sex.AgeProt","r.mRNA_Prot.SexAge","r.mRNA_Prot.Sex","r.mRNA_Prot.Age",
-                                                      "m.mRNA_Age.SexProt","m.mRNA_Sex.AgeProt","m.mRNA_Prot.SexAge","m.mRNA_Prot.Sex","m.mRNA_Prot.Age"))] <- anova_tests_3(expr.mrna[,i], expr.protein[,i])
-}
-
-# ANOVA for mRNA | Protein expression
-print("Testing for dependence between mRNA and Age/Sex conditioned on Protein...")
-for (i in 1:N[["pairs"]]) {
-  if (i %% 100 == 0) print(i)
-  result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.SexmRNA","p.Prot_Sex.AgemRNA","p.Prot_mRNA.SexAge","p.Prot_mRNA.Sex","p.Prot_mRNA.Age",
-                                                      "r.Prot_Age.SexmRNA","r.Prot_Sex.AgemRNA","r.Prot_mRNA.SexAge","r.Prot_mRNA.Sex","r.Prot_mRNA.Age",
-                                                      "m.Prot_Age.SexmRNA","m.Prot_Sex.AgemRNA","m.Prot_mRNA.SexAge","m.Prot_mRNA.Sex","m.Prot_mRNA.Age"))] <- anova_tests_3(expr.protein[,i], expr.mrna[,i])
+  result.table[i, which(colnames(result.table) %in% c("p.Prot_Age.Sex_fact_6_12","p.Prot_Age.Sex_fact_12_18","p.Prot_Age.Sex_fact_6_18",
+                                                      "m.Prot_Age.Sex_fact_6_12","m.Prot_Age.Sex_fact_12_18","m.Prot_Age.Sex_fact_6_18"))] <- anova_tests_2(expr.protein[,i])
 }
 
 # reorder columns - p-values first, corelation coefs second
-
 pcols <- grep("^p.", colnames(result.table))
-rcols <- grep("^r.", colnames(result.table))
 mcols <- grep("^m.", colnames(result.table))
-
-result.table <- result.table[,c(pcols,rcols,mcols)]
-
-
-# LOD (Log-Likelihood) statistics -----------------------------------------
-
-## test of submodel: x ~ test + y + covar vs x ~ y + covar
-## xy = c(x,y), test = age or sex
-## to be run with parApply
-question.loddrop <- function(x, y, test, covar) {
-
-  # fit models
-  lm.m1 <- lm(x ~ test + y + covar)
-  lm.m0 <- lm(x ~ y + covar)
-  lm.m3 <- lm(x ~ test + covar)
-  lm.m2 <- lm(x ~ covar)
-
-  #
-  lod <- c((logLik(lm.m1)-logLik(lm.m0))/log(10), (logLik(lm.m3)-logLik(lm.m2)) / log(10))
-  return(lod)
-}
-
-lods <- matrix(NA, N[["pairs"]], 4)
-colnames(lods) <- c("lod.Prot_Age.mRNASex", "lod.Prot_Age.Sex",
-                    "lod.Prot_Sex.mRNAAge", "lod.Prot_Sex.Age")
-
-test.age <- model.matrix(~ Age, data=annot.samples)[,-1]
-covar.age<- model.matrix(~ Sex + Generation, data=annot.samples)[,-1]
-test.sex <- model.matrix(~ Sex, data=annot.samples)[,-1]
-covar.sex<- model.matrix(~ Age + Generation, data=annot.samples)[,-1]
-
-# LOD statistics
-print("Is Age/Sex effect mediated by RNA...")
-for (i in 1:N[["pairs"]]) {
-  if (i %% 100 == 0) print(i)
-  lods[i, 1:2] <- question.loddrop(expr.protein[,i], expr.mrna[,i],
-                                   test=test.age,covar=covar.age)
-  lods[i, 3:4] <- question.loddrop(expr.protein[,i], expr.mrna[,i],
-                                   test=test.sex,covar=covar.sex)
-}
+result.table <- result.table[,c(pcols,mcols)]
 
 # Output ------------------------------------------------------------------
 
-annot.cols <- c("id",	"gene_id",	"symbol",	"chr",	"start",	"end",
-                "strand",	"biotype")
+annot.cols <- c("id","gene_id","symbol","chr","start","end","strand","biotype")
 
 output <- cbind(annot.protein[1:N[["pairs"]], annot.cols],
-                result.table,
-                round(lods,4),
-                round(averages.mrna,4),
-                round(averages.protein,4))
+                result.table)
 
 write.csv(output, output.file, row.names=FALSE)
