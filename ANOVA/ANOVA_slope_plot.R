@@ -31,7 +31,11 @@ Gene_list$quadI <- ((Gene_list$m.mRNA_Age.Sex > 0) & (Gene_list$m.Prot_Age.Sex >
 Gene_list$quadII <- ((df$m.mRNA_Age.Sex < 0) & (df$m.Prot_Age.Sex > 0))
 Gene_list$quadIII <- ((df$m.mRNA_Age.Sex < 0) & (df$m.Prot_Age.Sex < 0))
 Gene_list$quadIV <- ((df$m.mRNA_Age.Sex > 0) & (df$m.Prot_Age.Sex < 0))
-write.csv(Gene_list, "./Anova_output/gene_lists/Quad_Age.csv", row.names = FALSE, quote = FALSE)
+
+Age <- grep("_Age.Sex$", colnames(Gene_list))
+Quad <- grep("^quad", colnames(Gene_list))
+Gene_list <- Gene_list[, c(1:8, Age, Quad)]
+write.csv(Gene_list, "./Anova_output/gene_lists/Quad_Age_Sig.csv", row.names = FALSE, quote = FALSE)
 
 # Plot age realted mRNA/Protein slopes
 pdf("./Plot/slope_mRNA_Prot_Age.pdf", width = 6, heigh =6)
@@ -72,7 +76,11 @@ Gene_list$quadI <- ((Gene_list$m.mRNA_Interaction > 0) & (Gene_list$m.Prot_Inter
 Gene_list$quadII <- ((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction > 0))
 Gene_list$quadIII <- ((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction < 0))
 Gene_list$quadIV <- ((df$m.mRNA_Interaction > 0) & (df$m.Prot_Interaction < 0))
-write.csv(Gene_list, "./Anova_output/gene_lists/Quad_AgeIntSex.csv", row.names = FALSE, quote = FALSE)
+
+Int <- grep("Interaction$", colnames(Gene_list))
+Quad <- grep("^quad", colnames(Gene_list))
+Gene_list <- Gene_list[, c(1:8, Int, Quad)]
+write.csv(Gene_list, "./Anova_output/gene_lists/Quad_AgeIntSex_Sig.csv", row.names = FALSE, quote = FALSE)
 # Plot age realted mRNA/Protein slopes
 pdf("./Plot/slope_mRNA_Prot_AgeIntSex.pdf", width = 6, heigh =6)
 ggplot(df, aes(x = m.mRNA_Interaction, y = m.Prot_Interaction)) +
