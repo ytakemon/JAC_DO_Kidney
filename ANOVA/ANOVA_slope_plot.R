@@ -68,10 +68,10 @@ quadII <- nrow(df[((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction > 0)),])
 quadIII <- nrow(df[((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction < 0)),])
 # Export gene list in each quadrant
 Gene_list <- df
-Gene_list$quadI <- ((Gene_list$m.mRNA_Age.Sex > 0) & (Gene_list$m.Prot_Age.Sex > 0))
-Gene_list$quadII <- ((df$m.mRNA_Age.Sex < 0) & (df$m.Prot_Age.Sex > 0))
-Gene_list$quadIII <- ((df$m.mRNA_Age.Sex < 0) & (df$m.Prot_Age.Sex < 0))
-Gene_list$quadIV <- ((df$m.mRNA_Age.Sex > 0) & (df$m.Prot_Age.Sex < 0))
+Gene_list$quadI <- ((Gene_list$m.mRNA_Interaction > 0) & (Gene_list$m.Prot_Interaction > 0))
+Gene_list$quadII <- ((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction > 0))
+Gene_list$quadIII <- ((df$m.mRNA_Interaction < 0) & (df$m.Prot_Interaction < 0))
+Gene_list$quadIV <- ((df$m.mRNA_Interaction > 0) & (df$m.Prot_Interaction < 0))
 write.csv(Gene_list, "./Anova_output/gene_lists/Quad_AgeIntSex.csv", row.names = FALSE, quote = FALSE)
 # Plot age realted mRNA/Protein slopes
 pdf("./Plot/slope_mRNA_Prot_AgeIntSex.pdf", width = 6, heigh =6)
