@@ -1,9 +1,8 @@
 # Updating JAC DO Kidney ANOVA using Petr's scripts.
 
+# ANOVA: Changes in mRNA/Protein with Age / Sex as linear ----------------------
 # ANOVA analysis using Petr's Rscirpt (takes < 30mins)
-
-AAAAA
-3 A# https://github.com/simecek/TheAgingProteome/blob/master/code/anova_tests.R
+# https://github.com/simecek/TheAgingProteome/blob/master/code/anova_tests.R
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/ANOVA
 # qsub -v I="input.Rdata output.csv",script=rscript_name
 qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_output.csv",script=anova_tests Rsubmit_args.sh
@@ -19,3 +18,10 @@ qsub -v I="kidney_anova_fdr_output.csv kidney_anova_sig_output.csv",script=Kidne
 qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_slope_output.csv",script=anova_tests_slope Rsubmit_args.sh
 # Plot slopes
 qsub -v I=kidney_anova_slope_output.csv,script=ANOVA_slope_plot Rsubmit_args.sh
+
+# ANOVA: Changes in mRNA/Protein with Age as factor ----------------------------
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/ANOVA
+# ANOVA mRNA/Protein with Age as factor. Generates p-values and slopes
+qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_output.csv",script=anova_tests_asfactor Rsubmit_args.sh
+# Plot pval histgrams
+qsub -v I=kidney_anova_factor_table.csv,script=Kidney_ANOVA_pval_hist_asfactor Rsubmit_args.sh

@@ -61,6 +61,7 @@ pval_Prot_Age6_18 <- ggplot(output, aes(x=p.Prot_Age.Sex_fact_6_18)) +
     labs(title="Kidney",
          subtitle="Prot/Age 6mo - 18mo",
          x="p-value")
+
 # 2.1 mRNA - Age*Sex (adjusted for sex and generation) -------------------------
 pval_mRNA_Age_Int_6_12 <- ggplot(output, aes(x=p.mRNA_Int_fact_6_12)) +
     geom_histogram(binwidth=0.04) +
@@ -81,20 +82,34 @@ pval_mRNA_Age_Int_6_18 <- ggplot(output, aes(x=p.mRNA_Int_fact_6_18)) +
          subtitle="mRNA/Age*Sex 6mo - 18mo",
          x="p-value")
 
-
-
-
-
-
-
-pdf("./Plot/mRNA-histograms.pdf", width = 12, height = 6)
-grid.arrange(pval_mRNA_age, pval_mRNA_sex, pval_mRNA_int,
-             fdr_mRNA_age, fdr_mRNA_sex, fdr_mRNA_int,
+# 2.2 Protein - Age*Sex (adjusted for sex and generation) -------------------------
+pval_Prot_Age_Int_6_12 <- ggplot(output, aes(x=p.Prot_Int_fact_6_12)) +
+    geom_histogram(binwidth=0.04) +
+    theme_bw() +
+    labs(title="Kidney",
+         subtitle="Protein/Age*Sex 6mo - 12mo",
+         x="p-value")
+pval_Prot_Age_Int_12_18 <- ggplot(output, aes(x=p.Prot_Int_fact_12_18)) +
+    geom_histogram(binwidth=0.04) +
+    theme_bw() +
+    labs(title="Kidney",
+         subtitle="Protein/Age*Sex 12mo - 18mo",
+         x="p-value")
+pval_Prot_Age_Int_6_18 <- ggplot(output, aes(x=p.Prot_Int_fact_6_18)) +
+    geom_histogram(binwidth=0.04) +
+    theme_bw() +
+    labs(title="Kidney",
+         subtitle="Protein/Age*Sex 6mo - 18mo",
+         x="p-value")
+# Combine plots -----------------------------------------------------------------
+pdf("./Plot/mRNA-factor-histograms.pdf", width = 12, height = 6)
+grid.arrange(pval_mRNA_Age6_12, pval_mRNA_Age12_18, pval_mRNA_Age6_18,
+             pval_mRNA_Age_Int_6_12, pval_mRNA_Age_Int_12_18, pval_mRNA_Age_Int_6_18,
              ncol = 3)
 dev.off()
 
-pdf("./Plot/protein-histograms.pdf", width = 12, height = 6)
-grid.arrange(pval_protein_age, pval_protein_sex, pval_protein_int,
-             fdr_protein_age, fdr_protein_sex, fdr_protein_int,
+pdf("./Plot/protein-factor-histograms.pdf", width = 12, height = 6)
+grid.arrange(pval_Prot_Age6_12, pval_Prot_Age12_18, pval_Prot_Age6_18,
+             pval_Prot_Age_Int_6_12, pval_Prot_Age_Int_12_18, pval_Prot_Age_Int_6_18,
              ncol = 3)
 dev.off()
