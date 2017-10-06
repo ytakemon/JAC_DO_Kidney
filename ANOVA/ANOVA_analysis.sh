@@ -27,7 +27,7 @@ qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidn
 # Plot pval histgrams
 qsub -v I=kidney_anova_factor_table.csv,script=Kidney_ANOVA_pval_hist_asfactor Rsubmit_args.sh
 
-# Push out list for Gary & Ron
+# Push out list for Gary & Ron -------------------------------------------------
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/ANOVA
 # qsub -v I="input.Rdata output.csv",script=rscript_name
 qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_output.csv",script=anova_tests Rsubmit_args.sh
