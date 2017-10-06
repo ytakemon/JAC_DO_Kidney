@@ -137,10 +137,14 @@ ggplot() +
 dev.off()
 
 # Plot total with subset overlay -----------------------------------------------
+cols <- c("m.mRNA_Age.Sex", "m.Prot_Age.Sex", "m.mRNA_Interaction", "m.Prot_Interaction",
+          "p.mRNA_Age.Sex", "p.Prot_Age.Sex", "p.mRNA_Interaction", "p.Prot_Interaction")
 # Age
 # Change in mRNA while protein stays constant
 df_deltaAge <- data[data$p.mRNA_Age.Sex <= 0.05,]
 df_deltaAge <- df_deltaAge[df_deltaAge$p.Prot_Age.Sex > 0.05,]
+sub <- which(colnames(df_deltaAge) %in% cols)
+df_deltaAge <- df_deltaAge[, c(1:8,sub)]
 write.csv(df_deltaAge, file = "./Anova_output/gene_lists/ChangeRNA_ConstProt_Age.csv", row.names = FALSE, quote = FALSE)
 
 pdf("./Plot/Total_slope_deltaRNA_Age.pdf", width = 6, heigh =6)
@@ -164,6 +168,9 @@ df_deltaProt <- data[data$p.Prot_Age.Sex <= 0.05,]
 df_deltaProt <- df_deltaProt[df_deltaProt$p.mRNA_Age.Sex > 0.05,]
 df_deltaProt_inc <- data[data$p.Prot_Age.Sex <= 1e-10,]
 df_deltaProt_inc <- df_deltaProt_inc[df_deltaProt_inc$p.mRNA_Age.Sex > 0.05,]
+
+sub <- which(colnames(df_deltaProt_inc) %in% cols)
+df_deltaProt_inc <- df_deltaProt_inc[, c(1:8,sub)]
 write.csv(df_deltaProt_inc, file = "./Anova_output/gene_lists/ChangeProt_ConstRNA_Age.csv", row.names = FALSE, quote = FALSE)
 
 pdf("./Plot/Total_slope_deltaProt_Age.pdf", width = 6, heigh =6)
@@ -187,6 +194,9 @@ dev.off()
 # Change in mRNA while protein stays constant
 df_deltaAge <- data[data$p.mRNA_Interaction <= 0.05,]
 df_deltaAge <- df_deltaAge[df_deltaAge$p.Prot_Interaction > 0.05,]
+
+sub <- which(colnames(df_deltaAge) %in% cols)
+df_deltaAge <- df_deltaAge[, c(1:8,sub)]
 write.csv(df_deltaAge, file = "./Anova_output/gene_lists/ChangeRNA_ConstProt_AgeIntSex.csv", row.names = FALSE, quote = FALSE)
 
 pdf("./Plot/Total_slope_deltaRNA_AgeIntSex.pdf", width = 6, heigh =6)
@@ -210,8 +220,10 @@ df_deltaProt <- data[data$p.Prot_Interaction <= 0.05,]
 df_deltaProt <- df_deltaProt[df_deltaProt$p.mRNA_Interaction > 0.05,]
 df_deltaProt_inc <- data[data$p.Prot_Interaction <=  0.01,]
 df_deltaProt_inc <- df_deltaProt_inc[df_deltaProt_inc$p.mRNA_Interaction > 0.05,]
-write.csv(df_deltaProt_inc, file = "./Anova_output/gene_lists/ChangeProt_ConstAge_AgeIntSex.csv", row.names = FALSE, quote = FALSE)
 
+sub <- which(colnames(df_deltaProt_inc) %in% cols)
+df_deltaProt_inc <- df_deltaProt_inc[, c(1:8,sub)]
+write.csv(df_deltaProt_inc, file = "./Anova_output/gene_lists/ChangeProt_ConstAge_AgeIntSex.csv", row.names = FALSE, quote = FALSE)
 
 pdf("./Plot/Total_slope_deltaProt_AgeIntSex.pdf", width = 6, heigh =6)
 ggplot() +
