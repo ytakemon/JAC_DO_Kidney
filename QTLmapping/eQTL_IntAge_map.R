@@ -24,14 +24,11 @@ eQTL_best$IntAge_point <- paste(eQTL_best$IntAgeChr, eQTL_best$IntAgePos, sep = 
 eQTL_best$IngSex_point <- paste(eQTL_best$IntSexChr, eQTL_best$IntSexPos, sep = ".")
 
 # Set LOD threshold
-LODtheshold_additive <- 7.5
-LODthreshold_total <- 10.5
-LODthreshold_diff <- 7.5
+LODthreshold_diff <- 8
 
 # Plot Interactive-Age eQTLs
 # Subset Int-Age LOD above total/full and diff
 Int_age <- eQTL_best[(eQTL_best$IntAgeLODDiff > LODthreshold_diff),] # above diff threshold
-Int_age <- Int_age[(Int_age$IntAgeLODFull > LODthreshold_total),] # above full/total threshold
 
 # Annotate Interactive-Age postion with genes and save file for sharing
 save_int_age <- Int_age[,c("id", "symbol","chr","start","end", "biotype", "IntAgeChr","IntAgePos","IntAgeLODDiff","IntAgeLODFull")]
@@ -72,7 +69,7 @@ for (i in 1:length(save_int_age$IntAgeChr)) {
   }
 }
 # save annotated list for sharing
-write.csv(save_int_age, "./QTLscan/output/Threshold_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
+write.csv(save_int_age, "./QTLscan/output/Threshold8_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
 
 # Convert transcript and qtl position relative to chromosome positions
 # Convert to megabases
