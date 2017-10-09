@@ -18,7 +18,7 @@ library(broom)
 args <- commandArgs(trailingOnly = TRUE)
 
 # for kidney
-# args <- list("DO188b_kidney_noprobs.RData", "m.kidney_anova_table.csv", "p.kidney_anova_table.csv")
+# args <- list("DO188b_kidney_noprobs.RData", "mrna.kidney_anova_table.csv", "protein.kidney_anova_table.csv")
 
 
 # two arguments expected (input and output files)
@@ -132,15 +132,19 @@ m.result.table <- m.result.table[,c(pcols,rcols,mcols)]
 
 pcols <- grep("^p.", colnames(p.result.table))
 rcols <- grep("^r.", colnames(p.result.table))
-mcols <- grep("^p.", colnames(p.result.table))
+mcols <- grep("^m.", colnames(p.result.table))
 p.result.table <- p.result.table[,c(pcols,rcols,mcols)]
 
 # Output ------------------------------------------------------------------
 m.cols <- c("id", "symbol", "chr", "start", "end", "strand", "biotype")
 m.output <- cbind(annot.mrna[,m.cols], m.result.table)
+m.output$sig.mRNA_Age.Sex <- (m.output$p.mRNA_Age.Sex < 0.05)
+m.output$sig.mRNA_Sex.Age <- (m.output$p.mRNA_Sex.Age < 0.05)
 
 p.cols <- c("id", "gene_id", "symbol", "chr", "start", "end", "strand", "biotype")
 p.output <- cbind(annot.protein[,p.cols], p.result.table)
+p.output$sig.Prot_Age.Sex <- (p.output$p.Prot_Age.Sex < 0.05)
+p.output$sig.Prot_Sex.Age <- (p.output$p.Prot_Sex.Age < 0.05)
 
 dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/"
 write.csv(m.output, paste0(dir, m.output.file), row.names=FALSE, quote = FALSE)
