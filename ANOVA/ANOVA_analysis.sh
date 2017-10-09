@@ -10,18 +10,22 @@ qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidn
 # qsub -v I="anova_output.csv output.csv",script=rscript_name
 qsub -v I="kidney_anova_output.csv kidney_anova_fdr_output.csv",script=Kidney_ANOVA_fdr Rsubmit_args.sh
 # Plot p-values and fdr from ANOVA output
-qsub -v I=kidney_anova_fdr_output.csv,script=Kidney_ANOVA_pval_hist Rsubmit_args.sh
+qsub -v I=kidney_anova_fdr_output.csv,script=Kidney_ANOVA_pval_fdr_hist Rsubmit_args.sh
 # Identify significant genes if p-value and fdr are both <= 0.05
 qsub -v I="kidney_anova_fdr_output.csv kidney_anova_sig_output.csv",script=Kidney_ANOVA_significant_pval_FDR Rsubmit_args.sh
 
 # Modified ANOVA analysis to inlude slope of regression line.
 qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_slope_output.csv",script=anova_tests_slope_pairs Rsubmit_args.sh
 # Plot slopes
-qsub -v I=kidney_anova_slope_output.csv,script=ANOVA_slope_plot Rsubmit_args.sh
+qsub -v I=kidney_anova_slope_output.csv,script=ANOVA_slope_plot_pairs Rsubmit_args.sh
 
 # Generate complete mRNA/Protein list (not pair subset)
 # input order: Robj, mrna_output.csv, protein_output.csv
 qsub -v I="/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/m.kidney_anova_table.csv /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/p.kidney_anova_table.csv",script=anova_tests_slope_pairs Rsubmit_args.sh
+
+
+
+
 
 # Sharing gene lists with Gary & Ron -------------------------------------------
 cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/ANOVA
