@@ -21,7 +21,9 @@ qsub -v I=kidney_anova_slope_output.csv,script=ANOVA_slope_plot_pairs Rsubmit_ar
 
 # Generate complete mRNA/Protein list (not pair subset)
 # input order: Robj, mrna_output.csv, protein_output.csv
-qsub -v I="/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/m.kidney_anova_table.csv /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/p.kidney_anova_table.csv",script=anova_tests_slope_pairs Rsubmit_args.sh
+qsub -v I="DO188b_kidney_noprobs.RData m.kidney_anova_table.csv p.kidney_anova_table.csv",script=anova_tests_slope_pairs Rsubmit_args.sh
+# Plot slopes
+qsub -v I="mrna.kidney_anova_table.csv protein.kidney_anova_table.csv",script=ANOVA_slope_plot_individual Rsubmit_args.sh
 
 
 

@@ -18,17 +18,33 @@ library(broom)
 args <- commandArgs(trailingOnly = TRUE)
 
 # for kidney
-# args <- list("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData", "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/m.kidney_anova_table.csv", "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/p.kidney_anova_table.csv")
+# args <- list("DO188b_kidney_noprobs.RData", "m.kidney_anova_table.csv", "p.kidney_anova_table.csv")
 
 
 # two arguments expected (input and output files)
-stopifnot(length(args)==2)
+stopifnot(length(args)==3)
 
-input.file = args[[1]]
+input.file = list.files(path = "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data", pattern = paste0("^",args[[1]]),
+                         recursive = TRUE,
+                       full.names = TRUE)
 stopifnot(file.exists(input.file))
 m.output.file = args[[2]]
 p.output.file = args[[3]]
 load(input.file)
+
+
+args <- commandArgs(trailingOnly = TRUE) # args <- "kidney_anova_slope_output.csv"
+setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
+load("RNAseq_data/DO188b_kidney_noprobs.RData")
+output <- list.files(path = "./Anova_output/", pattern = paste0("^",args[[1]]), recursive = TRUE)
+data <- read.csv(paste0("./Anova_output/",output[[1]]), header = T)
+
+
+
+
+
+
+
 
 # ANOVA (p-values, normalized coefs, and slopes) -----------------------------------
 ## test for dependence between Age/Sex and x (x is mRNA/Prot expression)
@@ -126,5 +142,6 @@ m.output <- cbind(annot.mrna[,m.cols], m.result.table)
 p.cols <- c("id", "gene_id", "symbol", "chr", "start", "end", "strand", "biotype")
 p.output <- cbind(annot.protein[,p.cols], p.result.table)
 
-write.csv(m.output, m.output.file, row.names=FALSE, quote = FALSE)
-write.csv(p.output, p.output.file, row.names=FALSE, quote = FALSE)
+dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/"
+write.csv(m.output, paste0(dir, m.output.file), row.names=FALSE, quote = FALSE)
+write.csv(p.output, paste0(dir, p.output.file), row.names=FALSE, quote = FALSE)
