@@ -112,7 +112,7 @@ for (i in 1:length(chrtick)){
 }
 
 # pQTL plot
-pdf("./QTLscan/output/plots/pQTL_IntAge.pdf", width = 6, heigh =6)
+pdf("./QTLscan/output/plots/pQTL_IntAge_thr8.pdf", width = 6, heigh =6)
 ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
