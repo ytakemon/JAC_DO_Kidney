@@ -1,10 +1,8 @@
-library(shiny)
 library(qtl)
 library(qtlcharts)
-library(intermediate)
-source("miniDOQTL.R")
-
+source("/hpcdata/cgd/shinyapps/kidney/miniDOQTL.R")
 load("/hpcdata/cgd/shinyapps/kidney/shiny_annotation.RData")
+load("/hpcdata/cgd/QTL_mapping/kidney_combined/DO192_kidney.RData")
 
 plotType <- 9
 gene.name <- "Mrpl20"
