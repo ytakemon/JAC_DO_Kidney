@@ -14,7 +14,7 @@ for (i in 1:nrow(eQTL)){
   gene.name <- eQTL$id[i]
   symbol <- eQTL$symbol[i]
   level <- "mRNA"
-  chr <- eQTL$chr[i]
+  chr <- eQTL$IntAgeChr[i]
   file <- paste0("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/QTLscan/intscan_mrna/Age/",
                  gene.name,
                  "_",
@@ -76,7 +76,7 @@ for (i in 1:nrow(pQTL)){
   gene.name <- pQTL$id[i]
   symbol <- pQTL$symbol[i]
   level <- "protein"
-  chr <- pQTL$chr[i]
+  chr <- pQTL$IntAgeChr[i]
   file <- paste0("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/QTLscan/intscan_prot/Age/",
                  gene.name,
                  "_",
