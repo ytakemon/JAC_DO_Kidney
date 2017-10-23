@@ -12,14 +12,22 @@ pheno$duplicated <- (duplicated(pheno$mouse.id) | duplicated(pheno$mouse.id, fro
 pheno <- pheno[pheno$duplicated == FALSE,]
 pheno <- pheno[pheno$mouse.id %in% annot.samples$Mouse.ID,] # only 176 animals with phenotypes
 pheno <- arrange(pheno, mouse.id)
-pheno$phs.cr.u <- (pheno$phs.u / pheno$cr.u) * 100
+pheno$ma.cr.u <- log(pheno$ma.cr.u)
+for( i in 1:length(pheno$ma.cr.u)){
+  if(pheno$ma.cr.u[i] == -Inf){
+    pheno$ma.cr.u[i] <- 0
+  } else if (pheno$ma.cr.u[i] < 0){
+    pheno$ma.cr.u[i] <- NA
+  } else {
+    pheno$ma.cr.u[i] <- pheno$ma.cr.u[i]
+  }
+}
 annot.samples <- annot.samples[annot.samples$Mouse.ID %in% pheno$mouse.id,]
 expr.mrna <- expr.mrna[rownames(expr.mrna) %in% pheno$mouse.id,]
 expr.protein <- expr.protein[rownames(expr.protein) %in% pheno$mouse.id,]
 
 # Identify gene name
-gene1 <- "Slc34a1"
-gene2 <- "Slc34a2"
+gene1 <- "Lrp2"
 other.ids <- function(gene.name, level) {
   if (level == "mRNA") {
     sel <- which(mRNA.list$symbol == gene.name)[1]
@@ -31,14 +39,12 @@ other.ids <- function(gene.name, level) {
   }
 }
 gene1 <- other.ids(gene1, "mRNA")
-gene2 <- other.ids(gene2, "mRNA")
 
 # new df
 df <- annot.samples[,1:4]
-df <- cbind(df, expr.mrna[, gene1$id], expr.mrna[, gene2$id], expr.protein[, gene1$protein_id], expr.protein[, gene2$protein_id], pheno$phs.cr.u)
-colnames(df)[5:9] <- c("Slc34a1_mRNA", "Scl34a2_mRNA", "Slc34a1_protein", "Slc34a2_protein", "Phs.Cre.U")
+df <- cbind(df, expr.mrna[, gene1$id], expr.protein[, gene1$protein_id], pheno$ma.cr.u)
+colnames(df)[5:7] <- c("Lrp2_mRNA", "Lrp2_protein", "Alb.Cre.U")
 df$Age <- as.factor(df$Age)
-
 
 upper_fn <- function(data, mapping, ...){
   p <- ggplot(data = data, mapping = mapping) +
@@ -73,7 +79,6 @@ lower_fn <- function(data, mapping, ...){
 
 ggpairs(df,
         mapping = aes(color = Age, alpha = 0.2),
-        columns = c("Slc34a1_mRNA", "Scl34a2_mRNA", "Slc34a1_protein", "Slc34a2_protein", "Phs.Cre.U"),
-        upper = list( discrete = upper_fn),
+        columns = c("Lrp2_mRNA", "Lrp2_protein", "Alb.Cre.U"),
         diag = list (continuous = diag_fn),
         lower = list(continuous = lower_fn))
