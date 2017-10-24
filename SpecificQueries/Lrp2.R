@@ -49,15 +49,95 @@ df <- cbind(df, expr.mrna[, gene1$id], expr.protein[, gene1$protein_id], pheno$l
 colnames(df)[5:7] <- c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U")
 df$Age <- as.factor(df$Age)
 
-upper_fn <- function(data, mapping, ...){
-  p <- ggplot(data = data, mapping = mapping) +
-       theme(panel.background = element_blank(),
-             panel.grid.minor = element_blank(),
-             panel.grid.major = element_blank(),
-             panel.border = element_blank(),
-             axis.line = element_line(color = "black"))
-  p
+upper_fn <- function(data, mapping, ...) {
+
+  # get the x and y data to use the other code
+  # Total
+  x <- eval(mapping$x, data)
+  y <- eval(mapping$y, data)
+  # 6mo.
+  x6 <- eval(mapping$x, data[data$Age == 6,])
+  y6 <- eval(mapping$y, data[data$Age == 6,])
+  # 10mo.
+  x12 <- eval(mapping$x, data[data$Age == 12,])
+  y12 <- eval(mapping$y, data[data$Age == 12,])
+  # 18mo.
+  x18 <- eval(mapping$x, data[data$Age == 18,])
+  y18 <- eval(mapping$y, data[data$Age == 18,])
+
+  # Correlation
+  # Total
+  ct <- cor.test(x,y)
+  sig <- symnum(
+    ct$p.value, corr = FALSE, na = FALSE,
+    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+    symbols = c("***", "**", "*", "+", " ")
+  )
+  r <- unname(ct$estimate)
+  rt <- format(r, digits=2)[1]
+
+  # 6mo.
+  ct6 <- cor.test(x6,y6)
+  sig6 <- symnum(
+    ct6$p.value, corr = FALSE, na = FALSE,
+    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+    symbols = c("***", "**", "*", "+", " ")
+  )
+  r6 <- unname(ct6$estimate)
+  rt6 <- format(r6, digits=2)[1]
+
+  # 12mo.
+  ct12 <- cor.test(x12,y12)
+  sig12 <- symnum(
+    ct12$p.value, corr = FALSE, na = FALSE,
+    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+    symbols = c("***", "**", "*", "+", " ")
+  )
+  r12 <- unname(ct12$estimate)
+  rt12 <- format(r12, digits=2)[1]
+
+  # 6mo.
+  ct18 <- cor.test(x18,y18)
+  sig18 <- symnum(
+    ct18$p.value, corr = FALSE, na = FALSE,
+    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+    symbols = c("***", "**", "*", "+", " ")
+  )
+  r18 <- unname(ct18$estimate)
+  rt18 <- format(r18, digits=2)[1]
+
+  rt_out <- paste("All:",rt, "\n", "6mo.:",rt6, "\n","12mo.:", rt12, "\n","18mo.:", rt18)
+  sig_out <- paste(sig, "\n", sig6, "\n", sig12, "\n", sig18)
+  # plot the cor value
+  ggally_text(
+    label = as.character(rt_out),
+    mapping = aes(),
+    xP = 0.5, yP = 0.55,
+    ...
+  ) +
+    # add the sig stars
+    geom_text(
+      aes_string(
+        x = 0.75,
+        y = 0.6
+      ),
+      label = sig_out,
+      ...
+    ) +
+    # remove all the background stuff and wrap it with a dashed line
+    theme_classic() +
+    theme(
+      panel.background = element_rect(
+        color = "grey",
+        linetype = "longdash"
+      ),
+      axis.line = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_blank()
+    )
 }
+
 diag_fn <- function(data, mapping, ...){
   p <- ggplot(data = data, mapping = mapping) +
        geom_density()+
@@ -68,6 +148,7 @@ diag_fn <- function(data, mapping, ...){
              axis.line = element_line(color = "black"))
   p
 }
+
 lower_fn <- function(data, mapping, ...){
   p <- ggplot(data = data, mapping = mapping) +
        geom_point() +
@@ -84,11 +165,12 @@ pdf("./Plot/Lrp2_logAlbCr.pdf", height = 6, width = 6)
 ggpairs(df,
         mapping = aes(color = Age, alpha = 0.2),
         columns = c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U"),
+        upper = list (continuous = upper_fn),
         diag = list (continuous = diag_fn),
         lower = list(continuous = lower_fn))
 dev.off()
 
-# Test Pearson cor for p-values
+# Test Pearson cor for p-values ---------------------------------------------
 # Total
 pval <- data.frame( Lrp2_mRNA = integer(),
                     Lrp2_protein = integer(),
