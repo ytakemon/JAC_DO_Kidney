@@ -80,8 +80,66 @@ lower_fn <- function(data, mapping, ...){
   p
 }
 
+pdf("./Plot/Lrp2_logAlbCr.pdf", height = 6, width = 6)
 ggpairs(df,
         mapping = aes(color = Age, alpha = 0.2),
         columns = c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U"),
         diag = list (continuous = diag_fn),
         lower = list(continuous = lower_fn))
+dev.off()
+
+# Test Pearson cor for p-values
+# Total
+pval <- data.frame( Lrp2_mRNA = integer(),
+                    Lrp2_protein = integer(),
+                    Log.Alb.Cre.U = integer())
+col <- c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U")
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df[,(4+r)], df[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Lrp2_logAlbCr_pval.csv", row.names = FALSE, quote = FALSE)
+
+# 6mo.
+df6 <- df[df$Age == 6,]
+pval <- data.frame( Lrp2_mRNA = integer(),
+                    Lrp2_protein = integer(),
+                    Log.Alb.Cre.U = integer())
+col <- c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U")
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df6[,(4+r)], df6[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Lrp2_logAlbCr_pval6.csv", row.names = FALSE, quote = FALSE)
+
+# 12mo.
+df12 <- df[df$Age == 12,]
+pval <- data.frame( Lrp2_mRNA = integer(),
+                    Lrp2_protein = integer(),
+                    Log.Alb.Cre.U = integer())
+col <- c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U")
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df12[,(4+r)], df12[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Lrp2_logAlbCr_pval12.csv", row.names = FALSE, quote = FALSE)
+
+# 18mo.
+df18 <- df[df$Age == 18,]
+pval <- data.frame( Lrp2_mRNA = integer(),
+                    Lrp2_protein = integer(),
+                    Log.Alb.Cre.U = integer())
+col <- c("Lrp2_mRNA", "Lrp2_protein", "Log.Alb.Cre.U")
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df18[,(4+r)], df18[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Lrp2_logAlbCr_pval18.csv", row.names = FALSE, quote = FALSE)

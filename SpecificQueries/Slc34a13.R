@@ -71,9 +71,79 @@ lower_fn <- function(data, mapping, ...){
   p
 }
 
+pdf("./Plot/Slc34a13_PhsCre.pdf", height = 7, width = 7)
 ggpairs(df,
         mapping = aes(color = Age, alpha = 0.2),
         columns = c("Slc34a1_mRNA", "Scl34a3_mRNA", "Slc34a1_protein", "Slc34a3_protein", "Phs.Cre.U"),
         upper = list( discrete = upper_fn),
         diag = list (continuous = diag_fn),
         lower = list(continuous = lower_fn))
+dev.off()
+
+# Test Pearson cor for p-values
+# Total
+pval <- data.frame( Slc34a1_mRNA = integer(),
+                    Scl34a3_mRNA = integer(),
+                    Slc34a1_protein = integer(),
+                    Slc34a3_protein = integer(),
+                    Phs.Cre.U = integer())
+col <- c("Slc34a1_mRNA", "Scl34a3_mRNA", "Slc34a1_protein", "Slc34a3_protein", "Phs.Cre.U")
+
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df[,(4+r)], df[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Slc34a13_PhsCre_pval.csv", row.names = FALSE, quote = FALSE)
+
+# 6 mo.
+df6 <- df[df$Age == 6,]
+pval <- data.frame( Slc34a1_mRNA = integer(),
+                    Scl34a3_mRNA = integer(),
+                    Slc34a1_protein = integer(),
+                    Slc34a3_protein = integer(),
+                    Phs.Cre.U = integer())
+col <- c("Slc34a1_mRNA", "Scl34a3_mRNA", "Slc34a1_protein", "Slc34a3_protein", "Phs.Cre.U")
+
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df6[,(4+r)], df6[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Slc34a13_PhsCre_pval6.csv", row.names = FALSE, quote = FALSE)
+
+# 12 mo.
+df12 <- df[df$Age == 12,]
+pval <- data.frame( Slc34a1_mRNA = integer(),
+                    Scl34a3_mRNA = integer(),
+                    Slc34a1_protein = integer(),
+                    Slc34a3_protein = integer(),
+                    Phs.Cre.U = integer())
+col <- c("Slc34a1_mRNA", "Scl34a3_mRNA", "Slc34a1_protein", "Slc34a3_protein", "Phs.Cre.U")
+
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df12[,(4+r)], df12[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Slc34a13_PhsCre_pval12.csv", row.names = FALSE, quote = FALSE)
+
+# 18 mo.
+df18 <- df[df$Age == 18,]
+pval <- data.frame( Slc34a1_mRNA = integer(),
+                    Scl34a3_mRNA = integer(),
+                    Slc34a1_protein = integer(),
+                    Slc34a3_protein = integer(),
+                    Phs.Cre.U = integer())
+col <- c("Slc34a1_mRNA", "Scl34a3_mRNA", "Slc34a1_protein", "Slc34a3_protein", "Phs.Cre.U")
+
+for (r in 1:length(col)){
+  for (c in 1:length(col)){
+      pval[r,c] <- cor.test(df18[,(4+r)], df18[,(4+c)], alternative = "two.sided", method = "pearson")$p.value
+  }
+}
+rownames(pval) <- col
+write.csv(pval, file = "./SpecificQ/Slc34a13_PhsCre_pval18.csv", row.names = FALSE, quote = FALSE)
