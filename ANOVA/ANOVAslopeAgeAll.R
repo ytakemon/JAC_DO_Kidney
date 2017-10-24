@@ -38,9 +38,9 @@ total <- nrow(data)
 pdf("./Plot/Total_slope_mRNA_Prot_Age.pdf", width = 6, heigh =6)
 ggplot() +
       geom_point(data = data, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex, alpha = 0.2), color = "grey") +
-      geom_point(data = df_age, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#EC7063") +
-      geom_point(data = df_deltaAge, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#58D68D") +
-      geom_point(data = df_deltaProt_inc, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#58D68D") +
+      geom_point(data = df_age, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#FF0000") +
+      geom_point(data = df_deltaAge, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#06F030") +
+      geom_point(data = df_deltaProt_inc, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex), colour = "#06F030") +
       scale_x_continuous("mRNA-Age.Sex",
                          breaks = seq(-1, 1, by = 0.1)) +
       scale_y_continuous("Protein-Age.Sex",
