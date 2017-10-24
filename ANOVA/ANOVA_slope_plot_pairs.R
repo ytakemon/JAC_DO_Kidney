@@ -38,7 +38,7 @@ Gene_list <- Gene_list[, c(1:8, Age, Quad)]
 write.csv(Gene_list, "./Anova_output/gene_lists/Quad_Age_.csv", row.names = FALSE, quote = FALSE)
 
 # Plot age realted mRNA/Protein slopes
-pdf("./Plot/slope_mRNA_Prot_Age.pdf", width = 6, heigh =6)
+pdf("./Plot/slope_mRNA_Prot_Age.pdf", width = 6, height =6)
 ggplot(df_age, aes(x = m.mRNA_Age.Sex, y = m.Prot_Age.Sex)) +
       geom_point() +
       scale_x_continuous("mRNA-Age.Sex",
