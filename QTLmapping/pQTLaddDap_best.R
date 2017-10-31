@@ -4,17 +4,17 @@ load("./RNAseq_data/DO188b_kidney.RData")
 library(dplyr)
 
 # Get list of genes with trans eQTL
-list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
-list <- list[list$IntAgeChr == 12, ]
+list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- list[list$IntAgeChr == 15, ]
 
 # parameters
-addscan.dir <- "./QTLscan/addscan_mrna_Akt1/"
-intscan.dir.Age <- "./QTLscan/intscan_mrna/Age/"
-file.name <- function(i) paste0(annot.mrna$id[i],"_",annot.mrna$symbol[i],".rds")
-output.file1 <- "./QTLscan/output/eQTLBestperGeneAddAkt1.csv"
+addscan.dir <- "./QTLscan/addscan_prot_Dap/"
+intscan.dir.Age <- "./QTLscan/intscan_prot/Age/"
+file.name <- function(i) paste0(annot.protein$id[i],"_",annot.protein$symbol[i],".rds") # should be protein id
+output.file1 <- "./QTLscan/output/pQTLBestperGeneAddDap.csv"
 
-annot.mrna <- annot.mrna[annot.mrna$id %in% list$id,]
-output <- annot.mrna[,c(1:5,9)]
+annot.protein <- annot.protein[annot.protein$id %in% list$id,]
+output <- annot.protein[,c(1:5,9)]
 output$AdditiveLOD <- output$AdditivePos <-  output$AdditiveChr <- NA
 output$IntAgeLODFull <- output$IntAgeLODDiff <- output$IntAgePos <- output$IntAgeChr <- NA
 

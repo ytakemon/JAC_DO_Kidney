@@ -52,6 +52,6 @@ for (p in 1:length(list)){
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/addscan_prot_Micall1/", p$id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/addscan_prot_Micall1/", p$protein_id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }
