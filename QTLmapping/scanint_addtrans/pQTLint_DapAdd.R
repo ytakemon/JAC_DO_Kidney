@@ -39,7 +39,7 @@ map <- map_df_to_list(map = snps, pos_column = "bp")
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
-  addcovar <- model.matrix(~ Sex + Age + Generation + expr.protein[,trans$id], data=annot.samples)
+  addcovar <- model.matrix(~ Sex + Age + Generation + expr.mrna[,trans$id], data=annot.samples)
   intcovar <- model.matrix(~ Sex, data=annot.samples)
 
   p <- list[p]
