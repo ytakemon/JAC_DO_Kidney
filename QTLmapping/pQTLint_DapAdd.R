@@ -48,7 +48,7 @@ for (p in 1:length(list)){
   # Lod score
   lod <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[, p$id],
+               pheno=expr.mrna[, p$protein_id],
                addcovar=addcovar[,-1],
                intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
