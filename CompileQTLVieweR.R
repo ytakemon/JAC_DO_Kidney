@@ -16,6 +16,7 @@ markers$pos <- markers$pos * 1e-6 # convert to megabases
 # save(genome.build, genoprobs, K, map, markers, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
 
 # dataset.mrna:
+datatype <- "mRNA"
 annots.mrna <- annot.mrna
 annots.mrna <- annots.mrna[!(annots.mrna$chr %in% c("MT","Y")),]
 annots.mrna$nearest.marker.id <- NA
@@ -29,5 +30,16 @@ annots.mrna <- annots.mrna[annots.mrna$duplicated == FALSE,]
 rownames(annots.mrna) <- annots.mrna$id
 annots.mrna <- annots.mrna %>% select(-c(nearest_snp, middle_point))
 # save(genome.build, genoprobs, K, map, markers, annots.mrna, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
-
 covar <- covar[,-1]
+covar.factors <- data.frame(column.name = colnames(covar),
+                            display.name = c("Sex", "Age", "G11","G12","G8","G9","Sex*Age"))
+expr <- expr.mrna
+samples <- annot.samples
+
+# Need tofigure out how to find nearest marker for addQTL lodpeak
+#lod.peaks <- read.csv("./QTLscan/output/eQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
+#colnames(lod.peaks)[1] <- "annot.id"
+#lod.peaks$marker.id <- NA
+#for (i in 1:length(lod.peaks$marker.id)){
+#  lod.peaks$marker.id[i] <- annots.mrna[annots.mrna$id == lod.peaks$annot.id[i],]$nearest.marker.id # this is not the right peak :(
+#}
