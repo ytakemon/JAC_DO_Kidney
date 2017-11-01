@@ -9,7 +9,7 @@ list <- list[list$IntAgeChr == 15, ]
 
 # parameters
 addscan.dir <- "./QTLscan/addscan_prot_Micall1/"
-intscan.dir.Age <- "./QTLscan/intscan_prot/Age/"
+intscan.dir.Age <- "./QTLscan/intscan_prot_Micall1/"
 file.name <- function(i) paste0(annot.protein$id[i],"_",annot.protein$symbol[i],".rds") # should be protein id
 output.file1 <- "./QTLscan/output/pQTLBestperGeneAddMicall1.csv"
 
@@ -52,3 +52,20 @@ for (i in 1:nrow(output)) {
 
 # collect rows into one data frame
 write.csv(output, file=output.file1, row.names=FALSE)
+
+# compare:
+list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- list[list$IntAgeChr == 15, ]
+list <- arrange(list, id)
+
+list_add <- read.csv("./QTLscan/output/pQTLBestperGeneAddMicall1.csv", header = TRUE, stringsAsFactors = FALSE)
+list_add <- arrange(list_add, id)
+# check
+identical(list$id, list_add$id)
+
+compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
+compare$addIntAgeChr <- list_add$IntAgeChr
+compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
+compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
+
+Mediated <- compare[compare$change == TRUE,]

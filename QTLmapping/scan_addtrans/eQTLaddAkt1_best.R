@@ -61,8 +61,10 @@ list <- arrange(list, id)
 list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAkt1.csv", header = TRUE, stringsAsFactors = FALSE)
 list_add <- arrange(list_add, id)
 
-compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr")]
+compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
 compare$addIntAgeChr <- list_add$IntAgeChr
+compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
 
-AktMed <- compare[compare$change == TRUE,]
+
+Mediated <- compare[compare$change == TRUE,]
