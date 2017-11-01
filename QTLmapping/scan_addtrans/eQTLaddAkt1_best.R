@@ -9,7 +9,7 @@ list <- list[list$IntAgeChr == 12, ]
 
 # parameters
 addscan.dir <- "./QTLscan/addscan_mrna_Akt1/"
-intscan.dir.Age <- "./QTLscan/intscan_mrna/Age/"
+intscan.dir.Age <- "./QTLscan/intscan_mrna_Akt1/"
 file.name <- function(i) paste0(annot.mrna$id[i],"_",annot.mrna$symbol[i],".rds")
 output.file1 <- "./QTLscan/output/eQTLBestperGeneAddAkt1.csv"
 
@@ -65,6 +65,5 @@ compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDi
 compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
-
 
 Mediated <- compare[compare$change == TRUE,]
