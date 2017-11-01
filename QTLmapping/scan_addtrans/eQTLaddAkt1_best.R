@@ -52,3 +52,17 @@ for (i in 1:nrow(output)) {
 
 # collect rows into one data frame
 write.csv(output, file=output.file1, row.names=FALSE)
+
+# compare:
+list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- list[list$IntAgeChr == 12, ]
+list <- arrange(list, id)
+
+list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAkt1.csv", header = TRUE, stringsAsFactors = FALSE)
+list_add <- arrange(list_add, id)
+
+compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr")]
+compare$addIntAgeChr <- list_add$IntAgeChr
+compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
+
+AktMed <- compare[compare$change == TRUE,]

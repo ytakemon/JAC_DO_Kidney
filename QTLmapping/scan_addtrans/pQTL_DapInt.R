@@ -1,5 +1,5 @@
 # run with:
-# qsub -v script=eQTL_Akt1Int Rsubmit_args.sh
+# qsub -v script=pQTL_DapInt Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
@@ -9,12 +9,15 @@ load("./shiny_annotation.RData")
 load("./RNAseq_data/DO188b_kidney.RData")
 
 # Get list of genes with trans eQTL
-list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
-list <- list[list$IntAgeChr == 12, ]
+list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- list[list$IntAgeChr == 15, ]
 list <- list$symbol
 
 # Identify gene name
-trans <- "Akt1"
+# Dap was not detected in protein data, but RNA expression data is available
+# will use RNA expression for now since there is a high possibilitiy that it could
+# be a part of Quad I and III. (increase protein == increase mrna)
+trans <- "Dap"
 other.ids <- function(gene.name, level) {
   if (level == "mRNA") {
     sel <- which(mRNA.list$symbol == gene.name)[1]
@@ -40,17 +43,17 @@ for (p in 1:length(list)){
   intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
-  p <- other.ids(p, "mRNA")
+  p <- other.ids(p, "protein")
 
   # Lod score
   lod <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[, p$id],
+               pheno=expr.protein[, p$protein_id],
                addcovar=addcovar[,-1],
                intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/intscan_mrna_Akt1/", p$id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/intscan_prot_Dap/", p$protein_id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }
