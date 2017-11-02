@@ -65,6 +65,6 @@ compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDi
 compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
-write.csv(comapre, file="./QTLscan/output/eQTLAkt1Mediation.csv")
+write.csv(compare, file="./QTLscan/output/eQTLintAkt1.csv")
 
 Mediated <- compare[compare$change == TRUE,]

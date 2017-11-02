@@ -9,7 +9,7 @@ load("./shiny_annotation.RData")
 load("./RNAseq_data/DO188b_kidney.RData")
 
 # Get list of genes with trans eQTL
-list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == 12, ]
 list <- list$symbol
 
