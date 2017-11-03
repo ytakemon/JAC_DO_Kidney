@@ -1,5 +1,9 @@
 # run with:
-# qsub -v script=eQTL_Akt1Add Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add2 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add4 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add6 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add8 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add9 Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
@@ -33,6 +37,8 @@ snps$chr <- as.character(snps$chr)
 snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
+# this piece should can be broken apart if the list is long...
+# doesn't apply for interactive QLT run.  
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
