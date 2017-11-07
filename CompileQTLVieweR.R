@@ -68,7 +68,7 @@ for (i in 1:length(lod.peaks$marker.id)){
   lod.peaks$marker.id[i] <- sub$marker[which.min(abs(sub$pos - lod.peaks$AdditivePos[i]))]
 }
 
-samples <- annot.samples
+samples <- as.data.frame(annot.samples)
 colnames(samples)[1] <- "id"
 
 # Grab raw data from EMASE (total gene expression): sample id x mrna annot.
@@ -85,15 +85,16 @@ for (i in 1:nrow(raw)){
   raw[i,] <- file$total
   print(paste0(i," out of ", nrow(raw)))
 }
+raw <- as.matrix(raw)
 
-dataset.mrna <- c("annots" = annots.mrna,
-                  "covar" = covar,
-                  "covar.factors" = covar.factors,
-                  "datatype" = datatype,
-                  "expr" = expr.mrna,
-                  "lod.peaks" = lod.peaks,
-                  "raw" = raw,
-                  "samples" = samples)
+dataset.mrna <- list("annots" = annots.mrna,
+                    "covar" = covar,
+                    "covar.factors" = covar.factors,
+                    "datatype" = datatype,
+                    "expr" = expr.mrna,
+                    "lod.peaks" = lod.peaks,
+                    "raw" = raw,
+                    "samples" = samples)
 
 # save(genome.build, genoprobs, K, map, markers, dataset.mrna, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
 # dataset.protein: -------------------------------------------------------------
@@ -123,7 +124,7 @@ for (i in 1:length(lod.peaks$marker.id)){
   lod.peaks$marker.id[i] <- sub$marker[which.min(abs(sub$pos - lod.peaks$AdditivePos[i]))]
 }
 
-dataset.protein <- c("annots" = annots.protein,
+dataset.protein <- list("annots" = annots.protein,
                      "covar" = covar,
                      "covar.factors" = covar.factors,
                      "datatype" = datatype,
@@ -137,3 +138,8 @@ dataset.protein <- c("annots" = annots.protein,
 rm(list = ls())
 load("./RNAseq_data/DO188b_kidney_201711.Rdata")
 source("./Scripts/qtlDataCheck.R")
+
+CheckVariables()
+CheckDatasets()
+CheckExtraVars(ls())
+CheckDataNames(ds = get(apropos("^dataset")[1]))
