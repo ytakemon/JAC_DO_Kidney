@@ -134,6 +134,7 @@ dataset.protein <- list("annots" = annots.protein,
 
 # save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
 
+# Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
 rm(list = ls())
 load("./RNAseq_data/DO188b_kidney_201711.Rdata")
