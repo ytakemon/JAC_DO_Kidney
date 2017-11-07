@@ -1,4 +1,4 @@
-#
+# From: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
 # VERY rough
 #
 
