@@ -1,11 +1,8 @@
 # R/3.4.1
 library(ggplot2)
 library(dplyr)
-library(biomaRt)
+library(cowplot)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-eQTL_add <- read.csv("./QTLscan/output/eQTLAllAdditive.csv")
-eQTL_intAge <- read.csv("./QTLscan/output/eQTLAllInteractiveAge.csv")
-eQTL_intSex <- read.csv("./QTLscan/output/eQTLAllInteractiveSex.csv")
 eQTL_best <- read.csv("./QTLscan/output/eQTLBestperGene.csv")
 
 # Using eQTL_best to create plot
@@ -24,7 +21,7 @@ eQTL_best$IntAge_point <- paste(eQTL_best$IntAgeChr, eQTL_best$IntAgePos, sep = 
 eQTL_best$IngSex_point <- paste(eQTL_best$IntSexChr, eQTL_best$IntSexPos, sep = ".")
 
 # Set LOD threshold
-LODthreshold_diff <- 6
+LODthreshold_diff <- 8
 
 # Plot Interactive-Age eQTLs
 # Subset Int-Age LOD above total/full and diff
@@ -34,7 +31,7 @@ Int_age <- eQTL_best[(eQTL_best$IntAgeLODDiff > LODthreshold_diff),] # above dif
 save_int_age <- Int_age[,c("id", "symbol","chr","start","end", "biotype", "IntAgeChr","IntAgePos","IntAgeLODDiff","IntAgeLODFull")]
 save_int_age <- arrange(save_int_age, IntAgeChr, IntAgePos)
 # save annotated list for sharing
-write.csv(save_int_age, "./QTLscan/output/Threshold6_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
+#write.csv(save_int_age, "./QTLscan/output/Threshold6_eQTL_intAge.csv", row.names = FALSE, quote = FALSE)
 
 
 # Convert transcript and qtl position relative to chromosome positions
@@ -77,8 +74,8 @@ for (i in 1:length(chrtick)){
 }
 
 # eQTL plot
-pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 6, heigh =6)
-ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
+
+eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
@@ -95,5 +92,28 @@ ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
+            panel.border = element_rect(colour = "black", size = 0.2, fill = NA),
+            axis.title.x = element_blank())
+
+density <- ggplot(Int_age, aes(q_gbm, ..count.., colour = "grey", fill = "grey")) +
+      geom_density() +
+      scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
+      scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
+      scale_x_continuous("QTL position",
+                         breaks = chrtick_half,
+                         limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
+                         expand = c(0,0)) +
+      scale_y_continuous(name ="Density", breaks = c(0.2, 0.4, 0.6, 0.8)) +
+      geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
+      theme(plot.title = element_text(hjust = 0.5),
+            panel.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
+
+#plot help: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
+pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 9, heigh =10)
+pushViewport(viewport( layout = grid.layout(10,10)))
+print(eQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
+print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
 dev.off()
