@@ -140,6 +140,23 @@ load("./RNAseq_data/DO188b_kidney_201711.Rdata")
 source("./Scripts/qtlDataCheck.R")
 
 CheckVariables()
-CheckDatasets()
+CheckDatasets() # requirements are differnt
 CheckExtraVars(ls())
 CheckDataNames(ds = get(apropos("^dataset")[1]))
+
+# > source("./Scripts/qtlDataCheck.R")
+# > CheckVariables()
+# > CheckDatasets()
+# [1] "ERROR: covar is type: matrix, should be type: data.frame, in dataset: dataset.mrna"
+# [1] "ERROR: display.name is type: NULL, should be type: character, in dataset: dataset.mrna"
+# [1] "ERROR: ensembl.version is type: NULL, should be type: numeric, in dataset: dataset.mrna"
+# [1] "ERROR: covar is type: matrix, should be type: data.frame, in dataset: dataset.protein"
+# [1] "ERROR: display.name is type: NULL, should be type: character, in dataset: dataset.protein"
+# [1] "ERROR: ensembl.version is type: NULL, should be type: numeric, in dataset: dataset.protein"
+# [1] "ERROR: raw is type: NULL, should be type: matrix, in dataset: dataset.protein"
+# > CheckExtraVars(ls())
+# [1] "Warning: the following extra variables were found..."
+# [1] "CheckDataNames" "CheckDatasets"  "CheckExtraVars" "CheckVariables"
+# [5] "IsVariableOK"
+# > CheckDataNames(ds = get(apropos("^dataset")[1]))
+# NULL
