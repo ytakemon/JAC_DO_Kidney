@@ -1,5 +1,9 @@
 # run with:
-# qsub -v script=eQTL_Akt1Int_WbPanTotAkt Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt2 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt4 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt6 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt8 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt9 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2geno)
@@ -50,6 +54,14 @@ other.ids <- function(gene.name, level) {
   }
 }
 
+# this piece should can be broken apart if the list is long...
+# doesn't apply for interactive QLT run.
+# eg.
+#for (p in 1:200){
+#for (p in 201:400){
+#for (p in 401:600){
+#for (p in 601:800){
+#for (p in 801:length(list)){
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
