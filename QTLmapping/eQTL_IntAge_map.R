@@ -1,7 +1,7 @@
 # R/3.4.1
 library(ggplot2)
 library(dplyr)
-library(cowplot)
+library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 eQTL_best <- read.csv("./QTLscan/output/eQTLBestperGene.csv")
 
@@ -88,12 +88,12 @@ eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       labs( title = "Interactive-Age eQTLs") +
+      theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
-            panel.border = element_rect(colour = "black", size = 0.2, fill = NA),
-            axis.title.x = element_blank())
+            panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 density <- ggplot(Int_age, aes(q_gbm, ..count.., colour = "grey", fill = "grey")) +
       geom_density() +
@@ -105,6 +105,7 @@ density <- ggplot(Int_age, aes(q_gbm, ..count.., colour = "grey", fill = "grey")
                          expand = c(0,0)) +
       scale_y_continuous(name ="Density", breaks = c(0.2, 0.4, 0.6, 0.8)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
+      theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
@@ -112,7 +113,11 @@ density <- ggplot(Int_age, aes(q_gbm, ..count.., colour = "grey", fill = "grey")
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 #plot help: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
-pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 9, heigh =9)
+eQTL
+dev.off()
+
+pdf("./QTLscan/output/plots/eQTL_IntAge_thr8_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(eQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
