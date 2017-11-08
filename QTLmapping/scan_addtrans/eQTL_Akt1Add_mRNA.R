@@ -38,7 +38,14 @@ snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
 # this piece should can be broken apart if the list is long...
-# doesn't apply for interactive QLT run.  
+# doesn't apply for interactive QLT run.
+# eg.
+#for (p in 1:200){
+#for (p in 201:400){
+#for (p in 401:600){
+#for (p in 601:800){
+#for (p in 801:length(list)){=
+
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")

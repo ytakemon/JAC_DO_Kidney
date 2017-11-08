@@ -1,9 +1,9 @@
 # run with:
-# qsub -v script=eQTL_Akt1Add2 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add4 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add6 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add8 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add9 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add_prot2 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add_prot4 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add_prot6 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add_prot8 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Add_prot9 Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
@@ -44,7 +44,7 @@ map <- map_df_to_list(map = snps, pos_column = "bp")
 #for (p in 201:400){
 #for (p in 401:600){
 #for (p in 601:800){
-#for (p in 801:length(list)){=
+#for (p in 801:length(list)){
 
 for (p in 1:length(list)){
 
