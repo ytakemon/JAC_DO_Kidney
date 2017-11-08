@@ -1,28 +1,34 @@
 # R/3.4.1
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
-load("./RNAseq_data/DO188b_kidney.RData")
+load("./RNAseq_data/DO188b_kidney_noprobs.RData")
 library(dplyr)
 
 # Get list of genes with trans eQTL
-list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == 12, ]
 
 # parameters
 addscan.dir <- "./QTLscan/addscan_mrna_Akt1/"
 intscan.dir.Age <- "./QTLscan/intscan_mrna_Akt1/"
-file.name <- function(i) paste0(annot.mrna$id[i],"_",annot.mrna$symbol[i],".rds")
-output.file1 <- "./QTLscan/output/eQTLBestperGeneAddAkt1.csv"
+output.file1 <- "./QTLscan/output/eQTLBestperGeneAddAkt1thr6.csv"
 
 annot.mrna <- annot.mrna[annot.mrna$id %in% list$id,]
 output <- annot.mrna[,c(1:5,9)]
 output$AdditiveLOD <- output$AdditivePos <-  output$AdditiveChr <- NA
 output$IntAgeLODFull <- output$IntAgeLODDiff <- output$IntAgePos <- output$IntAgeChr <- NA
 
+file.name <- function(i) paste0(output$id[i],"_",output$symbol[i],".rds")
+
 # for
 for (i in 1:nrow(output)) {
   if (i %% 10 == 0) print(i)
-  fit0 <- readRDS(paste0(addscan.dir,file.name(i)))
-  fitAge <- readRDS(paste0(intscan.dir.Age, file.name(i)))
+
+  if(file.exists(paste0(addscan.dir,file.name(i))) && file.exists(paste0(intscan.dir.Age, file.name(i)))){
+    fit0 <- readRDS(paste0(addscan.dir,file.name(i)))
+    fitAge <- readRDS(paste0(intscan.dir.Age, file.name(i)))
+  }else{
+    next
+  }
 
   # additive scan
   dt <- data.frame(AdditiveChr=sapply(strsplit(rownames(fit0),"_"), "[", 1),
@@ -54,11 +60,11 @@ for (i in 1:nrow(output)) {
 write.csv(output, file=output.file1, row.names=FALSE)
 
 # compare:
-list <- read.csv("./QTLscan/output/Threshold8_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == 12, ]
 list <- arrange(list, id)
 
-list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAkt1.csv", header = TRUE, stringsAsFactors = FALSE)
+list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAkt1thr6.csv", header = TRUE, stringsAsFactors = FALSE)
 list_add <- arrange(list_add, id)
 
 compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
