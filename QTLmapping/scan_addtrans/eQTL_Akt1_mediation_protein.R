@@ -66,7 +66,7 @@ list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, s
 list <- list[list$IntAgeChr == 12, ]
 list <- arrange(list, id)
 
-list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAkt1thr6.csv", header = TRUE, stringsAsFactors = FALSE)
+list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddAKT1thr6.csv", header = TRUE, stringsAsFactors = FALSE)
 list_add <- arrange(list_add, id)
 
 compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
@@ -74,17 +74,17 @@ compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
 compare <- compare[complete.cases(compare$addIntAgeChr),]
-write.csv(compare, file="./QTLscan/output/eQTLintAkt1thr6.csv")
+write.csv(compare, file="./QTLscan/output/eQTLintAKT1thr6.csv")
 
 # Plot LOD score
-pdf("./QTLscan/output/plots/eQTL_Akt1Mediation_thr6.pdf", width = 9, heigh =9)
+pdf("./QTLscan/output/plots/eQTL_AKT1Mediation_thr6.pdf", width = 9, heigh =9)
 ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff, colour = change)) +
   geom_point(alpha=0.5) +
   geom_abline(intercept = 0, slope = 1, color="red") +
   guides(colour=guide_legend(title = "Mediation")) +
   xlab("LOD score Interactive age eQTL-diff") +
-  ylab("LOD score (X | Akt1)") +
+  ylab("LOD score (X | AKT1)") +
   theme_bw() +
-  labs(title="Akt1 eQTL Chr12 Genes Mediation",
+  labs(title="AKT1 eQTL Chr12 Genes Mediation",
        subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, mediated: ", table(compare$change)[[2]], " genes, threshold > 6 "))
 dev.off()
