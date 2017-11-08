@@ -92,15 +92,15 @@ pQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
             panel.grid.major = element_blank(),
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
-density <- ggplot(Int_age, aes(q_gbm, ..count.., colour = "grey", fill = "grey")) +
-      geom_density() +
+density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
+      geom_histogram(breaks = seq(0,max(Int_age$q_gbm), by = 10)) +
       scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
                          expand = c(0,0)) +
-      scale_y_continuous(name ="Density", breaks = c(0.1, 0.2, 0.3)) +
+      scale_y_continuous(name ="Density", breaks = seq(0,40, by = 5)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
