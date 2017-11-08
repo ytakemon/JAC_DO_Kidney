@@ -1,7 +1,9 @@
 # R/3.4.1
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
 load("./RNAseq_data/DO188b_kidney_noprobs.RData")
+library(ggplot2)
 library(dplyr)
+library(scales)
 
 # Get list of genes with trans eQTL
 list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -71,6 +73,18 @@ compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDi
 compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
-write.csv(compare, file="./QTLscan/output/eQTLintAkt1.csv")
+compare <- compare[complete.cases(compare$addIntAgeChr),]
+write.csv(compare, file="./QTLscan/output/eQTLintAkt1thr6.csv")
 
-Mediated <- compare[compare$change == TRUE,]
+# Plot LOD score
+pdf("./QTLscan/output/plots/eQTL_Akt1Mediation_thr6.pdf", width = 9, heigh =9)
+ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff, colour = change)) +
+  geom_point(alpha=0.5) +
+  geom_abline(intercept = 0, slope = 1, color="red") +
+  guides(colour=guide_legend(title = "Mediation")) +
+  xlab("LOD score Interactive age eQTL-diff") +
+  ylab("LOD score (X | Akt1)") +
+  theme_bw() +
+  labs(title="Akt1 eQTL Chr12 Genes Mediation",
+       subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, mediated: ", table(compare$change)[[2]], " genes, threshold > 6 "))
+dev.off()
