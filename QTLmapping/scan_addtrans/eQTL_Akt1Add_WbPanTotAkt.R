@@ -66,7 +66,7 @@ other.ids <- function(gene.name, level) {
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
-  addcovar <- model.matrix(~ Sex + Age + Generation + akt$Total_Pan.AKT, data=annot.samples)
+  addcovar <- model.matrix(~ Sex + Age + Generation + log(akt$Total_Pan.AKT), data=annot.samples)
 
   p <- list[p]
   p <- other.ids(p, "mRNA")
