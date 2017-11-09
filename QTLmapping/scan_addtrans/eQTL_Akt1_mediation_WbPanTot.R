@@ -84,23 +84,25 @@ list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, s
 list <- list[list$IntAgeChr == 12, ]
 list <- arrange(list, id)
 
+output.file1 <- "./QTLscan/output/eQTLBestperGeneAddWB_PanTotAkt1thr6_chr12.csv"
 list_add <- read.csv(output.file1, header = TRUE, stringsAsFactors = FALSE)
 list_add <- arrange(list_add, id)
 
-compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
+compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgePos", "IntAgeLODDiff")]
 compare$addIntAgeChr <- list_add$IntAgeChr
+compare$addIntAgePos <- list_add$IntAgePos
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
-compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
 compare <- compare[complete.cases(compare$addIntAgeChr),]
-write.csv(compare, file="./QTLscan/output/eQTLintPanTotAkt1thr6_chr12.csv")
+write.csv(compare, file="./QTLscan/output/eQTLintPanTotAkt1thr6_chr12.csv", row.names = FALSE)
 
 # Plot Chr12 LOD scores
 pdf("./QTLscan/output/plots/eQTL_PanTotAkt1Mediation_chr12_thr6.pdf", width = 9, heigh =9)
 ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
   geom_point(alpha=0.5) +
   geom_abline(intercept = 0, slope = 1, color="red") +
-  xlab("LOD score Interactive age eQTL-diff") +
-  ylab("LOD score (X | Pan-total-AKT1)") +
+  geom_abline(intercept = -2, slope = 1, color="blue") +
+  scale_x_continuous("LOD score Interactive age eQTL-diff", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1)) +
+  scale_y_continuous("LOD score (X | Pan-total-AKT1)", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1)) +
   theme_bw() +
   labs(title="Pan-total-AKT1 eQTL Chr12 Genes Mediation",
        subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, threshold > 6 "))
