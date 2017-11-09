@@ -66,7 +66,7 @@ list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, s
 list <- list[list$IntAgeChr == 12, ]
 list <- arrange(list, id)
 
-list_add <- read.csv("./QTLscan/output/eQTLBestperGeneAddWB_PanTotAkt1thr6", header = TRUE, stringsAsFactors = FALSE)
+list_add <- read.csv(output.file1, header = TRUE, stringsAsFactors = FALSE)
 list_add <- arrange(list_add, id)
 
 compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
