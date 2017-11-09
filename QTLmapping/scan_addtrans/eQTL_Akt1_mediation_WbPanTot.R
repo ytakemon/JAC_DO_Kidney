@@ -12,7 +12,7 @@ list <- list[list$IntAgeChr == 12, ]
 # parameters
 addscan.dir <- "./QTLscan/addscan_mrna_WB_PanTotAkt1/"
 intscan.dir.Age <- "./QTLscan/intscan_mrna_WB_PanTotAkt1/"
-output.file1 <- "./QTLscan/output/eQTLBestperGeneAddWB_PanTotAkt1thr6.csv"
+output.file1 <- "./QTLscan/output/eQTLBestperGeneAddWB_PanTotAkt1thr6_chr12.csv"
 
 annot.mrna <- annot.mrna[annot.mrna$id %in% list$id,]
 output <- annot.mrna[,c(1:5,9)]
@@ -36,12 +36,21 @@ for (i in 1:nrow(output)) {
   dt <- data.frame(AdditiveChr=sapply(strsplit(rownames(fit0),"_"), "[", 1),
                    AdditivePos=as.numeric(sapply(strsplit(rownames(fit0),"_"), "[", 2)),
                    AdditiveLOD=fit0[,1], stringsAsFactors=FALSE)
+
+  # find max lod score of whole genome
+  # dt2 <- dt %>% group_by(AdditiveChr) %>%
+  #       summarize(AdditivePos = AdditivePos[which.max(AdditiveLOD)[1]],
+  #                  AdditiveLOD = max(AdditiveLOD)) %>%
+  #        arrange(-AdditiveLOD)
+  # output[i, c("AdditiveChr", "AdditivePos", "AdditiveLOD")] <- dt2[1,]
+
+  # find max lod score of chr12 ONLY!
+  dt2 <- dt[dt$AdditiveChr == "12",]
   dt2 <- dt %>% group_by(AdditiveChr) %>%
-         summarize(AdditivePos = AdditivePos[which.max(AdditiveLOD)[1]],
+        summarize(AdditivePos = AdditivePos[which.max(AdditiveLOD)[1]],
                    AdditiveLOD = max(AdditiveLOD)) %>%
          arrange(-AdditiveLOD)
-
-  output[i, c("AdditiveChr", "AdditivePos", "AdditiveLOD")] <- dt2[1,]
+  output[i, c("AdditiveChr", "AdditivePos", "AdditiveLOD")] <- dt2[dt2$AdditiveChr == "12",]
 
   # int. scan - Age
   stopifnot(rownames(fit0) == rownames(fitAge))
@@ -50,14 +59,23 @@ for (i in 1:nrow(output)) {
                    IntAgeLODDiff=fitAge[,1] - fit0[,1],
                    IntAgeLODFull = fitAge[,1],
                    stringsAsFactors=FALSE)
+
+  # find max lod score of whole genome
+  # dt2 <- dt %>% group_by(IntAgeChr) %>%
+  #        summarize(IntAgePos = IntAgePos[which.max(IntAgeLODFull)[1]],
+  #                  IntAgeLODDiff=IntAgeLODDiff[which.max(IntAgeLODFull)[1]],
+  #                  IntAgeLODFull = max(IntAgeLODFull)) %>%
+  #        arrange(-IntAgeLODDiff)
+  # output[i, c("IntAgeChr", "IntAgePos", "IntAgeLODDiff", "IntAgeLODFull")] <- dt2[1,]
+
+  # find max lod score of chr12 ONLY!
   dt2 <- dt %>% group_by(IntAgeChr) %>%
          summarize(IntAgePos = IntAgePos[which.max(IntAgeLODFull)[1]],
                    IntAgeLODDiff=IntAgeLODDiff[which.max(IntAgeLODFull)[1]],
                    IntAgeLODFull = max(IntAgeLODFull)) %>%
          arrange(-IntAgeLODDiff)
-  output[i, c("IntAgeChr", "IntAgePos", "IntAgeLODDiff", "IntAgeLODFull")] <- dt2[1,]
+  output[i, c("IntAgeChr", "IntAgePos", "IntAgeLODDiff", "IntAgeLODFull")] <- dt2[dt2$IntAgeChr == "12",]
 }
-
 # collect rows into one data frame
 write.csv(output, file=output.file1, row.names=FALSE)
 
@@ -74,17 +92,33 @@ compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
 compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
 compare <- compare[complete.cases(compare$addIntAgeChr),]
-write.csv(compare, file="./QTLscan/output/eQTLintPanTotAkt1thr6.csv")
+write.csv(compare, file="./QTLscan/output/eQTLintPanTotAkt1thr6_chr12.csv")
 
-# Plot LOD score
-pdf("./QTLscan/output/plots/eQTL_PanTotAkt1Mediation_thr6.pdf", width = 9, heigh =9)
-ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff, colour = change)) +
+# Plot Chr12 LOD scores
+pdf("./QTLscan/output/plots/eQTL_PanTotAkt1Mediation_chr12_thr6.pdf", width = 9, heigh =9)
+ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
   geom_point(alpha=0.5) +
   geom_abline(intercept = 0, slope = 1, color="red") +
-  guides(colour=guide_legend(title = "Mediation")) +
   xlab("LOD score Interactive age eQTL-diff") +
   ylab("LOD score (X | Pan-total-AKT1)") +
   theme_bw() +
   labs(title="Pan-total-AKT1 eQTL Chr12 Genes Mediation",
-       subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, mediated: ", table(compare$change)[[2]], " genes, threshold > 6 "))
+       subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, threshold > 6 "))
 dev.off()
+
+
+
+# Plot LOD score
+# pdf("./QTLscan/output/plots/eQTL_PanTotAkt1Mediation_thr6.pdf", width = 9, heigh =9)
+# ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff, colour = change)) +
+#   geom_point(alpha=0.5) +
+#   geom_abline(intercept = 0, slope = 1, color="red") +
+#   guides(colour=guide_legend(title = "Mediation")) +
+#   xlab("LOD score Interactive age eQTL-diff") +
+#   ylab("LOD score (X | Pan-total-AKT1)") +
+#   theme_bw() +
+#   labs(title="Pan-total-AKT1 eQTL Chr12 Genes Mediation",
+#        subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, threshold > 6 "))
+# dev.off()
+
+# qsub -v script=test2 Rsubmit_args.sh

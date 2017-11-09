@@ -91,7 +91,6 @@ list_add <- arrange(list_add, id)
 compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgeLODDiff")]
 compare$addIntAgeChr <- list_add$IntAgeChr
 compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
-compare$change <- !(compare$IntAgeChr == compare$addIntAgeChr)
 compare <- compare[complete.cases(compare$addIntAgeChr),]
 write.csv(compare, file="./QTLscan/output/eQTLintAkt1thr6_chr12.csv")
 
