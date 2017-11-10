@@ -6,7 +6,7 @@ load("./shiny_annotation.RData")
 load("./RNAseq_data/DO188b_kidney_noprobs.RData")
 
 # Identify gene name
-gene_name <- "Pdgfb"
+gene_name <- "Slc34a1"
 other.ids <- function(gene.name, level) {
   if (level == "mRNA") {
     sel <- which(mRNA.list$symbol == gene.name)[1]
@@ -30,7 +30,7 @@ df$Sex <- as.factor(df$Sex)
 mRNA <- ggplot(df, aes(x = Age, y = mRNA, fill = Sex))+
               geom_smooth(method = "lm", se=FALSE, aes(group = Sex, colour = Sex, fill = Sex)) +
               geom_point(aes(colour = Sex, fill = Sex, alpha = 0.5), size = 2, shape = 21, position = position_jitterdodge())+
-              labs( title = paste0(gene, " ", gene_name, " mRNA")) +
+              labs( title = paste0(gene_name, " mRNA")) +
               guides(alpha = FALSE) +
               theme(panel.background = element_blank(),
               panel.grid.minor = element_blank(),
@@ -41,7 +41,7 @@ mRNA <- ggplot(df, aes(x = Age, y = mRNA, fill = Sex))+
 protein <- ggplot(df, aes(x = Age, y = Protein, fill = Sex))+
               geom_smooth(method = "lm", se=FALSE, aes(group = Sex, colour = Sex, fill = Sex)) +
               geom_point(aes(colour = Sex, fill = Sex, alpha = 0.5), size = 2, shape = 21, position = position_jitterdodge())+
-              labs(title = paste0(gene, " ", gene_name, " Protein")) +
+              labs(title = paste0(gene_name, " Protein")) +
               guides(alpha = FALSE) +
               theme(panel.background = element_blank(),
               panel.grid.minor = element_blank(),

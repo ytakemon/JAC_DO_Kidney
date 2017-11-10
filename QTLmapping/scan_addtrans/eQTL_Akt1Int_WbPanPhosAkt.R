@@ -1,9 +1,9 @@
 # run with:
-# qsub -v script=eQTL_Akt1Add_WbPanPosAkt2 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add_WbPanPosAkt4 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add_WbPanPosAkt6 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add_WbPanPosAkt8 Rsubmit_args.sh
-# qsub -v script=eQTL_Akt1Add_WbPanPosAkt9 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanPhosAkt Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt4 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt6 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt8 Rsubmit_args.sh
+# qsub -v script=eQTL_Akt1Int_WbPanTotAkt9 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2geno)
@@ -62,11 +62,11 @@ other.ids <- function(gene.name, level) {
 #for (p in 401:600){
 #for (p in 601:800){
 #for (p in 801:length(list)){
-
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
   addcovar <- model.matrix(~ Sex + Age + Generation + log(akt$Phospho_Pan.AKT), data=annot.samples)
+  intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
   p <- other.ids(p, "mRNA")
@@ -76,9 +76,10 @@ for (p in 1:length(list)){
                kinship=K,
                pheno=expr.mrna[, p$id],
                addcovar=addcovar[,-1],
+               intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/addscan_mrna_WB_PanPhosAkt1/", p$id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/intscan_mrna_WB_PanPhosAkt1/", p$id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }
