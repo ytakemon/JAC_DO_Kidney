@@ -21,7 +21,7 @@ eQTL_best$IntAge_point <- paste(eQTL_best$IntAgeChr, eQTL_best$IntAgePos, sep = 
 eQTL_best$IngSex_point <- paste(eQTL_best$IntSexChr, eQTL_best$IntSexPos, sep = ".")
 
 # Set LOD threshold
-LODthreshold_diff <- 8
+LODthreshold_diff <- 6
 
 # Plot Interactive-Age eQTLs
 # Subset Int-Age LOD above total/full and diff
@@ -106,7 +106,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
                          expand = c(0,0)) +
-      scale_y_continuous(name ="Density", breaks = seq(0,120, by = 20)) +
+      scale_y_continuous(name ="Density", breaks = seq(0,300, by = 20)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
@@ -120,7 +120,7 @@ pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 9, heigh =9)
 eQTL
 dev.off()
 
-pdf("./QTLscan/output/plots/eQTL_IntAge_thr8_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/eQTL_IntAge_thr6_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(eQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))

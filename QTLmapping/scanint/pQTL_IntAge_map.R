@@ -1,6 +1,7 @@
 # R/3.4.1
 library(ggplot2)
 library(dplyr)
+library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 pQTL_best <- read.csv("./QTLscan/output/pQTLBestperGene.csv")
 
@@ -100,7 +101,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
                          expand = c(0,0)) +
-      scale_y_continuous(name ="Density", breaks = seq(0,40, by = 5)) +
+      scale_y_continuous(name ="Density", breaks = seq(0,100, by = 10)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
@@ -110,12 +111,12 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 # pQTL plot
-pdf("./QTLscan/output/plots/pQTL_IntAge_thr8.pdf", width = 6, height =6)
+pdf("./QTLscan/output/plots/pQTL_IntAge_thr6.pdf", width = 6, height =6)
 pQTL
 dev.off()
 
 
-pdf("./QTLscan/output/plots/pQTL_IntAge_thr8_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/pQTL_IntAge_thr6_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
