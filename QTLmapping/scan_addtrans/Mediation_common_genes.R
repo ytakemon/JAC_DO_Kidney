@@ -20,12 +20,12 @@ akt <- akt[akt$drop2 == TRUE,]
 AKT <- AKT[AKT$drop2 == TRUE,]
 AKT_wb_tot <- AKT_wb_tot[AKT_wb_tot$drop2 == TRUE,]
 
-> nrow(akt)
-[1] 186  11
-> nrow(AKT)
-[1] 14 11
-> nrow(AKT_wb_tot)
-[1] 209  11
+#> nrow(akt)
+#[1] 186  11
+#> nrow(AKT)
+#[1] 14 11
+#> nrow(AKT_wb_tot)
+#[1] 209  11
 
 # mRNA - shotgun proteomics
 if (nrow(akt) > nrow(AKT)){
