@@ -26,10 +26,10 @@ for (p in plist) {
   for (j in 1:20)
     Glist2 <- Glist[[j]][present,present]
   if (length(unique(annot.samples$Generation[present]))>1){
-    addcovar <- model.matrix(~ Sex + Age + Generation + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples[present, ])
     intcovar2<- model.matrix(~ Age, data=annot.samples[present, ])
   } else {
-    addcovar <- model.matrix(~ Sex + Age + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + Protein.Batch + Protein.Channel, data=annot.samples[present, ])
     intcovar2<- model.matrix(~ Age, data=annot.samples[present, ])
   }
 
