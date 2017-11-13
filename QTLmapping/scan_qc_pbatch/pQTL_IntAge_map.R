@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-pQTL_best <- read.csv("./QTLscan/output/pQTLBestperGene.csv")
+pQTL_best <- read.csv("./QTLscan/output/pQTLBestperGene_pbatch.csv")
 
 # Usinb pQTL_best to create plot
 # need to reorder "chr" factors
@@ -21,7 +21,7 @@ pQTL_best$IntAge_point <- paste(pQTL_best$IntAgeChr, pQTL_best$IntAgePos, sep = 
 pQTL_best$IngSex_point <- paste(pQTL_best$IntSexChr, pQTL_best$IntSexPos, sep = ".")
 
 # Set LOD threshold
-LODthreshold_diff <- 6
+LODthreshold_diff <- 8
 
 # Plot Interactive-Age pQTLs
 # Subset Int-Age LOD above total/full and diff
@@ -111,12 +111,12 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 # pQTL plot
-pdf("./QTLscan/output/plots/pQTL_IntAge_thr6.pdf", width = 6, height =6)
+pdf("./QTLscan/output/plots/pQTL_IntAge_pbatch_thr6.pdf", width = 6, height =6)
 pQTL
 dev.off()
 
 
-pdf("./QTLscan/output/plots/pQTL_IntAge_thr6_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/pQTL_IntAge_pbatch_thr6_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
