@@ -26,22 +26,13 @@ for (p in plist) {
   for (j in 1:20)
     Glist2 <- Glist[[j]][present,present]
   if (length(unique(annot.samples$Generation[present]))>1){
-    addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples[present, ])
-    intcovar <- model.matrix(~ Sex, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + Generation + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
     intcovar2<- model.matrix(~ Age, data=annot.samples[present, ])
   } else {
-    addcovar <- model.matrix(~ Sex + Age, data=annot.samples[present, ])
-    intcovar <- model.matrix(~ Sex, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
     intcovar2<- model.matrix(~ Age, data=annot.samples[present, ])
   }
 
-  # lod score
-  lod1 <- scan1(genoprobs=probs[present,],
-               kinship=Glist2,
-               pheno=expr.protein[present,p],
-               addcovar=addcovar[,-1],
-               intcovar=intcovar[,-1],
-               cores=10, reml=TRUE)
   # save lod object
   lod2 <- scan1(genoprobs=probs[present,],
                kinship=Glist2,
@@ -50,8 +41,6 @@ for (p in plist) {
                intcovar=intcovar2[,-1],
                cores=10, reml=TRUE)
   # save lod object
-  file_name1 <- paste0("./QTLscan/intscan_prot/Sex/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
-  file_name2 <- paste0("./QTLscan/intscan_prot/Age/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
-  saveRDS(lod1, file=file_name1)
+  file_name2 <- paste0("./QTLscan/intscan_prot_pbatch/Age/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(lod2, file=file_name2)
 }

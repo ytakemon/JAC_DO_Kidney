@@ -26,9 +26,9 @@ for (p in plist) {
   for (j in 1:20)
     Glist2 <- Glist[[j]][present,present]
   if (length(unique(annot.samples$Generation[present]))>1){
-    addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + Generation + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
   } else {
-    addcovar <- model.matrix(~ Sex + Age, data=annot.samples[present, ])
+    addcovar <- model.matrix(~ Sex + Age + annot.samples$Protein.Batch + annot.samples$Protein.Channel, data=annot.samples[present, ])
   }
 
   # lod score
@@ -39,6 +39,6 @@ for (p in plist) {
                cores=10, reml=TRUE)
 
   # save lod object
-  file_name <- paste0("./QTLscan/addscan_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+  file_name <- paste0("./QTLscan/addscan_prot_pbatch/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(lod, file=file_name)
 }

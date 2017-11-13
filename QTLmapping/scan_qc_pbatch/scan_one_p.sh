@@ -2,6 +2,6 @@
 
 module load R/3.4.1
 
-cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/QTLmapping/pbatch_qc
 
 Rscript scan_one_p.R $col
