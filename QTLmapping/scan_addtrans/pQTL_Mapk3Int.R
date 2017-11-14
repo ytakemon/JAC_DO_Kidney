@@ -11,23 +11,12 @@ load("./RNAseq_data/DO188b_kidney.RData")
 # Get list of genes with trans eQTL
 list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == 7, ]
-list <- list$symbol
+list <- list$id # ENS protein id
 
 # Identify gene name,
 # Mapk3 gene expression is thought to mediate genes that have pQTL on Chr7
 trans <- "Mapk3"
-other.ids <- function(gene.name, level) {
-  if (level == "mRNA") {
-    sel <- which(mRNA.list$symbol == gene.name)[1]
-    if (!is.na(sel)) return(mRNA.list[sel,]) else return(c(NA,NA,NA))
-  }
-  if (level == "protein") {
-    sel <- which(protein.list$symbol == gene.name)[1]
-    if (!is.na(sel)) return(protein.list[sel,]) else return(c(NA,NA,NA))
-  }
-}
-trans <- other.ids(trans, "mRNA")
-
+trans <- annot.mrna[annot.mrna$symbol == trans,]
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
@@ -42,7 +31,7 @@ for (p in 1:length(list)){
   intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
-  p <- annot.protein[annot.protein$symbol == p,]
+  p <- annot.protein[annot.protein$id == p,]
 
   # Lod score
   lod <- scan1(genoprobs=probs,
