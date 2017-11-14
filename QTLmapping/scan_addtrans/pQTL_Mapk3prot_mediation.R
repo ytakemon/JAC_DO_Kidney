@@ -114,7 +114,7 @@ ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
   scale_x_continuous( name = "LOD score Interactive age pQTL-diff",
                       breaks = seq(0, 15, by = 1),
                       labels = seq(0, 15, by = 1)) +
-  scale_y_continuous( name = "LOD score (X | MAPK)",
+  scale_y_continuous( name = "LOD score (X | MAPK3)",
                       breaks = seq(0, 12, by = 1),
                       labels = seq(0, 12, by = 1)) +
   theme_bw() +
