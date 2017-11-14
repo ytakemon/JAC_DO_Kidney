@@ -1,5 +1,5 @@
 # run with:
-# qsub -v script=pQTL_Mapk3Int Rsubmit_args.sh
+# qsub -v script=pQTL_Mapk3Intprot Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
@@ -16,7 +16,7 @@ list <- list$id # ENS protein id
 # Identify gene name,
 # Mapk3 gene expression is thought to mediate genes that have pQTL on Chr7
 trans <- "Mapk3"
-trans <- annot.mrna[annot.mrna$symbol == trans,]
+trans <- annot.protein[annot.protein$symbol == trans,]
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
@@ -27,7 +27,7 @@ map <- map_df_to_list(map = snps, pos_column = "bp")
 for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
-  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + expr.mrna[,trans$id], data=annot.samples)
+  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + expr.protein[,trans$id], data=annot.samples)
   intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
@@ -42,6 +42,6 @@ for (p in 1:length(list)){
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/intscan_prot_Mapk3/", p$id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/intscan_prot_Mapk3prot/", p$id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }

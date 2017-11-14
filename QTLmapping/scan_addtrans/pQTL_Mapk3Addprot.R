@@ -1,5 +1,5 @@
 # run with:
-# qsub -v script=pQTL_Mapk3Add Rsubmit_args.sh
+# qsub -v script=pQTL_Mapk3Addprot Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
