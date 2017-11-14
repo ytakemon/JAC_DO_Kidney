@@ -32,7 +32,7 @@ Int_age <- pQTL_best[(pQTL_best$IntAgeLODDiff >= LODthreshold_diff),] # above di
 save_int_age <- Int_age[,c("id", "gene_id","symbol","chr","start","end", "biotype", "IntAgeChr","IntAgePos","IntAgeLODDiff","IntAgeLODFull")]
 save_int_age <- arrange(save_int_age, IntAgeChr, IntAgePos)
 # save annotated list for sharing
-# write.csv(save_int_age, "./QTLscan/output/Threshold6_pQTL_intAge.csv", row.names = FALSE, quote = FALSE)
+# write.csv(save_int_age, "./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", row.names = FALSE, quote = FALSE)
 
 # Convert transcript and qtl position relative to chromosome positions
 # Convert to megabases
@@ -116,7 +116,7 @@ pQTL
 dev.off()
 
 
-pdf("./QTLscan/output/plots/pQTL_IntAge_pbatch_thr6_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/pQTL_IntAge_pbatch_thr8_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
