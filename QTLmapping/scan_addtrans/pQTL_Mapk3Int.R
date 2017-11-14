@@ -42,17 +42,17 @@ for (p in 1:length(list)){
   intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
-  p <- other.ids(p, "protein")
+  p <- annot.protein[annot.protein$symbol == p,]
 
   # Lod score
   lod <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.protein[, p$protein_id],
+               pheno=expr.protein[, p$id],
                addcovar=addcovar[,-1],
                intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/intscan_prot_Mapk3/", p$protein_id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/intscan_prot_Mapk3/", p$id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }
