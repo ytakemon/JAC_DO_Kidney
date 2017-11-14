@@ -1,5 +1,5 @@
 # run with:
-# qsub -v script=pQTL_Mapk3Add Rsubmit_args.sh
+# qsub -v script=pQTL_Mapk3Int Rsubmit_args.sh
 
 library(qtl2geno)
 library(qtl2scan)
@@ -39,6 +39,7 @@ for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
   addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + expr.mrna[,trans$id], data=annot.samples)
+  intcovar <- model.matrix(~ Age, data=annot.samples)
 
   p <- list[p]
   p <- other.ids(p, "protein")
@@ -48,9 +49,10 @@ for (p in 1:length(list)){
                kinship=Glist,
                pheno=expr.protein[, p$protein_id],
                addcovar=addcovar[,-1],
+               intcovar=intcovar[,-1],
                cores=10, reml=TRUE)
 
   # Save lod object
-  file_name <- paste0("./QTLscan/addscan_prot_Mapk3/", p$protein_id, "_", p$symbol, ".rds")
+  file_name <- paste0("./QTLscan/intscan_prot_Mapk3/", p$protein_id, "_", p$symbol, ".rds")
   saveRDS(lod, file = file_name)
 }
