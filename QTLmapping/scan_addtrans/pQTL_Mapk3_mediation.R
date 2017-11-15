@@ -1,4 +1,4 @@
-# qsub -v script=pQTL_Mapk3Add_mediation Rsubmit_args.sh
+# qsub -v script=pQTL_Mapk3_mediation Rsubmit_args.sh
 
 # R/3.4.1
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
@@ -8,7 +8,7 @@ library(dplyr)
 library(scales)
 
 # Get list of genes with trans pQTL
-list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 chr <- "7"
 list <- list[list$IntAgeChr == chr, ]
 gene <- "Mapk3"
@@ -16,7 +16,7 @@ gene <- "Mapk3"
 # parameters
 addscan.dir <- "./QTLscan/addscan_prot_Mapk3/"
 intscan.dir.Age <- "./QTLscan/intscan_prot_Mapk3/"
-output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3_thr8_chr7.csv"
+output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3_thr6_chr7.csv"
 
 annot.protein <- annot.protein[annot.protein$id %in% list$id,]
 output <- annot.protein[,c(1:6,10)]
@@ -85,8 +85,9 @@ for (i in 1:nrow(output)) {
 write.csv(output, file=output.file1, row.names=FALSE)
 
 # compare & plot -------------------------------------------------------------
-list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == chr, ]
+list <- arrange(list, id)
 
 
 # output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3_thr8_chr7.csv"
@@ -99,14 +100,14 @@ if (identical(list$id, list_add$id)){
   compare$addIntAgePos <- list_add$IntAgePos
   compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
   compare <- compare[complete.cases(compare$addIntAgeChr),]
-  write.csv(compare, file="./QTLscan/output/pQTLint_Mapk3_chr7.csv", row.names = FALSE)
+  write.csv(compare, file="./QTLscan/output/pQTLint_Mapk3_chr7_thr6.csv", row.names = FALSE)
 } else {
   print("Lists do not match")
 }
 
 
 # Plot Chr15 LOD scores
-pdf("./QTLscan/output/plots/pQTL_Mapk3_Mediation_chr7_thr8.pdf", width = 9, heigh =9)
+pdf("./QTLscan/output/plots/pQTL_Mapk3_Mediation_chr7_thr6.pdf", width = 9, heigh =9)
 ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
   geom_point(alpha=0.5) +
   geom_abline(intercept = 0, slope = 1, color="red") +
@@ -119,7 +120,7 @@ ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
                       labels = seq(0, 12, by = 1)) +
   theme_bw() +
   labs(title=paste0("pQTL Chr", chr, " Genes ", gene, " Mediation"),
-       subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 8 "))
+       subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 "))
 dev.off()
 
 # Plot LOD score *retired*

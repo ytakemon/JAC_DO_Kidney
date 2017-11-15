@@ -8,7 +8,7 @@ library(dplyr)
 library(scales)
 
 # Get list of genes with trans pQTL
-list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 chr <- "7"
 list <- list[list$IntAgeChr == chr, ]
 gene <- "Mapk3"
@@ -16,7 +16,7 @@ gene <- "Mapk3"
 # parameters
 addscan.dir <- "./QTLscan/addscan_prot_Mapk3prot/"
 intscan.dir.Age <- "./QTLscan/intscan_prot_Mapk3prot/"
-output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3prot_thr8_chr7.csv"
+output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3prot_thr6_chr7.csv"
 
 annot.protein <- annot.protein[annot.protein$id %in% list$id,]
 output <- annot.protein[,c(1:6,10)]
@@ -85,9 +85,9 @@ for (i in 1:nrow(output)) {
 write.csv(output, file=output.file1, row.names=FALSE)
 
 # compare & plot -------------------------------------------------------------
-list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == chr, ]
-
+list <- arrange(list, id)
 
 # output.file1 <- "./QTLscan/output/pQTLBestperGene_Mapk3_thr8_chr7.csv"
 list_add <- read.csv(file = paste(output.file1), header = TRUE, stringsAsFactors = FALSE)
@@ -106,7 +106,7 @@ if (identical(list$id, list_add$id)){
 
 
 # Plot Chr15 LOD scores
-pdf("./QTLscan/output/plots/pQTL_Mapk3prot_Mediation_chr7_thr8.pdf", width = 9, heigh =9)
+pdf("./QTLscan/output/plots/pQTL_Mapk3prot_Mediation_chr7_thr6.pdf", width = 9, heigh =9)
 ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
   geom_point(alpha=0.5) +
   geom_abline(intercept = 0, slope = 1, color="red") +
@@ -119,7 +119,7 @@ ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
                       labels = seq(0, 12, by = 1)) +
   theme_bw() +
   labs(title=paste0("pQTL Chr", chr, " Genes ", toupper(gene), " Mediation"),
-       subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 8 "))
+       subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 "))
 dev.off()
 
 # Plot LOD score *retired*
