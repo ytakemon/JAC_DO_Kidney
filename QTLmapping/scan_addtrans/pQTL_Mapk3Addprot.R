@@ -9,7 +9,7 @@ load("./shiny_annotation.RData")
 load("./RNAseq_data/DO188b_kidney.RData")
 
 # Get list of genes with trans eQTL
-list <- read.csv("./QTLscan/output/Threshold8_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
+list <- read.csv("./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", header = TRUE, stringsAsFactors = FALSE)
 list <- list[list$IntAgeChr == 7, ]
 list <- list$id # ENS protein id
 
