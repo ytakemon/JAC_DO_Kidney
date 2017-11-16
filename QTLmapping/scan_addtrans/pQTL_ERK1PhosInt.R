@@ -43,7 +43,8 @@ for (p in 1:length(list)){
 
   cat("Scanning ",p," out of ",length(list),"\n")
   addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + log(erk1), data=annot.samples)
-  intcovar <- <- model.matrix(~ Age, data=annot.samples)
+  intcovar <- model.matrix(~ Age, data=annot.samples)
+
   p <- list[p]
   p <- annot.protein[annot.protein$id == p,]
 
