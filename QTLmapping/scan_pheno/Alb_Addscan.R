@@ -2,20 +2,19 @@
 # Readme: /hpcdata/gac/derived/CGD_DO_Genoprobs/MegaMUGA_hap_probs_v6.README.txt
 # Samples: /hpcdata/gac/raw/JAC_DO_Phenotypes/mouse_info/DO aging study mouse info.xlsx
 library(rhdf5)
+library(xlsx)
 h5 <- "/hpcdata/gac/derived/CGD_DO_Genoprobs/MegaMUGA_hap_probs_v6.h5"
 h5ls(h5)
 jac <- h5read(file = h5, name = "/JAC") #probs are naked, need to populate dimnames
 dimnames(jac$probs) <- list(jac$samples, jac$founders, jac$markers)
 probs <- jac$probs
 
+# get sample annotation
+samples <- read.delim("/hpcdata/gac/raw/JAC_DO_Phenotypes/mouse_info/DO aging study mouse info.txt")
 
 
-# Read in the CJB data set.
-grp = h5read(file = h5filename, name = "/CJB")
-names(grp)
-dimnames(grp$probs) = list(grp$samples, grp$founders, grp$markers)
-probs = grp$probs
-rm(grp)
+
+
 
 
 

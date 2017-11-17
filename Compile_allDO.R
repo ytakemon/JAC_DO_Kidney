@@ -4,6 +4,8 @@
 library(rhdf5)
 library(dplyr)
 library(stringr)
+library(ggplot2)
+library(gridExtra)
 
 # Get JAC data
 # Data: /hpcdata/gac/derived/CGD_DO_Genoprobs/MegaMUGA_hap_probs_v6.h5
@@ -63,52 +65,7 @@ Ulong$Mouse.ID <- rownames(Ulong)
 Ulong <- Ulong[, c(50,11:45)]
 Ulong[,2:36] <- sapply(Ulong[, 2:36], as.numeric)
 
-
-
-> str(Ulong)
-'data.frame':	593 obs. of  36 variables:
- $ Mouse.ID                       : chr  "DO-0481" "DO-0482" "DO-0483" "DO-0484" ...
- $ X28.wk.Cr.urine..mg.dL.        : chr  "66.03" "95.42" "103.17" "124.86" ...
- $ X28.wk.Mg.urine..mg.dL.        : chr  "25.02" "66.32" "42.3" "89.97" ...
- $ X28.wk.Mg.urine..mg.grcreat.   : chr  "378.92" "695.03" "410.00" "720.57" ...
- $ X28.wk.MA.urine..mg.dL.        : chr  "0" "BDR" "BDR" "0.6" ...
- $ X28.wk.MA.urine..mg.grcreat.   : chr  "0" "BDR" "BDR" "4.81" ...
- $ X28.wk.Phs..mg.dL.             : chr  "117" "240" "360" "590" ...
- $ X28.wk.Phs..mg.grcreat.        : num  1772 2515 3489 4725 3478 ...
- $ X54.wk.Cr.urine..mg.dL.        : num  52 71.3 61.8 NA 117.8 ...
- $ X54.wk.Mg.urine..mg.dL.        : chr  "40.27" "72.49" "46.86" NA ...
- $ X54.wk.Mg.urine..mg.grcreat.   : chr  "775.17" "1017.12" "757.88" NA ...
- $ X54.wk.MA.urine..mg.dL.        : chr  "BDR" "BDR" "BDR" NA ...
- $ X54.wk.MA.urine..mg.grcreat.   : chr  "BDR" "BDR" "BDR" NA ...
- $ X54.wk.Phs..mg.dL.             : num  47.5 194.7 312.4 NA 281.7 ...
- $ X54.wk.Phs..mg.grcreat.        : num  914 2732 5053 NA 2390 ...
- $ X80.week.Cr.urine..mg.dL.      : chr  NA "52.77" "85.03" NA ...
- $ X80.week.Mg.urine..mg.dL.      : num  NA 79.5 83.8 NA 130.3 ...
- $ X80.week.Mg.urine..mg.grcreat. : chr  NA "1505.78" "985.89" NA ...
- $ X80.week.MA.urine..mg.dL.      : chr  NA "BDR" "26.7" NA ...
- $ X80.week.MA.urine..mg.grcreat. : chr  NA "BDR" "314.0" NA ...
- $ X80.week.Phs..mg.dL.           : num  NA 231 240 NA 244 ...
- $ X80.weelkPhs..mg.grcreat.      : chr  NA "4377.49" "2819.01" NA ...
- $ X106..week.Cr.urine..mg.dL.    : chr  NA "30.78" "66.91" NA ...
- $ X106.week.Mg.urine..mg.dL.     : num  NA 56.4 78.4 NA 140 ...
- $ X106.week.Mg.urine..mg.grcreat.: chr  NA "1832.4" "1171.7" NA ...
- $ X106.week.MA.urine..mg.dL.     : chr  NA "1.90" "18.30" NA ...
- $ X106.week.MA.urine..mg.grcreat.: chr  NA "61.7" "273.5" NA ...
- $ X106.week.Phs..mg.dL.          : num  NA 53.7 178.5 NA 211.1 ...
- $ X106.weelkPhs..mg.grcreat.     : chr  NA "1744.6" "2667.8" NA ...
- $ X134..week.Cr.urine..mg.dL.    : num  NA NA NA NA NA ...
- $ X134.week.Mg.urine..mg.dL.     : num  NA NA NA NA NA ...
- $ X134.week.Mg.urine..mg.grcreat.: num  NA NA NA NA NA ...
- $ X134.week.MA.urine..mg.dL.     : chr  NA NA NA NA ...
- $ X134.week.MA.urine..mg.grcreat.: chr  NA NA NA NA ...
- $ X134.week.Phs..mg.dL.          : num  NA NA NA NA NA ...
- $ X134.weelkPhs..mg.grcreat.     : num  NA NA NA NA NA ...
-
-
-
-
-
-# Prepare data for rbinding
+# Prepare cross-sectional data
 Ucross_prep <- Ucross[c("Mouse.ID")]
 Ucross_prep$cr.u.6 <- NA
 Ucross_prep$cr.u.12 <- NA
@@ -131,10 +88,10 @@ Ucross_prep$phs.u.18 <- NA
 Ucross_prep$phs.cr.u.6 <- NA
 Ucross_prep$phs.cr.u.12 <- NA
 Ucross_prep$phs.cr.u.18 <- NA
+
 Ucross6 <- Ucross[Ucross$Age.Urine.Chem == 6,]
 Ucross12 <- Ucross[Ucross$Age.Urine.Chem == 12,]
 Ucross18 <- Ucross[Ucross$Age.Urine.Chem == 18,]
-
 Ucross_prep$cr.u.6[which(rownames(Ucross_prep) %in% rownames(Ucross6))] <- Ucross6$cr.u
 Ucross_prep$cr.u.12[which(rownames(Ucross_prep) %in% rownames(Ucross12))] <- Ucross12$cr.u
 Ucross_prep$cr.u.18[which(rownames(Ucross_prep) %in% rownames(Ucross18))] <- Ucross18$cr.u
@@ -156,3 +113,174 @@ Ucross_prep$phs.u.18[which(rownames(Ucross_prep) %in% rownames(Ucross18))] <- Uc
 Ucross_prep$phs.cr.u.6[which(rownames(Ucross_prep) %in% rownames(Ucross6))] <- Ucross6$phs.cr.u
 Ucross_prep$phs.cr.u.12[which(rownames(Ucross_prep) %in% rownames(Ucross12))] <- Ucross12$phs.cr.u
 Ucross_prep$phs.cr.u.18[which(rownames(Ucross_prep) %in% rownames(Ucross18))] <- Ucross18$phs.cr.u
+
+Ucross_prep$study <- "Cross-sectional"
+
+# Plot data before combining ---------------------------------------------------
+# Creatinine
+cr6 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$cr.u.6, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X28.wk.Cr.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "cr.u.6")
+cr12 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$cr.u.12, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X54.wk.Cr.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "cr.u.12")
+cr18 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$cr.u.18, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X80.week.Cr.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "cr.u.18")
+plot_dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Plot/"
+pdf(file = paste0(plot_dir, "PhenoCheck_CrU.pdf"), width = 10, heigh = 5)
+grid.arrange(cr6, cr12, cr18, ncol = 3)
+dev.off()
+
+# Alb
+Alb6 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$ma.u.6, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X28.wk.MA.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "ma.u.6")
+Alb12 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$ma.u.12, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X54.wk.MA.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "ma.u.12")
+Alb18 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$ma.u.18, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X80.week.MA.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "ma.u.18")
+pdf(file = paste0(plot_dir, "PhenoCheck_AlbU.pdf"), width = 10, heigh = 5)
+grid.arrange(Alb6, Alb12, Alb18, ncol = 3)
+dev.off()
+
+#Mg
+Mg6 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$mg.u.6, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X28.wk.Mg.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "mg.u.6")
+Mg12 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$mg.u.12, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X54.wk.Mg.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "mg.u.12")
+Mg18 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$mg.u.18, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X80.week.Mg.urine..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "mg.u.18")
+pdf(file = paste0(plot_dir, "PhenoCheck_MgU.pdf"), width = 10, heigh = 5)
+grid.arrange(Mg6, Mg12, Mg18, ncol = 3)
+dev.off()
+
+#Phs
+Phs6 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$phs.u.6, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X28.wk.Phs..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "phs.u.6")
+Phs12 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$phs.u.12, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X54.wk.Phs..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "phs.u.12")
+Phs18 <- ggplot() +
+  geom_histogram(data = Ucross_prep, aes(Ucross_prep$phs.u.18, fill = "red", alpha = 0.2)) +
+  geom_histogram(data = Ulong, aes(Ulong$X80.week.Phs..mg.dL., fill = "blue", alpha = 0.2))+
+  guides(fill = "none", alpha = "none") +
+  labs(title= "phs.u.18")
+pdf(file = paste0(plot_dir, "PhenoCheck_PhsU.pdf"), width = 10, heigh = 5)
+grid.arrange(Phs6, Phs12, Phs18, ncol = 3)
+dev.off()
+
+# Looks good, can combine longitutional with cross-sectional data.
+# Prepare longitudinal data
+Ulong_prep <- as.data.frame(Ulong[,c("Mouse.ID")])
+Ulong_prep$cr.u.6 <- Ulong$X28.wk.Cr.urine..mg.dL.
+Ulong_prep$cr.u.12 <- Ulong$X54.wk.Cr.urine..mg.dL.
+Ulong_prep$cr.u.18 <- Ulong$X80.week.Cr.urine..mg.dL.
+Ulong_prep$mg.u.6 <- Ulong$X28.wk.Mg.urine..mg.dL.
+Ulong_prep$mg.u.12 <- Ulong$X54.wk.Mg.urine..mg.dL.
+Ulong_prep$mg.u.18 <- Ulong$X80.week.Mg.urine..mg.dL.
+Ulong_prep$mg.cr.u.6 <- Ulong$X28.wk.Mg.urine..mg.grcreat.
+Ulong_prep$mg.cr.u.12 <- Ulong$X54.wk.Mg.urine..mg.grcreat.
+Ulong_prep$mg.cr.u.18 <- Ulong$X80.week.Mg.urine..mg.grcreat.
+Ulong_prep$ma.u.6 <- Ulong$X28.wk.MA.urine..mg.dL.
+Ulong_prep$ma.u.12 <- Ulong$X54.wk.MA.urine..mg.dL.
+Ulong_prep$ma.u.18 <- Ulong$X80.week.MA.urine..mg.dL.
+Ulong_prep$ma.cr.u.6 <- Ulong$X28.wk.MA.urine..mg.grcreat.
+Ulong_prep$ma.cr.u.12 <- Ulong$X54.wk.MA.urine..mg.grcreat.
+Ulong_prep$ma.cr.u.18 <- Ulong$X80.week.MA.urine..mg.grcreat.
+Ulong_prep$phs.u.6 <- Ulong$X28.wk.Phs..mg.dL.
+Ulong_prep$phs.u.12 <- Ulong$X54.wk.Phs..mg.dL.
+Ulong_prep$phs.u.18 <- Ulong$X80.week.Phs..mg.dL.
+Ulong_prep$phs.cr.u.6 <- Ulong$X28.wk.Phs..mg.grcreat.
+Ulong_prep$phs.cr.u.12 <- Ulong$X54.wk.Phs..mg.grcreat.
+Ulong_prep$phs.cr.u.18 <- Ulong$X80.weelkPhs..mg.grcreat.
+Ulong_prep$study <- "longitudinal"
+names(Ulong_prep)[1] <- "Mouse.ID"
+rownames(Ulong_prep) <- Ulong_prep$Mouse.ID
+
+# Combine
+Ucombine <- rbind(Ucross_prep, Ulong_prep)
+Ucombine$duplicated <- (duplicated(Ucombine$Mouse.ID) | duplicated(Ucombine$Mouse.ID, fromLast = TRUE))
+Ucombine <- Ucombine[Ucombine$duplicated == FALSE,]
+rownames(Ucombine) <- Ucombine$Mouse.ID
+# Make sure Ulong matches
+Ulong_prep <- Ulong_prep[rownames(Ulong_prep) %in% rownames(Ucombine),]
+Ulong <- Ulong[rownames(Ulong) %in% rownames(Ulong_prep),]
+
+# Add rest of time point from longitudinal data
+Ucombine$cr.u.26 <- NA
+Ucombine$cr.u.33 <- NA
+Ucombine$mg.u.26 <- NA
+Ucombine$mg.u.33 <- NA
+Ucombine$mg.cr.u.26 <- NA
+Ucombine$mg.cr.u.33 <- NA
+Ucombine$ma.u.26 <- NA
+Ucombine$ma.u.33 <- NA
+Ucombine$ma.cr.u.26 <- NA
+Ucombine$ma.cr.u.33 <- NA
+Ucombine$phs.u.26 <- NA
+Ucombine$phs.u.33 <- NA
+Ucombine$phs.cr.u.26 <- NA
+Ucombine$phs.cr.u.33 <- NA
+# fill
+Ucombine$cr.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106..week.Cr.urine..mg.dL.
+Ucombine$cr.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134..week.Cr.urine..mg.dL.
+Ucombine$mg.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.week.Mg.urine..mg.dL.
+Ucombine$mg.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.week.Mg.urine..mg.dL.
+Ucombine$mg.cr.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.week.Mg.urine..mg.grcreat.
+Ucombine$mg.cr.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.week.Mg.urine..mg.grcreat.
+Ucombine$ma.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.week.MA.urine..mg.dL.
+Ucombine$ma.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.week.MA.urine..mg.dL.
+Ucombine$ma.cr.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.week.MA.urine..mg.grcreat.
+Ucombine$ma.cr.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.week.MA.urine..mg.grcreat.
+Ucombine$phs.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.week.Phs..mg.dL.
+Ucombine$phs.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.week.Phs..mg.dL.
+Ucombine$phs.cr.u.26[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X106.weelkPhs..mg.grcreat.
+Ucombine$phs.cr.u.33[ which(rownames(Ucombine) %in% rownames(Ulong))] <- Ulong$X134.weelkPhs..mg.grcreat.
+
+# Put study and duplicated at the end
+Ucombine <- Ucombine[,c(1:22,25:38,23:24)]
+Ucombine <- arrange(Ucombine, Mouse.ID)
+
+# Manually check and find typo
+Ucombine$Mouse.ID[5] <- "DO-1021"
+Ucombine <- arrange(Ucombine, Mouse.ID)
+rownames(Ucombine) <- Ucombine$Mouse.ID
+
+# Take intersection of genoprobs and Ucombine samples
+genoprobs <- sub[rownames(sub) %in% rownames(Ucombine),,]
+Upheno <- Ucombine[rownames(Ucombine) %in% rownames(genoprobs),]
+samples <- samples[rownames(samples) %in% rownames(Upheno),]
+
+# Need to convert megamuga snps to positions
+# Get MegaMuga snps
+load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata")) #obj name: MM_snps
+save(genoprobs, Upheno, samples, MM_snps, file = "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO1045_kidney.Rdata")
