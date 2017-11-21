@@ -6,6 +6,9 @@ library(dplyr)
 library(stringr)
 library(ggplot2)
 library(gridExtra)
+library(qtl2geno)
+library(qtl2scan)
+library(qtl2convert)
 
 # Get JAC data
 # Data: /hpcdata/gac/derived/CGD_DO_Genoprobs/MegaMUGA_hap_probs_v6.h5
@@ -280,7 +283,11 @@ genoprobs <- sub[rownames(sub) %in% rownames(Ucombine),,]
 Upheno <- Ucombine[rownames(Ucombine) %in% rownames(genoprobs),]
 samples <- samples[rownames(samples) %in% rownames(Upheno),]
 
-# Need to convert megamuga snps to positions
+# Calcualte kinship
+probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
+K <- calc_kinship(probs, "loco", cores=3)
 # Get MegaMuga snps
 load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata")) #obj name: MM_snps
-save(genoprobs, Upheno, samples, MM_snps, file = "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO1045_kidney.Rdata")
+
+# Compile into one Rdata file
+save(genoprobs, Upheno, samples, MM_snps, K, file = "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO1045_kidney.Rdata")
