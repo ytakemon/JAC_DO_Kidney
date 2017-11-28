@@ -3,6 +3,7 @@ library(dplyr)
 library(stringr)
 library(ggpubr)
 library(ggsci)
+library(reshape2)
 library(gridExtra)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
@@ -175,7 +176,7 @@ Alb6 <- ggplot(Pheno, aes(x = Allele, y = ma.cr.6, colour = Allele))+
                           "Females: NZO/NZO = ",nNZO_homF, ", NZO/Other = ", nNZO_hetF,", Other = ", nOtherF, ")"),
           y = "log(Alb/Cr ratio) 6 months",
           x = "Founder Alleles")+
-    scale_y_continuous(breaks = seq(-3, 3, 1))+
+    scale_y_continuous(breaks = seq(-8, 3, 1))+
     facet_grid(. ~ Sex)+
     stat_compare_means(comparisons = my_comparisons)+
     stat_compare_means(label.y = 3, method = "anova")+
@@ -201,7 +202,7 @@ Alb12 <- ggplot(Pheno, aes(x = Allele, y = ma.cr.12, colour = Allele))+
     scale_y_continuous(breaks = seq(-8, 6, 1))+
     facet_grid(. ~ Sex)+
     stat_compare_means(comparisons = my_comparisons)+
-    stat_compare_means(label.y = 6, method = "anova")+
+    stat_compare_means(label.y = 5, method = "anova")+
     guides(colour = FALSE)+
     scale_color_aaas()
 
@@ -224,7 +225,7 @@ Alb18 <- ggplot(Pheno, aes(x = Allele, y = ma.cr.18, colour = Allele))+
     scale_y_continuous(breaks = seq(-8, 6, 1))+
     facet_grid(. ~ Sex)+
     stat_compare_means(comparisons = my_comparisons)+
-    stat_compare_means(label.y = 6, method = "anova")+
+    stat_compare_means(label.y = 3, method = "anova")+
     guides(colour = FALSE)+
     scale_color_aaas()
 
@@ -297,7 +298,59 @@ Phs18 <- ggplot(Pheno, aes(x = Allele, y = phs.cr.18, colour = Allele))+
     guides(colour = FALSE)+
     scale_color_aaas()
 
-pdf("./Plot/AktAllele_PhenoCompare_Males.pdf", width = 20, height = 18)
+pdf("./Plot/AktAllele_PhenoCompare.pdf", width = 20, height = 18)
 grid.arrange(Mg6, Mg12, Mg18, Alb6, Alb12, Alb18, Phs6, Phs12, Phs18, ncol = 3,
              top = "Months", left = "Phenotype")
+dev.off()
+
+# Through time?
+Pheno_time <- Pheno
+Pheno_time <- Pheno_time[c(1,39:49)]
+Pheno_time_Alb <- Pheno_time[,c(1,2,3,7:9)]
+Pheno_time_Mg <- Pheno_time[,c(1,2,3,4:6)]
+Pheno_time_Phs <- Pheno_time[,c(1,2,3,10:12)]
+names(Pheno_time_Alb)[4:6] <- c("6mo", "12mo", "18mo")
+names(Pheno_time_Mg)[4:6] <- c("6mo", "12mo", "18mo")
+names(Pheno_time_Phs)[4:6] <- c("6mo", "12mo", "18mo")
+Pheno_time_Alb  <- melt(Pheno_time_Alb)
+Pheno_time_Mg  <- melt(Pheno_time_Mg)
+Pheno_time_Phs  <- melt(Pheno_time_Phs)
+names(Pheno_time_Alb)[4:5] <- c("TimePoint", "value")
+names(Pheno_time_Mg)[4:5] <- c("TimePoint", "value")
+names(Pheno_time_Phs)[4:5] <- c("TimePoint", "value")
+
+Alb <- ggplot(Pheno_time_Alb, aes( x = TimePoint, y = value, colour = Allele))+
+      geom_smooth(method = "lm", se=FALSE, aes(group = Allele, colour = Allele)) +
+      geom_point(position = position_jitterdodge(), alpha = 0.5)+
+      theme_bw()+
+      facet_grid(. ~ Sex)+
+      labs(title = "Log(Alb/Cr ratio) by Allele and Sex",
+           y = "Log(Alb/Cr ratio)",
+           x = "Time Point")+
+      guides( colour = FALSE)+
+      scale_color_aaas()
+
+Mg <- ggplot(Pheno_time_Mg, aes( x = TimePoint, y = value, colour = Allele))+
+      geom_smooth(method = "lm", se=FALSE, aes(group = Allele, colour = Allele)) +
+      geom_point(position = position_jitterdodge(), alpha = 0.5)+
+      theme_bw()+
+      labs(title = "Log(Mg/Cr ratio) by Allele and Sex",
+           y = "Log(Mg/Cr ratio)",
+           x = "Time Point")+
+      facet_grid(. ~ Sex)+
+      guides( colour = FALSE)+
+      scale_color_aaas()
+
+Phs <- ggplot(Pheno_time_Phs, aes( x = TimePoint, y = value, colour = Allele))+
+      geom_smooth(method = "lm", se=FALSE, aes(group = Allele, colour = Allele)) +
+      geom_point(position = position_jitterdodge(), alpha = 0.5)+
+      theme_bw()+
+      labs(title = "Log(Phs/Cr ratio) by Allele and Sex",
+           y = "Log(Phs/Cr ratio)",
+           x = "Time Point")+
+      facet_grid(. ~ Sex)+
+      scale_color_aaas()
+
+pdf("./Plot/AktAllele_PhenoCompare_time.pdf", width = 20, height = 6)
+grid.arrange(Mg, Alb, Phs, ncol = 3)
 dev.off()
