@@ -28,7 +28,7 @@ identical(rownames(erk1), rownames(sub_genoprobs))
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(sub_genoprobs, MM_snps, pos_column = "pos")
-K <- calc_kinship(probs, "loco", cores=1)
+K <- calc_kinship(probs, "loco", cores=10)
 MM_snps$chr <- as.character(MM_snps$chr)
 MM_snps$chr[MM_snps$chr=="20"] <- "X"
 snps <- MM_snps[dimnames(sub_genoprobs)[[3]],]
@@ -42,7 +42,7 @@ lod <- readRDS(file=file_name)
 
 # permutation test
 perm <- scan1perm(genoprobs = probs,
-                  pheno = erk1[,pheno, drop = FALSE],
+                  pheno = log(erk1[,pheno, drop = FALSE]),
                   kinship = K,
                   addcovar = addcovar[,-1],
                   n_perm = 1000,

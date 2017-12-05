@@ -29,18 +29,18 @@ identical(rownames(erk1), rownames(sub_genoprobs))
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(sub_genoprobs, MM_snps, pos_column = "pos")
-K <- calc_kinship(probs, "loco", cores=1)
+K <- calc_kinship(probs, "loco", cores=3)
 MM_snps$chr <- as.character(MM_snps$chr)
 MM_snps$chr[MM_snps$chr=="20"] <- "X"
 snps <- MM_snps[dimnames(sub_genoprobs)[[3]],]
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
-sub_samples$add <- erk1$Phospho_ERK1
+sub_samples$add <- log(erk1$Phospho_ERK1)
 addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo + add, data = sub_samples)
 
 lod <- scan1(genoprobs=probs,
              kinship=K,
-             pheno=erk1[,pheno, drop = FALSE],
+             pheno=log(erk1[,pheno, drop = FALSE]),
              addcovar=addcovar[,-1],
              cores=3, reml=TRUE)
 
@@ -48,12 +48,17 @@ lod <- scan1(genoprobs=probs,
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addPhos.rds")
 saveRDS(lod, file=file_name)
 
-# read perms
+# plot
+# load lod and perms
+pheno <- "Total_ERK1"
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addPhos.rds")
+lod <- readRDS(file_name)
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addPhos_perm.rds")
 perm <- readRDS(file_name)
 
-# plot
+pdf(paste0("./QTLscan/output/plots/", pheno, "addPhos_qtl_map.pdf"), width = 12, height = 6)
 plot(lod, map)
-title(main = "TITLE")
-#abline(h = 4, col = "red")
-#abline(h = 5)
+title(main = paste0("Total Erk1 ~ Phospho-Erk1 QTL map"),
+      sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
+abline( h = summary(perm)[1], col = "orange")
+dev.off()

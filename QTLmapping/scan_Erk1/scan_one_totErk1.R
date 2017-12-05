@@ -1,5 +1,5 @@
 # pbsnodes -a
-# qsub -q short -X -l nodes=cadillac031:ppn=1,walltime=3:59:00 -I
+# qsub -q short -X -l nodes=cadillac031:ppn=3,walltime=3:59:00 -I
 
 library(qtl2)
 library(qtl2convert)
@@ -39,7 +39,7 @@ addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo , data = sub_samples
 
 lod <- scan1(genoprobs=probs,
              kinship=K,
-             pheno=erk1[,pheno, drop = FALSE],
+             pheno=log(erk1[,pheno, drop = FALSE]),
              addcovar=addcovar[,-1],
              cores=3, reml=TRUE)
 
@@ -47,12 +47,18 @@ lod <- scan1(genoprobs=probs,
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
 saveRDS(lod, file=file_name)
 
-# load perms
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- saveRDS(file_name)
 
 # plot
+# load lod and perms
+pheno <- "Total_ERK1"
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
+lod <- readRDS(file_name)
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
+perm <- readRDS(file_name)
+
+pdf(paste0("./QTLscan/output/plots/", pheno, "_qtl_map.pdf"), width = 12, height = 6)
 plot(lod, map)
-title(main = "TITLE")
-#abline(h = 4, col = "red")
-#abline(h = 5)
+title(main = paste0("Total Erk1 QTL map"),
+      sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
+abline( h = summary(perm)[1], col = "orange")
+dev.off()
