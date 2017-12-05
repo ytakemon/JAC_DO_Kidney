@@ -51,7 +51,7 @@ perm <- scan1perm(genoprobs = probs,
 
 # save perms
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- saveRDS(file_name)
+saveRDS(perm, file_name)
 
 # plot
 #plot(lod, map)

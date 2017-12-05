@@ -1,4 +1,4 @@
-# qsub -v script=scan_one_tot_addphosErk1_perm Rsubmit_args.sh
+# qsub -v script=scan_one_phos2totRatioErk1_perm Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
@@ -6,7 +6,7 @@ library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 erk1 <- read.delim("./Phenotype/phenotypes/JAC_WB_kidney_ERK.txt")
-pheno <- "Total_ERK1"
+pheno <- "Phospho_ERK1_ratio"
 
 # Cleanup data and subset to match samples
 # match pheno to samples
@@ -34,11 +34,10 @@ MM_snps$chr[MM_snps$chr=="20"] <- "X"
 snps <- MM_snps[dimnames(sub_genoprobs)[[3]],]
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
-sub_samples$add <- erk1$Phospho_ERK1
-addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo + add, data = sub_samples)
+addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo, data = sub_samples)
 
 # read lod
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addPhos.rds")
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
 lod <- readRDS(file=file_name)
 
 # permutation test
@@ -51,7 +50,7 @@ perm <- scan1perm(genoprobs = probs,
                   reml = TRUE)
 
 # save perms
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addPhos_perm.rds")
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
 saveRDS(perm, file_name)
 
 # plot
