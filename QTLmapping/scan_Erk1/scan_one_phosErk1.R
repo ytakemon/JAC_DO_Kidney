@@ -1,5 +1,5 @@
 # pbsnodes -a
-# qsub -q short -X -l nodes=cadillac031:ppn=1,walltime=3:59:00 -I
+# qsub -q short -X -l nodes=cadillac012:ppn=3,walltime=3:59:00 -I
 
 library(qtl2)
 library(qtl2convert)
@@ -7,7 +7,7 @@ library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 erk1 <- read.delim("./Phenotype/phenotypes/JAC_WB_kidney_ERK.txt")
-pheno <- "Total_ERK1"
+pheno <- "Phospho_ERK1"
 
 # Cleanup data and subset to match samples
 # match pheno to samples
@@ -47,9 +47,9 @@ lod <- scan1(genoprobs=probs,
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
 saveRDS(lod, file=file_name)
 
-# load perms
+# read perms
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- saveRDS(file_name)
+perm <- readRDS(file_name)
 
 # plot
 plot(lod, map)

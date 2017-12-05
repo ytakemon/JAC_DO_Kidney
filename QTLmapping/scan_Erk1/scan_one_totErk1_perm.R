@@ -1,5 +1,4 @@
-# pbsnodes -a
-# qsub -q short -X -l nodes=cadillac031:ppn=1,walltime=3:59:00 -I
+# qsub -v script=scan_one_totErk1_perm Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
@@ -37,22 +36,19 @@ map <- map_df_to_list(map = snps, pos_column = "pos")
 
 addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo , data = sub_samples)
 
-lod <- scan1(genoprobs=probs,
-             kinship=K,
-             pheno=erk1[,pheno, drop = FALSE],
-             addcovar=addcovar[,-1],
-             cores=3, reml=TRUE)
-
-# save lod
+# read lod
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
-saveRDS(lod, file=file_name)
+lod <- readRDS(file=file_name)
 
-# load perms
+# permutation test
+perm <- scan1perm(genoprobs = probs,
+                  pheno = erk1[,pheno, drop = FALSE],
+                  kinship = K,
+                  addcovar = addcovar[,-1],
+                  n_perm = 1000,
+                  cores = 10,
+                  reml = TRUE)
+
+# save perms
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- saveRDS(file_name)
-
-# plot
-plot(lod, map)
-title(main = "TITLE")
-#abline(h = 4, col = "red")
-#abline(h = 5)
+saveRDS(perm, file_name)
