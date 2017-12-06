@@ -1,5 +1,6 @@
 # pbsnodes -a
 # qsub -q short -X -l nodes=cadillac012:ppn=3,walltime=3:59:00 -I
+# qsub -v script=scan_one_phosErk1 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
@@ -47,7 +48,7 @@ lod <- scan1(genoprobs=probs,
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
 saveRDS(lod, file=file_name)
 
-# plot
+# plot QTL map
 # load lod and perms
 pheno <- "Phospho_ERK1"
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
@@ -60,4 +61,18 @@ plot(lod, map)
 title(main = paste0("Phospho-Erk1 QTL map"),
       sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
 abline( h = summary(perm)[1], col = "orange")
+dev.off()
+
+# Plot coef of chr 7
+coef_7 <- scan1coef(genoprobs = probs[,"7"],
+                    pheno = log(erk1[,pheno, drop = FALSE]),
+                    kinship = K["7"],
+                    addcovar =  addcovar[,-1],
+                    reml = TRUE)
+
+pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7.pdf"), width = 12, height = 6)
+plot_coefCC(coef_7, map["7"])
+legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+axis(side = 1, at = c(25,75,125,126))
+title(main = "Chr7 founder effect for pERK1 qtl analysis")
 dev.off()

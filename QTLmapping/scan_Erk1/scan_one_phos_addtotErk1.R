@@ -1,6 +1,6 @@
 # pbsnodes -a
-# qsub -q short -X -l nodes=cadillac031:ppn=3,walltime=3:59:00 -I
-# qsub -v script=scan_one_totErk1 Rsubmit_args.sh
+# qsub -q short -X -l nodes=cadillac079:ppn=3,walltime=3:59:00 -I
+# qsub -v script=scan_one_phos_addtotErk1 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
@@ -8,11 +8,11 @@ library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 erk1 <- read.delim("./Phenotype/phenotypes/JAC_WB_kidney_ERK.txt")
-pheno <- "Total_ERK1"
+pheno <- "Phospho_ERK1"
 
 # Cleanup data and subset to match samples
 # match pheno to samples
-erk1 <- erk1[complete.cases(erk1[,pheno]),]
+erk1 <- erk1[complete.cases(erk1[,pheno]) & complete.cases(erk1[,"Phospho_ERK1"]),]
 erk1 <- erk1[erk1$ID %in% samples$Mouse.ID, ]
 erk1$duplicated <- (duplicated(erk1$ID) | duplicated(erk1$ID, fromLast = TRUE))
 erk1 <- erk1[erk1$duplicated == FALSE,]
@@ -36,7 +36,8 @@ MM_snps$chr[MM_snps$chr=="20"] <- "X"
 snps <- MM_snps[dimnames(sub_genoprobs)[[3]],]
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
-addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo , data = sub_samples)
+sub_samples$add <- log(erk1$Total_ERK1)
+addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo + add, data = sub_samples)
 
 lod <- scan1(genoprobs=probs,
              kinship=K,
@@ -45,21 +46,20 @@ lod <- scan1(genoprobs=probs,
              cores=3, reml=TRUE)
 
 # save lod
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal.rds")
 saveRDS(lod, file=file_name)
-
 
 # plot
 # load lod and perms
 pheno <- "Total_ERK1"
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal.rds")
 lod <- readRDS(file_name)
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal_perm.rds")
 perm <- readRDS(file_name)
 
-pdf(paste0("./QTLscan/output/plots/", pheno, "_qtl_map.pdf"), width = 12, height = 6)
+pdf(paste0("./QTLscan/output/plots/", pheno, "addTotal_qtl_map.pdf"), width = 12, height = 6)
 plot(lod, map)
-title(main = paste0("Total Erk1 QTL map (n = ", nrow(sub_samples), ")"),
+title(main = paste0("Phospho-Erk1 ~ Total QTL map"),
       sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
 abline( h = summary(perm)[1], col = "orange")
 dev.off()

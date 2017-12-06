@@ -1,6 +1,4 @@
-# pbsnodes -a
-# qsub -q short -X -l nodes=cadillac079:ppn=3,walltime=3:59:00 -I
-# qsub -v script=scan_one_phos2totRatioErk1 Rsubmit_args.sh
+# qsub -v script=scan_one_phos_addtotErk1_perm Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
@@ -8,7 +6,7 @@ library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 erk1 <- read.delim("./Phenotype/phenotypes/JAC_WB_kidney_ERK.txt")
-pheno <- "Phospho_ERK1_ratio"
+pheno <- "Phospho_ERK1"
 
 # Cleanup data and subset to match samples
 # match pheno to samples
@@ -30,35 +28,34 @@ identical(rownames(erk1), rownames(sub_genoprobs))
 
 # prepare data for qtl2
 probs <- probs_doqtl_to_qtl2(sub_genoprobs, MM_snps, pos_column = "pos")
-K <- calc_kinship(probs, "loco", cores=3)
+K <- calc_kinship(probs, "loco", cores=10)
 MM_snps$chr <- as.character(MM_snps$chr)
 MM_snps$chr[MM_snps$chr=="20"] <- "X"
 snps <- MM_snps[dimnames(sub_genoprobs)[[3]],]
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
-addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo, data = sub_samples)
+sub_samples$add <- log(erk1$Total_ERK1)
+addcovar <- model.matrix(~ Sex + Generation + Cohort.Age.mo + add, data = sub_samples)
 
-lod <- scan1(genoprobs=probs,
-             kinship=K,
-             pheno=log(erk1[,pheno, drop = FALSE]),
-             addcovar=addcovar[,-1],
-             cores=3, reml=TRUE)
+# read lod
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal.rds")
+lod <- readRDS(file=file_name)
 
-# save lod
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
-saveRDS(lod, file=file_name)
+# permutation test
+perm <- scan1perm(genoprobs = probs,
+                  pheno = log(erk1[,pheno, drop = FALSE]),
+                  kinship = K,
+                  addcovar = addcovar[,-1],
+                  n_perm = 1000,
+                  cores = 10,
+                  reml = TRUE)
+
+# save perms
+file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal_perm.rds")
+saveRDS(perm, file_name)
 
 # plot
-# load lod and perms
-pheno <- "Phospho_ERK1_ratio"
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
-lod <- readRDS(file_name)
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- readRDS(file_name)
-
-pdf(paste0("./QTLscan/output/plots/", pheno,  "_qtl_map.pdf"), width = 12, height = 6)
-plot(lod, map)
-title(main = paste0("Phospho-Erk1 /  QTL map"),
-      sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
-abline( h = summary(perm)[1], col = "orange")
-dev.off()
+#plot(lod, map)
+#title(main = "TITLE")
+#abline(h = 4, col = "red")
+#abline(h = 5)

@@ -1,5 +1,6 @@
 # pbsnodes -a
 # qsub -q short -X -l nodes=cadillac079:ppn=3,walltime=3:59:00 -I
+# qsub -v script=scan_one_tot_addphosErk1 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)

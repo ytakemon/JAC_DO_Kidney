@@ -1,5 +1,6 @@
 # pbsnodes -a
 # qsub -q short -X -l nodes=cadillac031:ppn=3,walltime=3:59:00 -I
+# qsub -v script=scan_one_Mapk3 Rsubmit_args.sh
 
 library(qtl2)
 library(qtl2convert)
