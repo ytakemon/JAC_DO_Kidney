@@ -3,7 +3,6 @@ library(dplyr)
 library(ggpubr)
 library(ggsci)
 library(stringr)
-library(reshape2)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 
 # Clean data
@@ -21,55 +20,36 @@ setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 
 df <- read.csv("./Phenotype/phenotypes/Lrp2RNAscope_cleaned.csv")
 df$ratio <- df$RNAscope_Lrp2_count / df$IF_LRP2_intensity
-hist(df$ratio) # skewed
-hist(log(df$ratio)) # normalized
-df$ratio_norm <- log(df$ratio)
-# test
-qqnorm(df$ratio_norm)
-qqline(df$ratio_norm)
-df$Age <- as.factor(df$Age)
 
-fit <- lm(ratio_norm ~ Age + Sample, data = df)
-summary(fit)
+# Take log of genometic mean for each sample
+animal <- as.data.frame(unique(df$Sample))
+animal$Age <- NA
+# Get age
+for (i in 1:nrow(animal)){
+  animal$Age[i] <- df[df$Sample == animal[,1][i],]$Age[1]
+}
+animal$log_geom <- NA
+# Get geometic mean for each sample
+for (i in 1:nrow(animal)){
+  sub <- df[df$Sample == animal[,1][i],]
+  animal$log_geom[i] <- log(prod(sub$ratio)^(1/nrow(sub)))
+}
+animal <- arrange(animal, Age)
+names(animal)[1] <- "Sample"
+animal$Age <- as.factor(as.character(animal$Age))
+animal$Age <- factor(animal$Age,levels(animal$Age)[c(2,1)])
 
-my_comparisons <- list( c(1, 2))
-ratio_norm <- ggplot(df, aes(x  = Age, y = ratio_norm, colour = Age)) +
-                geom_boxplot() +
-                theme_bw() +
-                labs( title = "log(RNA count/ protein) at 6 and 18 months",
-                      subtitle = paste0("6 months n = 32, ", "\n",
-                                        "18 months n = 31", "\n",
-                                        "p-value = 1.564e-15"),
-                      y = "log(RNA / protein)",
-                      x = "Age (months)") +
-                guides( colour = FALSE) +
-                scale_color_aaas()
-
+t.test(log_geom ~ Age, data = animal)$p.value
 pdf("./Plot/Lrp2RNAscope_ttest.pdf", width = 8, height = 6)
-ratio_norm
+ggplot(animal, aes(x = Age, y = log_geom, colour = Age)) +
+      geom_boxplot() +
+      theme_bw() +
+      labs( title = "T-test: log(Geom.Mean(RNA count/protein)) at 6 and 18 months",
+            subtitle = paste0("6 months n = 5, ", "\n",
+                              "18 months n = 5, ", "\n",
+                              "p-value = 0.5815"),
+            y = "log(Geom.Mean(RNA count/protein))",
+            x = "Age (months)") +
+      guides( colour = FALSE) +
+      scale_color_aaas()
 dev.off()
-
-df$RNA_norm <- log(df$RNAscope_Lrp2_count)
-RNA_norm <- ggplot(df, aes(x = Age, y = RNA_norm, colour = Age)) +
-                  geom_boxplot() +
-                  theme_bw() +
-                  labs(title = "log(Lrp2 RNA) at 6 and 18 months",
-                      subtitle = paste0("6 months n = 32, ", "\n",
-                      "18 months n = 31"),
-                      y = "log(RNA / protein)",
-                      x = "Age (months)") +
-                  stat_compare_means(label.y = 9.5, method = "t.test") +
-                  guides( colour = FALSE) +
-                  scale_color_aaas()
-
-protein <- ggplot(df, aes(x = Age, y = IF_LRP2_intensity, colour = Age)) +
-                  geom_boxplot() +
-                  theme_bw() +
-                  labs(title = "LRP2 protein at 6 and 18 months",
-                      subtitle = paste0("6 months n = 32, ", "\n",
-                      "18 months n = 31"),
-                      y = "IF protein intensity",
-                      x = "Age (months)") +
-                  stat_compare_means(label.y = 0.03, method = "t.test") +
-                  guides( colour = FALSE) +
-                  scale_color_aaas()
