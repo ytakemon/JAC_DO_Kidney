@@ -51,7 +51,7 @@ saveRDS(lod, file=file_name)
 
 # plot
 # load lod and perms
-pheno <- "Total_ERK1"
+pheno <- "Phospho_ERK1"
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal.rds")
 lod <- readRDS(file_name)
 file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "addTotal_perm.rds")
@@ -59,7 +59,21 @@ perm <- readRDS(file_name)
 
 pdf(paste0("./QTLscan/output/plots/", pheno, "addTotal_qtl_map.pdf"), width = 12, height = 6)
 plot(lod, map)
-title(main = paste0("Phospho-Erk1 ~ Total QTL map"),
+title(main = paste0("Phospho-Erk1 + Total QTL map (n = ", nrow(sub_samples),")"),
       sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
 abline( h = summary(perm)[1], col = "orange")
+dev.off()
+
+# Plot coef of chr 7
+coef_7 <- scan1coef(genoprobs = probs[,"7"],
+                    pheno = log(erk1[,pheno, drop = FALSE]),
+                    kinship = K["7"],
+                    addcovar =  addcovar[,-1],
+                    reml = TRUE)
+
+pdf(paste0("./QTLscan/output/plots/", pheno,  "addTotal_FounderCoef_chr7.pdf"), width = 12, height = 6)
+plot_coefCC(coef_7, map["7"])
+legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+axis(side = 1, at = c(25,75,125,126))
+title(main = "Chr7 founder effect for pERK1 + total ERK1 qtl analysis")
 dev.off()
