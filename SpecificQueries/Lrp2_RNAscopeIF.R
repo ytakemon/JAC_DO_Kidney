@@ -28,28 +28,43 @@ animal$Age <- NA
 for (i in 1:nrow(animal)){
   animal$Age[i] <- df[df$Sample == animal[,1][i],]$Age[1]
 }
-animal$log_geom <- NA
+animal$log_geom_ratio <- NA
+animal$log_geom_rna <- NA
+animal$log_geom_protein <- NA
 # Get geometic mean for each sample
 for (i in 1:nrow(animal)){
   sub <- df[df$Sample == animal[,1][i],]
-  animal$log_geom[i] <- log(prod(sub$ratio)^(1/nrow(sub)))
+  animal$log_geom_ratio[i] <- log(prod(sub$ratio)^(1/nrow(sub)))
+  animal$log_geom_rna[i] <- log(prod(sub$RNAscope_Lrp2_count)^(1/nrow(sub)))
+  animal$log_geom_protein[i] <- log(prod(sub$IF_LRP2_intensity)^(1/nrow(sub)))
 }
 animal <- arrange(animal, Age)
 names(animal)[1] <- "Sample"
 animal$Age <- as.factor(as.character(animal$Age))
 animal$Age <- factor(animal$Age,levels(animal$Age)[c(2,1)])
 
-t.test(log_geom ~ Age, data = animal)$p.value
+t.test(log_geom_ratio ~ Age, data = animal)$p.value
 pdf("./Plot/Lrp2RNAscope_ttest.pdf", width = 8, height = 6)
-ggplot(animal, aes(x = Age, y = log_geom, colour = Age)) +
+ggplot(animal, aes(x = Age, y = log_geom_ratio, colour = Age)) +
       geom_boxplot() +
       theme_bw() +
-      labs( title = "T-test: log(Geom.Mean(RNA count/protein)) at 6 and 18 months",
+      labs( title = "T-test: Megalin log(Geom.Mean(RNA count/protein)) at 6 and 18 months",
             subtitle = paste0("6 months n = 5, ", "\n",
                               "18 months n = 5, ", "\n",
                               "p-value = 0.5815"),
             y = "log(Geom.Mean(RNA count/protein))",
             x = "Age (months)") +
       guides( colour = FALSE) +
+      scale_color_aaas()
+dev.off()
+
+pdf("./Plot/Lrp2RNAscope_mRNAvProt.pdf", width = 8, height = 6)
+ggplot(animal, aes(x = log_geom_rna, y = log_geom_protein, colour = Age, fill = Age)) +
+      geom_point(aes(shape = Age)) +
+      labs( title = "Comparing Megalin RNA vs protein by Age",
+            subtitle = paste0("6 months n = 5, ", "\n",
+                              "18 months n = 5, "),
+            y = "log(Geom.Mean(protein))",
+            x = "log(Geom.Mean(RNA))") +
       scale_color_aaas()
 dev.off()
