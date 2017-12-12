@@ -72,7 +72,7 @@ coef_7 <- scan1coef(genoprobs = probs[,"7"],
                     reml = TRUE)
 
 pdf(paste0("./QTLscan/output/plots/", pheno,  "addTotal_FounderCoef_chr7.pdf"), width = 12, height = 6)
-plot_coefCC(coef_7, map["7"])
+plot_coefCC(coef_7, map["7"], scan1_output = lod)
 legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
 axis(side = 1, at = c(25,75,125,126))
 title(main = "Chr7 founder effect for pERK1 + total ERK1 qtl analysis")
@@ -86,8 +86,34 @@ blup <- scan1blup(genoprobs = probs[,"7"],
                   reml = TRUE)
 
 pdf(paste0("./QTLscan/output/plots/", pheno,  "addTotal_FounderCoef_chr7_BLUP.pdf"), width = 12, height = 6)
-plot_coefCC(blup, map["7"])
+plot_coefCC(blup, map["7"], scan1_output = lod)
 legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
 axis(side = 1, at = c(25,75,125,126))
 title(main = "Chr7 founder effect for pERK1 addTotal qtl analysis with BLUP")
 dev.off()
+
+# SNP association
+marker <- rownames(max(lod, map, chr = "7"))
+peak <- map[["7"]][marker]
+
+tmpfile <- tempfile()
+file <- "https://raw.githubusercontent.com/rqtl/qtl2data/master/DOex/c2_snpinfo.rds"
+download.file(file, tmpfile, quiet=TRUE)
+snpinfo <- readRDS(tmpfile)
+snpinfo <- index_snps(map, snpinfo)
+snpinfo$sdp <- calc_sdp(snpinfo[,-(1:4)])
+aprobs <- genoprob_to_alleleprob(probs)
+snp_pr <- genoprob_to_snpprob(aprobs, snpinfo)
+
+out_snps <- scan1(genoprobs=snp_pr,
+                  kinship=K["7"],
+                  pheno=log(erk1[,pheno, drop = FALSE]),
+                  addcovar=addcovar[,-1],
+                  cores=3, reml=TRUE)
+
+plot_snpasso(out_snps, snpinfo, drop = 0.5)
+
+
+
+
+assoc <-
