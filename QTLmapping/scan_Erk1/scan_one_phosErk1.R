@@ -76,3 +76,17 @@ legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
 axis(side = 1, at = c(25,75,125,126))
 title(main = "Chr7 founder effect for pERK1 qtl analysis")
 dev.off()
+
+# BLUP
+blup <- scan1blup(genoprobs = probs[,"7"],
+                  pheno = log(erk1[,pheno, drop = FALSE]),
+                  kinship = K["7"],
+                  addcovar =  addcovar[,-1],
+                  reml = TRUE)
+
+pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7_BLUP.pdf"), width = 12, height = 6)
+plot_coefCC(blup, map["7"])
+legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+axis(side = 1, at = c(25,75,125,126))
+title(main = "Chr7 founder effect for pERK1 qtl analysis with BLUP")
+dev.off()
