@@ -92,6 +92,53 @@ axis(side = 1, at = c(25,75,125,126))
 title(main = "Chr7 founder effect for pERK1 addTotal qtl analysis with BLUP")
 dev.off()
 
+# Get gene list under highest LOD interval on distal chr 7.
+library(GenomicRanges)
+library(biomaRt)
+library(stringr)
+df_lod <- as.data.frame(lod)
+df_lod$marker <- rownames(df_lod)
+
+map7 <- as.data.frame(map["7"])
+map7$marker <- rownames(map7)
+colnames(map7)[1] <- "pos"
+
+# populate map7 with lod scores
+map7$lod <- NA
+for (i in 1:nrow(map7)){
+  map7$lod[i] <- df_lod[df_lod$marker == rownames(map7)[i],]$Phospho_ERK1
+}
+
+map7 <- map7[map7$pos > 125,]
+map7 <- map7[map7$lod > 2.5, ]
+
+min <- min(map7$pos)
+min <- str_pad(min, width = 9, side = "right", pad = 0)
+min <- str_split(min, "\\.", simplify = TRUE)
+min <- paste0(min[,1], min[,2])
+min <- str_pad(min, width = 9, side = "right", pad = 0)
+
+max <- max(map7$pos)
+max <- str_pad(max, width = 9, side = "right", pad = 0)
+max <- str_split(max, "\\.", simplify = TRUE)
+max <- paste0(max[,1], max[,2])
+max <- str_pad(max, width = 9, side = "right", pad = 0)
+
+query_region <- paste0("7:",min,":",max)
+
+mart <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL",
+                   dataset = "mmusculus_gene_ensembl",
+                    verbose = TRUE)
+# check listFilters(mart)
+attr <- getBM(attributes = c("ensembl_gene_id", "mgi_symbol", "chromosome_name",
+                            "start_position", "end_position"),
+              filters = c("chromosomal_region"),
+              values = query_region,
+              mart = mart,
+              verbose = TRUE)
+
+write.csv(attr, "./SpecificQ/pERK1_addtotERK1_LODpeak_genes.csv", row.names = FALSE)
+
 # SNP association
 marker <- rownames(max(lod, map, chr = "7"))
 peak <- map[["7"]][marker]
@@ -112,8 +159,3 @@ out_snps <- scan1(genoprobs=snp_pr,
                   cores=3, reml=TRUE)
 
 plot_snpasso(out_snps, snpinfo, drop = 0.5)
-
-
-
-
-assoc <-
