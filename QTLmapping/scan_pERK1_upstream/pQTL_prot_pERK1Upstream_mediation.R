@@ -27,7 +27,7 @@ for (g in 1:nrow(P_query_list)){
   # parameters
   addscan.dir <- paste0("./QTLscan/addscan_prot_pERK1Upstream/")
   intscan.dir.Age <-  paste0("./QTLscan/intscan_prot_pERK1Upstream/")
-  output.file <- paste0("./QTLscan/output/pQTLBestperGene_",med_query,"_","_prot_pERK1Upstream_thr6_chr7.csv")
+  output.file <- paste0("./QTLscan/output/pQTLBestperGene_",med_query,"_",med_genename,"_prot_pERK1Upstream_thr6_chr7.csv")
 
   prot <- annot.protein[annot.protein$id %in% list$id,]
   output <- prot[,c(1:6,10)]
@@ -92,6 +92,7 @@ for (g in 1:nrow(P_query_list)){
       compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
       compare <- compare[complete.cases(compare$addIntAgeChr),]
       write.csv(compare, file=paste0("./QTLscan/output/pERK1_upstream/protein/pERK1_upstream_prot_mediator_", med_query ,"_", med_genename, "_compare_chr7_thr6.csv"), row.names = FALSE)
+
     } else {
       print("Lists do not match")
       break
