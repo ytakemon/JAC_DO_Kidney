@@ -1,4 +1,4 @@
-# qsub -v script=pQTL_mRNA_pERK1Upstream_mediation Rsubmit_args.sh
+# qsub -v script=pQTL_prot_pERK1Upstream_mediation Rsubmit_args.sh
 
 # R/3.4.1
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
@@ -17,16 +17,17 @@ query_list <- read.csv("./SpecificQ/pERK1_addtotERK1_LODpeak_genes.csv", header 
 E_query_list <- query_list[query_list$ensembl_gene_id %in% annot.mrna$id,]
 P_query_list <- query_list[query_list$ensembl_gene_id %in% annot.protein$gene_id,]
 
-for (g in 1:nrow(E_query_list)){
+for (g in 1:nrow(P_query_list)){
 
   # Get candidate mediator
-  med_query <- E_query_list$ensembl_gene_id[g]
-  med_genename <- E_query_list$mgi_symbol[g]
+  med_query <- P_query_list$ensembl_gene_id[g]
+  med_query <- annot.protein[annot.protein$gene_id == med_query,]$id
+  med_genename <- P_query_list$mgi_symbol[g]
 
   # parameters
-  addscan.dir <- paste0("./QTLscan/addscan_mrna_pERK1Upstream/")
-  intscan.dir.Age <-  paste0("./QTLscan/intscan_mrna_pERK1Upstream/")
-  output.file <- paste0("./QTLscan/output/pQTLBestperGene_",med_query,"_","_mrna_pERK1Upstream_thr6_chr7.csv")
+  addscan.dir <- paste0("./QTLscan/addscan_prot_pERK1Upstream/")
+  intscan.dir.Age <-  paste0("./QTLscan/intscan_prot_pERK1Upstream/")
+  output.file <- paste0("./QTLscan/output/pQTLBestperGene_",med_query,"_","_prot_pERK1Upstream_thr6_chr7.csv")
 
   annot.protein <- annot.protein[annot.protein$id %in% list$id,]
   output <- annot.protein[,c(1:6,10)]
@@ -74,45 +75,48 @@ for (g in 1:nrow(E_query_list)){
                      IntAgeLODFull = max(IntAgeLODFull)) %>%
            arrange(-IntAgeLODDiff)
     output[i, c("IntAgeChr", "IntAgePos", "IntAgeLODDiff", "IntAgeLODFull")] <- dt2[dt2$IntAgeChr == chr,]
-
-      # collect rows into one data frame
-      write.csv(output, file=output.file, row.names=FALSE)
-
-      # compare & make plot:
-      list <- arrange(list, id)
-      list_add <- arrange(output, id)
-
-      if (identical(list$id, list_add$id)){
-        compare <- list[,colnames(list) %in% c("id", "gene_id", "symbol", "IntAgeChr", "IntAgePos", "IntAgeLODDiff")]
-        compare$addIntAgeChr <- list_add$IntAgeChr
-        compare$addIntAgePos <- list_add$IntAgePos
-        compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
-        compare <- compare[complete.cases(compare$addIntAgeChr),]
-        write.csv(compare, file=paste0("./QTLscan/output/pERK1_upstream/mRNA/pERK1_upstream_mRNA_mediator_", med_query ,"_", med_genename, "_compare_chr7_thr6.csv"), row.names = FALSE)
-      } else {
-        print("Lists do not match")
-        break
-      }
-
-      compare$diff <- compare$IntAgeLODDiff - compare$addIntAgeLODDiff
-      compare$lod2 <- compare$diff >= 2
-
-      # Plot Chr7 LOD scores
-      pdf(paste0("./QTLscan/output/plots/pERK1_upstream/mRNA/pERK1_upstream_mRNA_mediator_", med_query,"_", med_genename,"_compare_chr7_thr6.pdf"), width = 9, heigh =9)
-      ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
-        geom_point(alpha=0.5) +
-        geom_abline(intercept = 0, slope = 1, color="red") +
-        geom_abline(intercept = -2, slope = 1, color="blue") +
-        scale_x_continuous( name = "LOD score Interactive age pQTL-diff",
-                            breaks = seq(0, 15, by = 1),
-                            labels = seq(0, 15, by = 1)) +
-        scale_y_continuous( name = paste0("LOD score (X | ", med_genename," mRNA)"),
-                            breaks = seq(0, 15, by = 1),
-                            labels = seq(0, 15, by = 1)) +
-        theme_bw() +
-        labs(title=paste0("pERK1 upstream mediator: ", med_genename, " (mRNA)"),
-             subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 \n",
-                        "Genes with LOD drop >= 2: ", nrow(compare[compare$lod2 == TRUE,])))
-      dev.off()
   }
+
+    # collect rows into one data frame
+    write.csv(output, file=output.file, row.names=FALSE)
+
+    # compare & make plot:
+    list <- arrange(list, id)
+    list_add <- arrange(output, id)
+
+    if (identical(list$id, list_add$id)){
+
+      compare <- list[,colnames(list) %in% c("id", "gene_id", "symbol", "IntAgeChr", "IntAgePos", "IntAgeLODDiff")]
+      compare$addIntAgeChr <- list_add$IntAgeChr
+      compare$addIntAgePos <- list_add$IntAgePos
+      compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
+      compare <- compare[complete.cases(compare$addIntAgeChr),]
+      write.csv(compare, file=paste0("./QTLscan/output/pERK1_upstream/protein/pERK1_upstream_prot_mediator_", med_query ,"_", med_genename, "_compare_chr7_thr6.csv"), row.names = FALSE)
+    } else {
+      print("Lists do not match")
+      break
+    }
+
+    compare$diff <- compare$IntAgeLODDiff - compare$addIntAgeLODDiff
+    compare$lod2 <- compare$diff >= 2
+
+    # Plot Chr7 LOD scores
+    pdf(paste0("./QTLscan/output/plots/pERK1_upstream/protein/pERK1_upstream_prot_mediator_", med_query,"_", med_genename,"_compare_chr7_thr6.pdf"), width = 9, heigh =9)
+    ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
+      geom_point(alpha=0.5) +
+      geom_abline(intercept = 0, slope = 1, color="red") +
+      geom_abline(intercept = -2, slope = 1, color="blue") +
+      scale_x_continuous( name = "LOD score Interactive age pQTL-diff",
+                          breaks = seq(0, 15, by = 1),
+                          labels = seq(0, 15, by = 1)) +
+      scale_y_continuous( name = paste0("LOD score (X | ", med_genename," protein)"),
+                          breaks = seq(0, 15, by = 1),
+                          labels = seq(0, 15, by = 1)) +
+      theme_bw() +
+      labs(title=paste0("pERK1 upstream mediator: ", med_genename, " (protein)"),
+           subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 \n",
+                      "Genes with LOD drop >= 2: ", nrow(compare[compare$lod2 == TRUE,])))
+      dev.off()
+
+
 }
