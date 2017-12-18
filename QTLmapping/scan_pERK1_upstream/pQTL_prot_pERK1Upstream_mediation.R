@@ -29,8 +29,8 @@ for (g in 1:nrow(P_query_list)){
   intscan.dir.Age <-  paste0("./QTLscan/intscan_prot_pERK1Upstream/")
   output.file <- paste0("./QTLscan/output/pQTLBestperGene_",med_query,"_","_prot_pERK1Upstream_thr6_chr7.csv")
 
-  annot.protein <- annot.protein[annot.protein$id %in% list$id,]
-  output <- annot.protein[,c(1:6,10)]
+  prot <- annot.protein[annot.protein$id %in% list$id,]
+  output <- prot[,c(1:6,10)]
   output$AdditiveLOD <- output$AdditivePos <-  output$AdditiveChr <- NA
   output$IntAgeLODFull <- output$IntAgeLODDiff <- output$IntAgePos <- output$IntAgeChr <- NA
 
@@ -117,6 +117,4 @@ for (g in 1:nrow(P_query_list)){
            subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 \n",
                       "Genes with LOD drop >= 2: ", nrow(compare[compare$lod2 == TRUE,])))
       dev.off()
-
-
 }
