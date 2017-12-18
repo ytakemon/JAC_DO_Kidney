@@ -1,5 +1,5 @@
 # run with:
-# qsub -v script=pQTL_mRNA_pERK1Upstream_add Rsubmit_args.sh
+# qsub -v script=pQTL_prot_pERK1Upstream_add Rsubmit_args.sh
 library(qtl2)
 library(qtl2geno)
 library(qtl2scan)
@@ -25,14 +25,15 @@ snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
 # Get mediator from query_list[i] to annotation
-for (g in 1:nrow(E_query_list)){
+for (g in 1:nrow(P_query_list)){
 
-  med_query <- E_query_list$ensembl_gene_id[g]
-  annot.samples$med_query <- expr.mrna[,med_query]
+  med_query <- P_query_list$ensembl_gene_id[g]
+  med_query <- annot.protein[annot.protein$gene_id == med_query,]$id
+  annot.samples$med_query <- expr.protein[,med_query]
 
   for (p in 1:length(list)){
 
-    cat("Scanning ", p, " out of ", length(list), ", of query add list ", g, " out of ", nrow(E_query_list), "\n")
+    cat("Scanning ", p, " out of ", length(list), ", of query add list ", g, " out of ", nrow(P_query_list), "\n")
 
     addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + med_query,
                             data=annot.samples)
@@ -47,7 +48,7 @@ for (g in 1:nrow(E_query_list)){
                  cores=10, reml=TRUE)
 
     # Save lod object
-    file_name <- paste0("./QTLscan/addscan_mrna_pERK1Upstream/Add_", med_query,"_Medscan_", p$id, "_", p$symbol, ".rds")
+    file_name <- paste0("./QTLscan/addscan_prot_pERK1Upstream/Add_", med_query,"_Medscan_", p$id, "_", p$symbol, ".rds")
     saveRDS(lod, file = file_name)
 
   }
