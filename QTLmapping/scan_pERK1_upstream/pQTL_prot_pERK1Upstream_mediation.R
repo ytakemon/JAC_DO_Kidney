@@ -101,21 +101,25 @@ for (g in 1:nrow(P_query_list)){
     compare$diff <- compare$IntAgeLODDiff - compare$addIntAgeLODDiff
     compare$lod2 <- compare$diff >= 2
 
+    plot <- ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
+                  geom_point(alpha=0.5) +
+                  geom_abline(intercept = 0, slope = 1, color="red") +
+                  geom_abline(intercept = -2, slope = 1, color="blue") +
+                  scale_x_continuous( name = "LOD score Interactive age pQTL-diff",
+                          breaks = seq(0, 15, by = 1),
+                          labels = seq(0, 15, by = 1)) +
+                  scale_y_continuous( name = paste0("LOD score (X | ", med_genename," protein)"),
+                          breaks = seq(0, 15, by = 1),
+                          labels = seq(0, 15, by = 1)) +
+                  theme_bw() +
+                  labs(title=paste0("pERK1 upstream mediator: ", med_genename, " (protein)"),
+                       subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 \n",
+                                  "Genes with LOD drop >= 2: ", nrow(compare[compare$lod2 == TRUE,])))
+
+
+
     # Plot Chr7 LOD scores
     pdf(paste0("./QTLscan/output/plots/pERK1_upstream/protein/pERK1_upstream_prot_mediator_", med_query,"_", med_genename,"_compare_chr7_thr6.pdf"), width = 9, heigh =9)
-    ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
-      geom_point(alpha=0.5) +
-      geom_abline(intercept = 0, slope = 1, color="red") +
-      geom_abline(intercept = -2, slope = 1, color="blue") +
-      scale_x_continuous( name = "LOD score Interactive age pQTL-diff",
-                          breaks = seq(0, 15, by = 1),
-                          labels = seq(0, 15, by = 1)) +
-      scale_y_continuous( name = paste0("LOD score (X | ", med_genename," protein)"),
-                          breaks = seq(0, 15, by = 1),
-                          labels = seq(0, 15, by = 1)) +
-      theme_bw() +
-      labs(title=paste0("pERK1 upstream mediator: ", med_genename, " (protein)"),
-           subtitle = paste0("Chr ", chr, " total: ", nrow(compare), " genes, threshold > 6 \n",
-                      "Genes with LOD drop >= 2: ", nrow(compare[compare$lod2 == TRUE,])))
-      dev.off()
+    print(plot)
+    dev.off()
 }
