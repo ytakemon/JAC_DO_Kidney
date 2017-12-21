@@ -156,8 +156,6 @@ if (identical(dropPhosERK1$id, dropDock1$id, dropGlrx3$id)){
   print("can't compare, check id")
 )
 
-
-
 table(compare$lod2)
 table(compare$drop2Dock1)
 table(compare$drop2Glrx3)
@@ -165,3 +163,32 @@ table(compare$drop2pERK_Dock1)
 table(compare$drop2pERK_Glrx3)
 table(compare$drop2Dock1_Glrx3)
 table(compare$drop2trio)
+
+library(VennDiagram)
+pdf(paste0("./QTLscan/output/plots/pERK1_upstream/Venn_pERK1_DOCK1_GLRX3.pdf"), width = 10, heigh =10)
+grid.newpage()
+draw.triple.venn( area1 = table(compare$lod2)[["TRUE"]],
+                  area2 = table(compare$drop2Dock1)[["TRUE"]],
+                  area3 = table(compare$drop2Glrx3)[["TRUE"]],
+                  n12 = table(compare$drop2pERK_Dock1)[["TRUE"]],
+                  n23 = table(compare$drop2Dock1_Glrx3)[["TRUE"]],
+                  n13 = table(compare$drop2pERK_Glrx3)[["TRUE"]],
+                  n123 = table(compare$drop2trio)[["TRUE"]],
+                  category = c("pERK1 \n 156", "DOCK1 \n 90", "GLRX3 \n 59"),
+                  lty = "blank",
+                  fill = c("#00AFBB", "#E7B800", "#FC4E07"))
+dev.off()
+
+
+
+
+
+
+
+
+
+
+grid.newpage()
+draw.triple.venn(area1 = 22, area2 = 20, area3 = 13, n12 = 11, n23 = 4, n13 = 5,
+    n123 = 1, category = c("Dog People", "Cat People", "Lizard People"), lty = "blank",
+    fill = c("skyblue", "pink1", "mediumorchid"))
