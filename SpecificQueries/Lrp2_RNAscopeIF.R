@@ -68,3 +68,7 @@ ggplot(animal, aes(x = log_geom_rna, y = log_geom_protein, colour = Age, fill = 
             x = "log(Geom.Mean(RNA))") +
       scale_color_aaas()
 dev.off()
+
+# data redone------------------------------------------------------------------
+df <- read.csv("./Phenotype/phenotypes/Lrp2RNAscope_trial2.csv")
+head(df$Protein / df$CountRNA)
