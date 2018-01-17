@@ -43,4 +43,32 @@ annot.mrna[annot.mrna$id %in% colnames(mrna)[c(90,91)],]
 #387       36336 protein_coding      FALSE
 #390       24028 protein_coding      FALSE
 
-# protein
+# check protein expression
+select <- annot.protein[annot.protein$gene_id %in% colnames(mrna)[c(90,91)],]
+prot <- raw.protein
+sub <- prot[,select$id]
+df <- melt(sub)
+ggplot(df, aes(Var2, y = value)) +
+  geom_boxplot()
+
+# Doesn't look very different. Picking different proteins
+identical(colnames(raw.protein),annot.protein$id)
+expressed <- annot.protein[annot.protein$biotype == "protein_coding",]
+prot <- raw.protein[, annot.protein$id]
+
+sub <- prot[,146:148]
+df <- melt(sub)
+ggplot(df, aes(x = Var2, y = value)) +
+  geom_boxplot()
+
+# check
+annot.protein[annot.protein$id %in% colnames(prot)[c(146,148)],]
+
+# Picking for protein:
+#> annot.protein[annot.protein$id %in% colnames(prot)[c(146,148)],]
+#                    id            gene_id symbol chr    start      end strand
+#197 ENSMUSP00000003529 ENSMUSG00000003437   Paf1   7 28392951 28399388      1
+#200 ENSMUSP00000003569 ENSMUSG00000003477   Inmt   6 55170626 55175043     -1
+#    middle_point nearest_snp        biotype
+#197     28396170       23520 protein_coding
+#200     55172834       20641 protein_coding
