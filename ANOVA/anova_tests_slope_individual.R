@@ -149,3 +149,14 @@ p.output$sig.Prot_Sex.Age <- (p.output$p.Prot_Sex.Age < 0.05)
 dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/"
 write.csv(m.output, paste0(dir, m.output.file), row.names=FALSE, quote = FALSE)
 write.csv(p.output, paste0(dir, p.output.file), row.names=FALSE, quote = FALSE)
+
+# How many are significant ?
+dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/"
+m.output <- read.csv(paste0(dir, m.output.file))
+p.output <- read.csv(paste0(dir, p.output.file))
+
+table(m.output$sig.mRNA_Age.Sex)
+#> table(m.output$sig.mRNA_Age.Sex)
+#
+#FALSE  TRUE
+#18859  3384

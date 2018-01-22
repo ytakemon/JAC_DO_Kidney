@@ -35,7 +35,7 @@ Gene_list$quadIV <- ((df_age$m.mRNA_Age.Sex > 0) & (df_age$m.Prot_Age.Sex < 0))
 Age <- grep("_Age.Sex$", colnames(Gene_list))
 Quad <- grep("^quad", colnames(Gene_list))
 Gene_list <- Gene_list[, c(1:8, Age, Quad)]
-write.csv(Gene_list, "./Anova_output/gene_lists/Quad_Age_.csv", row.names = FALSE, quote = FALSE)
+write.csv(Gene_list, "./Anova_output/gene_lists/Quad_Age_Sig.csv", row.names = FALSE, quote = FALSE)
 
 # Plot age realted mRNA/Protein slopes
 pdf("./Plot/slope_mRNA_Prot_Age.pdf", width = 6, height =6)
