@@ -1,4 +1,4 @@
-#qsub -v script=Napsa_mRNA_permute Rsubmit_args.sh
+#qsub -v script=Napsa_mRNA_int_permute Rsubmit_args.sh
 library(qtl2)
 library(qtl2convert)
 library(dplyr)
@@ -21,16 +21,18 @@ snps$chr <- as.character(snps$chr)
 map <- map_df_to_list(map = snps, pos_column = "pos")
 
 addcovar <- model.matrix(~ Sex + Generation + Age , data = annot.samples)
+intcovar <- model.matrix(~ Age , data = annot.samples)
 
 # permutation test
-addperm <- scan1perm(genoprobs = probs,
+intperm <- scan1perm(genoprobs = probs,
                      pheno=expr.mrna[,id$id],
                      kinship = K,
                      addcovar = addcovar[,-1],
+                     intcovar = intcovar[,-1],
                      n_perm = 1000,
                      cores = 10,
                      reml = TRUE)
 
 # save perms
-file_name <- paste0("./QTLperm/eQTL_", name, "_1000perm.rds")
-saveRDS(addperm, file_name)
+file_name <- paste0("./QTLperm/eQTL_Ageint_", name, "_1000perm.rds")
+saveRDS(intperm, file_name)
