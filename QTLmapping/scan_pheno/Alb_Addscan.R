@@ -1,27 +1,66 @@
+# Alb_
 library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
+library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 
-# prepare data for qtl2
-probs <- probs_doqtl_to_qtl2(genoprobs, MM_snps, pos_column = "marker")
-MM_snps$chr <- as.character(MM_snps$chr)
-MM_snps$chr[MM_snps$chr=="X"] <- "20"
-map <- map_df_to_list(map = MM_snps, pos_column = "marker")
+# Subset pheontype: 6mo alb
+pheno <- Upheno[Upheno$study == "Cross-sectional",]
+pheno <- pheno[-1,]
+pheno_cr <- pheno[,c("Mouse.ID", "cr.u.6", "cr.u.12", "cr.u.18")]
+pheno_ma <- pheno[,c("Mouse.ID", "ma.u.6", "ma.u.12", "ma.u.18")]
 
+# colapse to one column and combine
+pheno_cr <- pheno_cr %>% mutate(
+              cr.u.all = coalesce(cr.u.6, cr.u.12, cr.u.18)
+            )
+pheno_ma <- pheno_ma %>% mutate(
+              ma.u.all = coalesce(ma.u.6, ma.u.12, ma.u.18)
+            )
+
+pheno <- pheno_cr[,c("Mouse.ID","cr.u.all")]
+pheno$ma.u.all <- pheno_ma$ma.u.all
+
+# filter out samples with missing phenotype
+pheno <- pheno[!is.na(pheno[,2] & pheno[,3]),]
+
+
+
+
+
+
+samples <- samples[samples$Cohort == "Cross-Sectional",]
+samples$Mouse.ID <- as.character(samples$Mouse.ID)
+
+pheno$Mouse.ID[!(pheno$Mouse.ID %in% samples$Mouse.ID)]
+
+
+pheno6 <- Upheno[,c("Mouse.ID", "cr.u.6", "ma.u.6", "study")]
+present <- !is.na(pheno6[,2] & pheno6[,3])
+pheno6 <- pheno6[present,]
+
+
+# Subset dataset
+genoprobs <- genoprobs[pheno6$Mouse.ID,,]
+samples <- samples[pheno6$Mouse.ID,]
+
+# prepare data for qtl2
+MM_snps$chr <- as.character(MM_snps$chr)
+probs <- probs_doqtl_to_qtl2(genoprobs, MM_snps, pos_column = "pos")
+K <- calc_kinship(probs, type = "loco")
+map <- map_df_to_list(map = MM_snps, pos_column = "pos")
+samples$cr <- pheno6[,2]
 addcovar <- model.matrix(~ Sex + Generation + Cohort + DOB, data = samples)
 
-# All phenotype QTL scans will be put off until current paper is published
-
-
-
-
+# scan
 lod <- scan1(genoprobs=probs,
-             kinship=Glist2,
-             pheno=expr.protein[present,p],
+             kinship=K,
+             pheno=pheno6[,3],
              addcovar=addcovar[,-1],
-             cores=10, reml=TRUE)
+             cores=20,
+             reml=TRUE)
 
 
 for (p in plist) {
