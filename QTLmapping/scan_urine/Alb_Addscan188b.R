@@ -1,10 +1,11 @@
-# qsub -v script=Alb_Addscan Rsubmit_args.sh
+# qsub -v script=Alb_Addscan188b Rsubmit_args.sh
 library(qtl2geno)
 library(qtl2scan)
 library(qtl2convert)
 library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
+load("./RNAseq_data/DO188b_kidney.RData")
 
 # Subset pheontype: Alb
 pheno <- Upheno[Upheno$study == "Cross-sectional",]
@@ -25,31 +26,18 @@ pheno$ma.u.all <- pheno_ma$ma.u.all
 pheno <- pheno[!is.na(pheno[,2] & pheno[,3]),]
 rownames(pheno) <- pheno$Mouse.ID
 
-# Subset dataset
-genoprobs <- genoprobs[pheno$Mouse.ID,,]
-samples <- samples[pheno$Mouse.ID,]
-samples$cr.u.all <- pheno$cr.u.all
-
-# Identified missing age in samples
-samples[which(is.na(samples$Cohort.Age.mo)),]
-#DO-0906 NA
-#DO-0930 18mo.
-#DO-0943 18mo.
-#DO-1189 12mo.
-samples[which(is.na(samples$Cohort.Age.mo)),]$Cohort.Age.mo <- c(NA, 18, 18, 12)
-samples <- samples[-which(is.na(samples$Cohort.Age.mo)),]
-
-# resubset: Total should be 308
-genoprobs <- genoprobs[as.character(samples$Mouse.ID),,]
-pheno <- pheno[as.character(samples$Mouse.ID),]
+# Subset dataset total : 114
+genoprobs <- genoprobs[rownames(genoprobs) %in% pheno$Mouse.ID,,]
+annot.samples <- annot.samples[rownames(annot.samples) %in% pheno$Mouse.ID,]
+pheno <- pheno[pheno$Mouse.ID %in% rownames(annot.samples),]
+annot.samples$cr.u.all <- pheno$cr.u.all
 
 # prepare data for qtl2
-MM_snps$chr <- as.character(MM_snps$chr)
-probs <- probs_doqtl_to_qtl2(genoprobs, MM_snps, pos_column = "pos")
+snps$chr <- as.character(snps$chr)
+probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "pos")
 K <- calc_kinship(probs, type = "loco", cores = 20)
-map <- map_df_to_list(map = MM_snps, pos_column = "pos")
-samples$cr <- pheno[,2]
-addcovar <- model.matrix(~ Sex + Cohort.Age.mo + Generation + Cohort + cr.u.all , data = samples)
+map <- map_df_to_list(map = snps, pos_column = "pos")
+addcovar <- model.matrix(~ Sex + Age + Generation + cr.u.all , data = annot.samples)
 
 # scan
 lod <- scan1(genoprobs=probs,
@@ -60,7 +48,7 @@ lod <- scan1(genoprobs=probs,
              reml=TRUE)
 
 # save lod
-saveRDS(lod, file = "./QTLscan/addscan_urine/Addscan_alb_all.rds")
+saveRDS(lod, file = "./QTLscan/addscan_urine/Addscan_alb_188b.rds")
 
 perm <- scan1perm(genoprobs=probs,
                      kinship=K,
@@ -71,4 +59,4 @@ perm <- scan1perm(genoprobs=probs,
                      reml = TRUE)
 
 # save permutation
-saveRDS(perm, file = "./QTLscan/addscan_urine/Addperm_alb_all.rds")
+saveRDS(perm, file = "./QTLscan/addscan_urine/Addperm_alb_188b.rds")
