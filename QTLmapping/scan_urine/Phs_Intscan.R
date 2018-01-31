@@ -80,3 +80,16 @@ perm <- scan1perm(genoprobs=probs,
 
 # save permutation
 saveRDS(perm, file = "./QTLscan/addscan_urine/Intperm_phs_all.rds")
+
+# Get coef
+# get max lod
+chr <- max(lod, map)$chr
+# calc coef
+coef <- scan1coef(genoprobs = probs[,chr],
+                  kinship = K[chr],
+                  pheno = as.data.frame(pheno$phs.u.all, row.names = rownames(pheno)),
+                  addcovar = addcovar[,-1],
+                  intcovar=intcovar[,-1],
+                  reml = TRUE)
+# save coef
+saveRDS(coef, file = "./QTLscan/addscan_urine/Intcoef_phs_all.rds")

@@ -31,10 +31,10 @@ for (pheno in pheno_list){
   int_perm188 <- readRDS(paste0("./QTLscan/addscan_urine/Intperm_", pheno, "_188b.rds"))
 
   #Make maps
-  map_all <- map_df_to_list(map = map, pos_column = "pos")
+  map_all <- map_df_to_list(map = MM_snps, pos_column = "pos")
   map_188 <- map_df_to_list(map = snps, pos_column = "pos")
 
-  #plot
+  # QTL plot
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_add.pdf"), width = 12, height = 6)
   plot(add_lod, map_all)
   title(main = paste0(name, " QTL map (n = ", attributes(add_lod)$sample_size, ")"),
@@ -62,8 +62,57 @@ for (pheno in pheno_list){
         sub = paste0("LOD threshold = ", signif(quantile(int_perm188, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
   abline( h = quantile(int_perm, 0.95)[1], col = "orange")
   dev.off()
+
+  # Coef plot
+  # Get highest peak
+  add_chr <- max(add_lod, map_all)$chr
+  int_chr <- max(int_lod, map_all)$chr
+  add_chr188b <- max(add_lod188, map_188)$chr
+  int_chr188b <- max(int_lod188, map_188)$chr
+
+  # load coef
+
+
+
+
 }
 
+
+
+
+
+
+
+
+
+
+# Plot coef of chr 7
+coef_7 <- scan1coef(genoprobs = probs[,"7"],
+                    pheno = log(erk1[,pheno, drop = FALSE]),
+                    kinship = K["7"],
+                    addcovar =  addcovar[,-1],
+                    reml = TRUE)
+
+pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7.pdf"), width = 12, height = 6)
+plot_coefCC(coef_7, map["7"])
+legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+axis(side = 1, at = c(25,75,125,126))
+title(main = "Chr7 founder effect for pERK1 qtl analysis")
+dev.off()
+
+# BLUP
+blup <- scan1blup(genoprobs = probs[,"7"],
+                  pheno = log(erk1[,pheno, drop = FALSE]),
+                  kinship = K["7"],
+                  addcovar =  addcovar[,-1],
+                  reml = TRUE)
+
+pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7_BLUP.pdf"), width = 12, height = 6)
+plot_coefCC(blup, map["7"])
+legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+axis(side = 1, at = c(25,75,125,126))
+title(main = "Chr7 founder effect for pERK1 qtl analysis with BLUP")
+dev.off()
 
 
 

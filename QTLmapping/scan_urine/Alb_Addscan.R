@@ -58,10 +58,10 @@ lod <- scan1(genoprobs=probs,
              addcovar=addcovar[,-1],
              cores=20,
              reml=TRUE)
-
 # save lod
 saveRDS(lod, file = "./QTLscan/addscan_urine/Addscan_alb_all.rds")
 
+# Get perm
 perm <- scan1perm(genoprobs=probs,
                      kinship=K,
                      pheno=as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
@@ -69,6 +69,17 @@ perm <- scan1perm(genoprobs=probs,
                      cores=20,
                      n_perm = 1000,
                      reml = TRUE)
-
 # save permutation
 saveRDS(perm, file = "./QTLscan/addscan_urine/Addperm_alb_all.rds")
+
+# Get coef
+# get max lod
+chr <- max(lod, map)$chr
+# calc coef
+coef <- scan1coef(genoprobs = probs[,chr],
+                  kinship = K[chr],
+                  pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                  addcovar = addcovar[,-1],
+                  reml = TRUE)
+# save coef
+saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")
