@@ -3,6 +3,7 @@ library(qtl2scan)
 library(qtl2convert)
 library(qtl2)
 library(dplyr)
+library(gridExtra)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 load("./RNAseq_data/DO188b_kidney.RData")
@@ -23,12 +24,16 @@ for (pheno in pheno_list){
   add_perm <- readRDS(paste0("./QTLscan/addscan_urine/Addperm_", pheno, "_all.rds"))
   int_lod <- readRDS(paste0("./QTLscan/addscan_urine/Intscan_", pheno, "_all.rds"))
   int_perm <- readRDS(paste0("./QTLscan/addscan_urine/Intperm_", pheno, "_all.rds"))
+  add_coef <- readRDS(paste0("./QTLscan/addscan_urine/Addcoef_", pheno, "_all.rds"))
+  int_coef <- readRDS(paste0("./QTLscan/addscan_urine/Intcoef_", pheno, "_all.rds"))
 
   #188 set
   add_lod188 <- readRDS(paste0("./QTLscan/addscan_urine/Addscan_", pheno, "_188b.rds"))
   add_perm188 <- readRDS(paste0("./QTLscan/addscan_urine/Addperm_", pheno, "_188b.rds"))
   int_lod188 <- readRDS(paste0("./QTLscan/addscan_urine/Intscan_", pheno, "_188b.rds"))
   int_perm188 <- readRDS(paste0("./QTLscan/addscan_urine/Intperm_", pheno, "_188b.rds"))
+  add_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Addcoef_", pheno, "_188b.rds"))
+  int_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Intcoef_", pheno, "_188b.rds"))
 
   #Make maps
   map_all <- map_df_to_list(map = MM_snps, pos_column = "pos")
@@ -64,77 +69,42 @@ for (pheno in pheno_list){
   dev.off()
 
   # Coef plot
-  # Get highest peak
+  # Get chr of highest peak
   add_chr <- max(add_lod, map_all)$chr
   int_chr <- max(int_lod, map_all)$chr
-  add_chr188b <- max(add_lod188, map_188)$chr
-  int_chr188b <- max(int_lod188, map_188)$chr
+  add_chr188 <- max(add_lod188, map_188)$chr
+  int_chr188 <- max(int_lod188, map_188)$chr
 
-  # load coef
+  #plot
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLcoef_chr", add_chr,".pdf"), width = 12, height = 6)
+  plot_coefCC(x = add_coef,
+              map = map_all[add_chr],
+              scan1_output=add_lod)
+  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+  title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr, " (n = ", attributes(add_lod)$sample_size, ")"))
+  dev.off()
 
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLcoef_chr", int_chr,".pdf"), width = 12, height = 6)
+  plot_coefCC(x = int_coef,
+              map = map_all[int_chr],
+              scan1_output=int_lod)
+  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+  title(main = paste0(name, " QTL: Allele coefficient chr ", int_chr, " (n = ", attributes(int_lod)$sample_size, ")"))
+  dev.off()
 
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLcoef188_chr", add_chr188,".pdf"), width = 12, height = 6)
+  plot_coefCC(x = add_coef188,
+              map = map_188[add_chr188],
+              scan1_output=add_lod188)
+  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+  title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr188, " (n = ", attributes(add_lod188)$sample_size, ")"))
+  dev.off()
 
-
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLcoef188_chr", int_chr188,".pdf"), width = 12, height = 6)
+  plot_coefCC(x = int_coef188,
+              map = map_188[int_chr188],
+              scan1_output=int_lod188)
+  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+  title(main = paste0(name, " QTL: Allele coefficient chr ", int_chr188, " (n = ", attributes(int_lod188)$sample_size, ")"))
+  dev.off()
 }
-
-
-
-
-
-
-
-
-
-
-# Plot coef of chr 7
-coef_7 <- scan1coef(genoprobs = probs[,"7"],
-                    pheno = log(erk1[,pheno, drop = FALSE]),
-                    kinship = K["7"],
-                    addcovar =  addcovar[,-1],
-                    reml = TRUE)
-
-pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7.pdf"), width = 12, height = 6)
-plot_coefCC(coef_7, map["7"])
-legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
-axis(side = 1, at = c(25,75,125,126))
-title(main = "Chr7 founder effect for pERK1 qtl analysis")
-dev.off()
-
-# BLUP
-blup <- scan1blup(genoprobs = probs[,"7"],
-                  pheno = log(erk1[,pheno, drop = FALSE]),
-                  kinship = K["7"],
-                  addcovar =  addcovar[,-1],
-                  reml = TRUE)
-
-pdf(paste0("./QTLscan/output/plots/", pheno,  "_FounderCoef_chr7_BLUP.pdf"), width = 12, height = 6)
-plot_coefCC(blup, map["7"])
-legend("bottomleft", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
-axis(side = 1, at = c(25,75,125,126))
-title(main = "Chr7 founder effect for pERK1 qtl analysis with BLUP")
-dev.off()
-
-
-
-
-
-quantile(add_perm, 0.90)
-quantile(add_perm, 0.65)
-
-
-
-
-# plot
-# load lod188 and perms
-pheno <- "Total_ERK1"
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, ".rds")
-lod <- readRDS(file_name)
-file_name <- paste0("./QTLscan/addscan_phenotype/", pheno, "_perm.rds")
-perm <- readRDS(file_name)
-
-pdf(paste0("./QTLscan/output/plots/", pheno, "_qtl_map.pdf"), width = 12, height = 6)
-plot(lod, map)
-title(main = paste0(name, " QTL map (n = ", attribute(add_lod), ")"),
-      sub = paste0("LOD threshold = ", signif(summary(perm)[1], digits = 3), " (0.05, 1000 permutations)"))
-abline( h = summary(perm)[1], col = "orange")
-dev.off()
