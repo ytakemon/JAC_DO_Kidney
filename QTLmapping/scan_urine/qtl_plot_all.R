@@ -35,37 +35,59 @@ for (pheno in pheno_list){
   add_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Addcoef_", pheno, "_188b.rds"))
   int_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Intcoef_", pheno, "_188b.rds"))
 
+  # Calc Age interactive factor
+  Age_lod <- int_lod - add_lod
+  Age_lod188 <- int_lod188 - add_lod188
+
+  Age_perm <- add_perm - int_perm
+  Age_perm188 <- add_perm188 - int_perm188
+
   #Make maps
   map_all <- map_df_to_list(map = MM_snps, pos_column = "pos")
   map_188 <- map_df_to_list(map = snps, pos_column = "pos")
 
   # QTL plot
+  # All add
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_add.pdf"), width = 12, height = 6)
   plot(add_lod, map_all)
   title(main = paste0(name, " QTL map (n = ", attributes(add_lod)$sample_size, ")"),
         sub = paste0("LOD threshold = ", signif(quantile(add_perm, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
   abline( h = quantile(add_perm, 0.95)[1], col = "orange")
   dev.off()
-
+  # All int
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_int.pdf"), width = 12, height = 6)
   plot(int_lod, map_all)
   title(main = paste0(name, " QTL map (n = ", attributes(int_lod)$sample_size, ")"),
         sub = paste0("LOD threshold = ", signif(quantile(int_perm, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
   abline( h = quantile(int_perm, 0.95)[1], col = "orange")
   dev.off()
-
+  #188 add
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_add188b.pdf"), width = 12, height = 6)
   plot(add_lod188, map_188)
   title(main = paste0(name, " QTL map (n = ", attributes(add_lod188)$sample_size, ")"),
         sub = paste0("LOD threshold = ", signif(quantile(add_perm, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
   abline( h = quantile(add_perm188, 0.95)[1], col = "orange")
   dev.off()
-
+  #188 int
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_int188b.pdf"), width = 12, height = 6)
   plot(int_lod188, map_188)
   title(main = paste0(name, " QTL map (n = ", attributes(int_lod188)$sample_size, ")"),
         sub = paste0("LOD threshold = ", signif(quantile(int_perm188, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
   abline( h = quantile(int_perm, 0.95)[1], col = "orange")
+  dev.off()
+  # All Age
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_Age.pdf"), width = 12, height = 6)
+  plot(Age_lod, map_all)
+  title(main = paste0(name, " QTL map (n = ", attributes(Age_lod)$sample_size, ")"),
+        sub = paste0("LOD threshold = ", signif(quantile(Age_perm, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
+  abline( h = quantile(Age_perm, 0.95)[1], col = "orange")
+  dev.off()
+  # All Age
+  pdf(paste0("./QTLscan/output/plots/Urine_", pheno, "_QTLmap_Age188.pdf"), width = 12, height = 6)
+  plot(Age_lod188, map_188)
+  title(main = paste0(name, " QTL map (n = ", attributes(Age_lod188)$sample_size, ")"),
+        sub = paste0("LOD threshold = ", signif(quantile(Age_perm188, 0.95)[1], digits = 3), " (0.05, 1000 permutations)"))
+  abline( h = quantile(Age_perm188, 0.95)[1], col = "orange")
   dev.off()
 
   # Coef plot
@@ -74,8 +96,13 @@ for (pheno in pheno_list){
   int_chr <- max(int_lod, map_all)$chr
   add_chr188 <- max(add_lod188, map_188)$chr
   int_chr188 <- max(int_lod188, map_188)$chr
+  Age_chr <- max(Age_lod, map_all)$chr
+  Age_chr <- max(Age_lod, map_all)$chr
+  Age_chr188 <- max(Age_lod188, map_188)$chr
+  Age_chr188 <- max(Age_lod188, map_188)$chr
 
   #plot
+  # All add
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLcoef_chr", add_chr,".pdf"), width = 12, height = 6)
   plot_coefCC(x = add_coef,
               map = map_all[add_chr],
@@ -83,7 +110,7 @@ for (pheno in pheno_list){
   legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr, " (n = ", attributes(add_lod)$sample_size, ")"))
   dev.off()
-
+  # All int
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLcoef_chr", int_chr,".pdf"), width = 12, height = 6)
   plot_coefCC(x = int_coef,
               map = map_all[int_chr],
@@ -91,7 +118,7 @@ for (pheno in pheno_list){
   legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", int_chr, " (n = ", attributes(int_lod)$sample_size, ")"))
   dev.off()
-
+  #188 add
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLcoef188_chr", add_chr188,".pdf"), width = 12, height = 6)
   plot_coefCC(x = add_coef188,
               map = map_188[add_chr188],
@@ -99,7 +126,7 @@ for (pheno in pheno_list){
   legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr188, " (n = ", attributes(add_lod188)$sample_size, ")"))
   dev.off()
-
+  #188 int
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLcoef188_chr", int_chr188,".pdf"), width = 12, height = 6)
   plot_coefCC(x = int_coef188,
               map = map_188[int_chr188],
