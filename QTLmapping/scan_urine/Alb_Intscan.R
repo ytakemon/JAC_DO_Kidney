@@ -57,7 +57,7 @@ lod <- scan1(genoprobs=probs,
              kinship=K,
              pheno=as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
              addcovar=addcovar[,-1],
-             intcovar=intcovar[,-2],
+             intcovar=intcovar[,-1],
              cores=20,
              reml=TRUE)
 # save lod
