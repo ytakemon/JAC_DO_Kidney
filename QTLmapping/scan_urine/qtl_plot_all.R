@@ -106,8 +106,8 @@ for (pheno in pheno_list){
   pdf(paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLcoef_chr", add_chr,".pdf"), width = 12, height = 6)
   plot_coefCC(x = add_coef,
               map = map_all[add_chr],
-              scan1_output=add_lod)
-  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
+              scan1_output=add_lod,
+              legend = "topright")
   title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr, " (n = ", attributes(add_lod)$sample_size, ")"))
   dev.off()
   # All int
@@ -115,7 +115,6 @@ for (pheno in pheno_list){
   plot_coefCC(x = int_coef,
               map = map_all[int_chr],
               scan1_output=int_lod)
-  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", int_chr, " (n = ", attributes(int_lod)$sample_size, ")"))
   dev.off()
   #188 add
@@ -123,7 +122,6 @@ for (pheno in pheno_list){
   plot_coefCC(x = add_coef188,
               map = map_188[add_chr188],
               scan1_output=add_lod188)
-  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", add_chr188, " (n = ", attributes(add_lod188)$sample_size, ")"))
   dev.off()
   #188 int
@@ -131,7 +129,6 @@ for (pheno in pheno_list){
   plot_coefCC(x = int_coef188,
               map = map_188[int_chr188],
               scan1_output=int_lod188)
-  legend("topright", col=CCcolors, names(CCcolors), ncol=2, lwd=2, bg="gray95")
   title(main = paste0(name, " QTL: Allele coefficient chr ", int_chr188, " (n = ", attributes(int_lod188)$sample_size, ")"))
   dev.off()
 }

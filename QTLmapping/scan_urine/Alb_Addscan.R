@@ -75,11 +75,29 @@ saveRDS(perm, file = "./QTLscan/addscan_urine/Addperm_alb_all.rds")
 # Get coef
 # get max lod
 chr <- max(lod, map)$chr
+pos <- max(lod, map)$pos
 # calc coef
 coef <- scan1coef(genoprobs = probs[,chr],
                   kinship = K[chr],
                   pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
                   addcovar = addcovar[,-1],
                   reml = TRUE)
+
+# Get snp of maxpeak
+
+###
+scansnp <- scan1snps( genoprobs = probs,
+                      kinship = K,
+                      pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                      map = map,
+                      addcovar = addcovar[,-1],
+                      query_func = create_variant_query_func(2, pos - 1, pos + 1),
+                      chr = chr,
+                      start= pos - 1,
+                      end = pos + 1,
+                      keep_all_snps = TRUE,
+                      reml = TRUE)
+
+scansnp
 # save coef
 saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")
