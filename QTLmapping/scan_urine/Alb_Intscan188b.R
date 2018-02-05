@@ -74,6 +74,21 @@ coef <- scan1coef(genoprobs = probs[,chr],
 # save coef
 saveRDS(coef, file = "./QTLscan/addscan_urine/Intcoef_alb_188b.rds")
 
+# Get genes in lod peak interval
+query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
+peak_Mbp <- max(lod, map)$pos
+peak_chr <- max(lod, map)$chr
 
-
-# Still need to fix and run this one!
+out_snps <- scan1snps(genoprobs = probs,
+                      map = map,
+                      pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                      kinship =K[[peak_chr]],
+                      addcovar = addcovar[,-1],
+                      intcovar=intcovar[,-1],
+                      query_func=query_variants,
+                      chr=peak_chr,
+                      start=peak_Mbp-1,
+                      end=peak_Mbp+1,
+                      keep_all_snps=TRUE,
+                      cores = 20)
+saveRDS(out_snps, file = "./QTLscan/addscan_urine/Intsnps_alb_188b.rds")

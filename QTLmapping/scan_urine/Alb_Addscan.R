@@ -49,7 +49,6 @@ K <- calc_kinship(probs, type = "loco", cores = 20)
 map <- map_df_to_list(map = MM_snps, pos_column = "pos")
 samples$cr <- pheno[,2]
 addcovar <- model.matrix(~ Sex + Cohort.Age.mo + Generation + Cohort + cr.u.all , data = samples)
-
 # scan
 lod <- scan1(genoprobs=probs,
              kinship=K,
@@ -85,32 +84,19 @@ coef <- scan1coef(genoprobs = probs[,chr],
 saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")
 
 # Get genes in lod peak interval
-
 query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
+peak_Mbp <- max(lod, map)$pos
+peak_chr <- max(lod, map)$chr
 
-
-
-
-
-
-
-
-
-
-
-
-
-###
-scansnp <- scan1snps( genoprobs = probs,
-                      kinship = K,
-                      pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+out_snps <- scan1snps(genoprobs = probs,
                       map = map,
+                      pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                      kinship =K[[peak_chr]],
                       addcovar = addcovar[,-1],
-                      query_func = create_variant_query_func(2, pos - 1, pos + 1),
-                      chr = chr,
-                      start= pos - 1,
-                      end = pos + 1,
-                      keep_all_snps = TRUE,
-                      reml = TRUE)
-
-scansnp
+                      query_func=query_variants,
+                      chr=peak_chr,
+                      start=peak_Mbp-1,
+                      end=peak_Mbp+1,
+                      keep_all_snps=TRUE,
+                      cores = 20)
+saveRDS(out_snps, file = "./QTLscan/addscan_urine/Addsnps_alb_all.rds")
