@@ -76,8 +76,9 @@ saveRDS(coef, file = "./QTLscan/addscan_urine/Intcoef_alb_188b.rds")
 
 # Get genes in lod peak interval
 query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-peak_Mbp <- max(lod, map)$pos
+peak_Mbp <- (max(lod, map)$pos) / 1e6
 peak_chr <- max(lod, map)$chr
+map <- map_df_to_list(map = snps, pos_column = "bp") # needs Mbp as input for query
 
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
