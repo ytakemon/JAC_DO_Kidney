@@ -145,41 +145,46 @@ for (pheno in pheno_list){
 
   # Plot snps in peak lod interval
   # Link sql datebase
-  query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
   query_genes <- create_gene_query_func("./qtl2_sqlite/mouse_genes_mgi.sqlite")
-  # Get pos of highest peak
-  add_pos <- max(add_lod, map_all)$pos
-  int_pos <- max(int_lod, map_all)$pos
-  add_pos188 <- max(add_lod188, map_188)$pos
-  int_pos188 <- max(int_lod188, map_188)$pos
-  Age_pos <- max(Age_lod, map_all)$pos
-  Age_pos <- max(Age_lod, map_all)$pos
-  Age_pos188 <- max(Age_lod188, map_188)$pos
-  Age_pos188 <- max(Age_lod188, map_188)$pos
 
   list <- c("add","int","add188", "int188", "Age", "Age188")
   for(i in list){
-    
+    if(i == "add"){
+      lod <- get("add_lod")
+      map <- get("map_all")
+      getsnp <- get("add_snp")
+      peak_chr <- max(lod, map)$chr
+      peak_pos <- max(lod, map)$pos
+      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLgenes_chr", peak_chr,".pdf")
+    } else if(i == "int"){
+      lod <- get("int_lod")
+      map <- get("map_all")
+      getsnp <- get("int_snp")
+      peak_chr <- max(lod, map)$chr
+      peak_pos <- max(lod, map)$pos
+      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLgenes_chr", peak_chr,".pdf")
+    } else if(i == "add188"){
+      lod <- get("add_lod188")
+      map <- get("map_188")
+      getsnp <- get("add_snp188")
+      peak_chr <- max(lod, map)$chr
+      peak_pos <- (max(lod, map)$pos)/ 1e6 # need to convert to mega base
+      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLgenes188_chr", peak_chr,".pdf")
+    } else if(i == "int188"){
+      lod <- get("int_lod188")
+      map <- get("map_188")
+      getsnp <- get("int_snp188")
+      peak_chr <- max(lod, map)$chr
+      peak_pos <- (max(lod, map)$pos)/ 1e6  # need to convert to mega base
+      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLgenes188_chr", peak_chr,".pdf")
+    }
+
+    print(paste("Plotting genes under interval:", i))
+    genes <- query_genes(peak_chr, peak_pos - 1, peak_pos + 1) # Pos has to be in megabases.
+
+    pdf(file = file, width = 10, height = 6)
+    par(mar=c(4.1, 4.1, 0.6, 0.6))
+    plot(getsnp$lod, getsnp$snpinfo, drop_hilit=1.5, genes = genes)
+    dev.off()
   }
-
-
-
 }
-
-
-
-
-
-
-
-query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-query_genes <- create_gene_query_func("./qtl2_sqlite/mouse_genes_mgi.sqlite")
-peak_Mbp <- max(lod, map)$pos
-peak_chr <- max(lod, map)$chr
-variants <- query_variants(peak_chr, peak_Mbp - 1, peak_Mbp + 1)
-genes <- query_genes(peak_chr, peak_Mbp - 1, peak_Mbp + 1)
-par(mar=c(4.1, 4.1, 0.6, 0.6))
-plot_snpasso(out_snps$lod, out_snps$snpinfo, genes)
-
-par(mar=c(4.1, 4.1, 0.6, 0.6))
-plot(out_snps$lod, out_snps$snpinfo, drop_hilit=1.5, genes=genes)
