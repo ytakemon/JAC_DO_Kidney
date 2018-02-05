@@ -103,4 +103,4 @@ out_snps <- scan1snps(genoprobs = probs,
                       end=peak_Mbp+1,
                       keep_all_snps=TRUE,
                       cores = 20)
-saveRDS(out_snps, file = "./QTLscan/addscan_urine/Adsnps_phs_all.rds")
+saveRDS(out_snps, file = "./QTLscan/addscan_urine/Addsnps_phs_all.rds")
