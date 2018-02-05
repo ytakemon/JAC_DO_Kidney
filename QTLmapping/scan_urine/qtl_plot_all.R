@@ -1,5 +1,3 @@
-library(qtl2geno)
-library(qtl2scan)
 library(qtl2convert)
 library(qtl2)
 library(dplyr)

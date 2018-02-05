@@ -1,7 +1,6 @@
 # qsub -v script=Alb_Addscan Rsubmit_args.sh
-library(qtl2geno)
-library(qtl2scan)
 library(qtl2convert)
+library(qtl2)
 library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
@@ -82,8 +81,24 @@ coef <- scan1coef(genoprobs = probs[,chr],
                   pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
                   addcovar = addcovar[,-1],
                   reml = TRUE)
+# save coef
+saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")
 
-# Get snp of maxpeak
+# Get genes in lod peak interval
+
+query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###
 scansnp <- scan1snps( genoprobs = probs,
@@ -99,5 +114,3 @@ scansnp <- scan1snps( genoprobs = probs,
                       reml = TRUE)
 
 scansnp
-# save coef
-saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")

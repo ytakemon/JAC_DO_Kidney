@@ -1,7 +1,6 @@
 # qsub -v script=Phs_Addscan Rsubmit_args.sh
-library(qtl2geno)
-library(qtl2scan)
 library(qtl2convert)
+library(qtl2)
 library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
