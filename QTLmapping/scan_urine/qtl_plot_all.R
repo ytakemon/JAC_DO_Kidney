@@ -1,3 +1,4 @@
+#qsub -v script=qtl_plot_all Rsubmit_args.sh
 library(qtl2convert)
 library(qtl2)
 library(dplyr)
@@ -33,6 +34,7 @@ for (pheno in pheno_list){
   int_lod188 <- readRDS(paste0("./QTLscan/addscan_urine/Intscan_", pheno, "_188b.rds"))
   int_perm188 <- readRDS(paste0("./QTLscan/addscan_urine/Intperm_", pheno, "_188b.rds"))
   add_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Addcoef_", pheno, "_188b.rds"))
+  int_coef188 <- readRDS(paste0("./QTLscan/addscan_urine/Intcoef_", pheno, "_188b.rds"))
   add_snp188 <- readRDS(paste0("./QTLscan/addscan_urine/Addsnps_", pheno, "_188b.rds"))
   int_snp188 <- readRDS(paste0("./QTLscan/addscan_urine/Intsnps_", pheno, "_188b.rds"))
 
@@ -147,7 +149,7 @@ for (pheno in pheno_list){
   # Link sql datebase
   query_genes <- create_gene_query_func("./qtl2_sqlite/mouse_genes_mgi.sqlite")
 
-  list <- c("add","int","add188", "int188", "Age", "Age188")
+  list <- c("add","int","add188", "int188")
   for(i in list){
     if(i == "add"){
       lod <- get("add_lod")
@@ -176,7 +178,7 @@ for (pheno in pheno_list){
       getsnp <- get("int_snp188")
       peak_chr <- max(lod, map)$chr
       peak_pos <- (max(lod, map)$pos)/ 1e6  # need to convert to mega base
-      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_addQTLgenes188_chr", peak_chr,".pdf")
+      file <- paste0("./QTLscan/output/plots/Urine_", pheno,  "_intQTLgenes188_chr", peak_chr,".pdf")
     }
 
     print(paste("Plotting genes under interval:", i))

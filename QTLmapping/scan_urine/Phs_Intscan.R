@@ -5,7 +5,7 @@ library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 
-# Subset pheontype: phs
+# Subset pheontype: Alb
 pheno <- Upheno[Upheno$study == "Cross-sectional",]
 pheno <- pheno[-1,]
 pheno_cr <- pheno[,c("Mouse.ID", "cr.u.6", "cr.u.12", "cr.u.18")]
@@ -28,22 +28,9 @@ rownames(pheno) <- pheno$Mouse.ID
 genoprobs <- genoprobs[pheno$Mouse.ID,,]
 samples <- samples[pheno$Mouse.ID,]
 samples$cr.u.all <- pheno$cr.u.all
-
-# Identified missing age in samples
-samples[which(is.na(samples$Cohort.Age.mo)),]
-#"DO-0835" NA
-#"DO-0906" NA
-#"DO-0930" 18
-#"DO-0943" 18
-#"DO-0947" 18
-#"DO-1044" NA
-#"DO-1189" 12
-#"DO-1246" 6
-#"DO-1317" 6
-samples[which(is.na(samples$Cohort.Age.mo)),]$Cohort.Age.mo <- c(NA, NA, 18, 18, 18, NA, 12, 6, 6)
 samples <- samples[-which(is.na(samples$Cohort.Age.mo)),]
 
-# resubset: Total should be 446
+# resubset: Total should be 308
 genoprobs <- genoprobs[as.character(samples$Mouse.ID),,]
 pheno <- pheno[as.character(samples$Mouse.ID),]
 
@@ -76,7 +63,6 @@ perm <- scan1perm(genoprobs=probs,
                      cores=20,
                      n_perm = 1000,
                      reml = TRUE)
-
 # save permutation
 saveRDS(perm, file = "./QTLscan/addscan_urine/Intperm_phs_all.rds")
 
