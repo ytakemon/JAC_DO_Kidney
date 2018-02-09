@@ -14,10 +14,10 @@ pheno_ma <- pheno[,c("Mouse.ID", "ma.u.6", "ma.u.12", "ma.u.18")]
 
 # colapse to one column and combine
 pheno_cr <- pheno_cr %>% mutate(
-              cr.u.all = coalesce(cr.u.6, cr.u.12, cr.u.18)
+              cr.u.all = log(coalesce(cr.u.6, cr.u.12, cr.u.18))
             )
 pheno_ma <- pheno_ma %>% mutate(
-              ma.u.all = coalesce(ma.u.6, ma.u.12, ma.u.18)
+              ma.u.all = log(coalesce(ma.u.6, ma.u.12, ma.u.18))
             )
 
 pheno <- pheno_cr[,c("Mouse.ID","cr.u.all")]
