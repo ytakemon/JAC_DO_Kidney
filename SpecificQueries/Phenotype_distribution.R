@@ -1,12 +1,13 @@
 library(dplyr)
 library(reshape)
 library(ggplot2)
+library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO1045_kidney.Rdata")
 
 # Subset pheontype: Alb
 pheno <- Upheno[Upheno$study == "Cross-sectional",]
-pheno <- pheno[-1,]
+#write.csv(pheno, "./Phenotype/phenotypes/JAC_DO_cross_Upheno.csv", quote = FALSE)
 pheno_cr <- pheno[,c("Mouse.ID", "cr.u.6", "cr.u.12", "cr.u.18")]
 pheno_ma <- pheno[,c("Mouse.ID", "ma.u.6", "ma.u.12", "ma.u.18")]
 
@@ -31,9 +32,10 @@ pheno$age <- samples$Cohort.Age.mo
 pheno$sex <- samples$Sex
 pheno$age <- as.factor(as.character(pheno$age))
 phenoF <- pheno[pheno$sex == "F",]
+phenoM <- pheno[pheno$sex == "M",]
 
 
-ggplot(phenoF, aes(x = log(ACR), y =..count.., fill = age, colour = age)) +
+ggplot_F <- ggplot(phenoF, aes(x = log(ACR), y =..count.., fill = age, colour = age)) +
   geom_density( alpha = 0.1)+
   scale_x_continuous("Albumin to creatinine ratio (mg/g)") +
   scale_y_continuous(" ") +
@@ -43,7 +45,19 @@ ggplot(phenoF, aes(x = log(ACR), y =..count.., fill = age, colour = age)) +
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
   coord_flip()
-pdf("./GBRS_reconstruction/reconstruct/best.compiled.genoprob/plot/Col4a5_fig2_ACR_GFR_dist_YUKA.pdf", width = 12, height = 6)
+
+ggplot_M <- ggplot(phenoM, aes(x = log(ACR), y =..count.., fill = age, colour = age)) +
+  geom_density( alpha = 0.1)+
+  scale_x_continuous("Albumin to creatinine ratio (mg/g)") +
+  scale_y_continuous(" ") +
+  labs( title = "Males") +
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  coord_flip()
+
+pdf("test.pdf", width = 12, height = 6)
 pushViewport(viewport(layout = grid.layout(1, 2)))
 print(ggplot_F, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
 print(ggplot_M, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
