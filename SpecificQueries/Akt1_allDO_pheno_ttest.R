@@ -67,6 +67,13 @@ Samples_akt$NZO_het <- (str_sub(Samples_akt$all, 1, 1) == "E") | (str_sub(Sample
 Samples_akt_NZO_hom <- Samples_akt[Samples_akt$NZO_hom == TRUE, ]
 Samples_akt_NZO_het <- Samples_akt[(Samples_akt$NZO_hom == FALSE & Samples_akt$NZO_het == TRUE), ]
 Samples_akt_else <- Samples_akt[Samples_akt$NZO_het == FALSE, ]
+
+#Assign geno: "NZO/NZO", "NZO/Other", "Other/Other"
+Samples_akt$geno <- NA
+Samples_akt[Samples_akt$NZO_hom == TRUE, ]$geno <- "NZO/NZO"
+Samples_akt[(Samples_akt$NZO_hom == FALSE & Samples_akt$NZO_het == TRUE), ]$geno <- "NZO/Other"
+Samples_akt_else <- Samples_akt[Samples_akt$NZO_het == FALSE, ]$geno <- "Other/Other"
+
 # Subset pheno by group
 Upheno$Sex <- Samples_akt$Sex
 Pheno_NZO_hom <- Upheno[rownames(Upheno) %in% rownames(Samples_akt_NZO_hom),]
