@@ -29,6 +29,7 @@ genoprobs <- genoprobs[pheno$Mouse.ID,,]
 samples <- samples[pheno$Mouse.ID,]
 samples$cr.u.all <- pheno$cr.u.all
 samples <- samples[-which(is.na(samples$Cohort.Age.mo)),]
+samples$Cohort.Age.mo <- as.numeric(samples$Cohort.Age.mo)
 
 # resubset: Total should be 308
 genoprobs <- genoprobs[as.character(samples$Mouse.ID),,]
@@ -39,7 +40,6 @@ MM_snps$chr <- as.character(MM_snps$chr)
 probs <- probs_doqtl_to_qtl2(genoprobs, MM_snps, pos_column = "pos")
 K <- calc_kinship(probs, type = "loco", cores = 20)
 map <- map_df_to_list(map = MM_snps, pos_column = "pos")
-samples$cr <- pheno[,2]
 addcovar <- model.matrix(~ Sex + Cohort.Age.mo + Generation + Cohort + cr.u.all , data = samples)
 
 # scan

@@ -7,16 +7,16 @@ load("./RNAseq_data/DO1045_kidney.Rdata")
 
 # Subset pheontype: Alb
 pheno <- Upheno[Upheno$study == "Cross-sectional",]
-pheno <- pheno[-1,]
+pheno <- pheno[-1,] # first sample is not cross-sectional!
 pheno_cr <- pheno[,c("Mouse.ID", "cr.u.6", "cr.u.12", "cr.u.18")]
 pheno_ma <- pheno[,c("Mouse.ID", "ma.u.6", "ma.u.12", "ma.u.18")]
 
 # colapse to one column and combine
 pheno_cr <- pheno_cr %>% mutate(
-              cr.u.all = log(coalesce(cr.u.6, cr.u.12, cr.u.18))
+              cr.u.all = log1p(coalesce(cr.u.6, cr.u.12, cr.u.18))
             )
 pheno_ma <- pheno_ma %>% mutate(
-              ma.u.all = log(coalesce(ma.u.6, ma.u.12, ma.u.18))
+              ma.u.all = log1p(coalesce(ma.u.6, ma.u.12, ma.u.18))
             )
 
 pheno <- pheno_cr[,c("Mouse.ID","cr.u.all")]

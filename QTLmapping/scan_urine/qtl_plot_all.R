@@ -98,6 +98,24 @@ for (pheno in pheno_list){
     dev.off()
   }
 
+pdf(file = "./QTLscan/output/plots/Urine_alb_addQTLmap_log1p.pdf", width = 12, height = 6)
+plot(alod, map)
+title( main = paste0( "Albumin addQTL map (n = ", attributes(lod)$sample_size, ")"))
+dev.off()
+
+pdf(file = "./QTLscan/output/plots/Urine_alb_intQTLmap_log1p.pdf", width = 12, height = 6)
+plot(ilod, map)
+title( main = paste0( "Albumin intQTL map (n = ", attributes(lod)$sample_size, ")"))
+dev.off()
+
+difflod <- ilod - alod
+pdf(file = "./QTLscan/output/plots/Urine_alb_AgeQTLmap_log1p.pdf", width = 12, height = 6)
+plot(difflod, map)
+title( main = paste0( "Albumin AgeQTL map (n = ", attributes(lod)$sample_size, ")"))
+dev.off()
+
+
+
   # Coef plot
   # Get chr of highest peak
   add_chr <- max(add_lod, map_all)$chr
