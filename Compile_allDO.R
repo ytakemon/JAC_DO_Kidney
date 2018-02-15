@@ -282,6 +282,7 @@ rownames(Ucombine) <- Ucombine$Mouse.ID
 genoprobs <- sub[rownames(sub) %in% rownames(Ucombine),,]
 Upheno <- Ucombine[rownames(Ucombine) %in% rownames(genoprobs),]
 samples <- samples[rownames(samples) %in% rownames(Upheno),]
+samples$Sex <- factor(samples$Sex, level= c("F","M"))
 
 # Calcualte kinship
 probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
