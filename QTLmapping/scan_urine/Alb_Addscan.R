@@ -52,7 +52,7 @@ addcovar <- model.matrix(~ Sex + Cohort.Age.mo + Generation + Cohort + cr.u.all 
 # scan
 lod <- scan1(genoprobs=probs,
              kinship=K,
-             pheno=as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+             pheno=as.matrix(pheno[,"ma.u.all", drop = FALSE]),
              addcovar=addcovar[,-1],
              cores=20,
              reml=TRUE)
@@ -62,7 +62,7 @@ saveRDS(lod, file = "./QTLscan/addscan_urine/Addscan_alb_all.rds")
 # Get perm
 perm <- scan1perm(genoprobs=probs,
                      kinship=K,
-                     pheno=as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                     pheno=as.matrix(pheno[,"ma.u.all", drop = FALSE]),
                      addcovar=addcovar[,-1],
                      cores=20,
                      n_perm = 1000,
@@ -77,7 +77,7 @@ pos <- max(lod, map)$pos
 # calc coef
 coef <- scan1coef(genoprobs = probs[,chr],
                   kinship = K[chr],
-                  pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                  pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
                   addcovar = addcovar[,-1],
                   reml = TRUE)
 # save coef
@@ -90,7 +90,7 @@ peak_chr <- max(lod, map)$chr
 
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
-                      pheno = as.data.frame(pheno$ma.u.all, row.names = rownames(pheno)),
+                      pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
                       kinship =K[[peak_chr]],
                       addcovar = addcovar[,-1],
                       query_func=query_variants,
