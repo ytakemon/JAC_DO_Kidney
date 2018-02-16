@@ -73,7 +73,6 @@ saveRDS(perm, file = "./QTLscan/addscan_urine/Addperm_alb_all.rds")
 # Get coef
 # get max lod
 chr <- max(lod, map)$chr
-pos <- max(lod, map)$pos
 # calc coef
 coef <- scan1coef(genoprobs = probs[,chr],
                   kinship = K[chr],
@@ -85,18 +84,17 @@ saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_alb_all.rds")
 
 # Get genes in lod peak interval
 query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-peak_Mbp <- max(lod, map)$pos
-peak_chr <- max(lod, map)$chr
+bayesint <- bayes_int(lod, map, chr)
 
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
                       pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
-                      kinship =K[[peak_chr]],
+                      kinship =K[[chr]],
                       addcovar = addcovar[,-1],
                       query_func=query_variants,
-                      chr=peak_chr,
-                      start=peak_Mbp-1,
-                      end=peak_Mbp+1,
+                      chr=chr,
+                      start=bayesint[,"ci_lo"],
+                      end=bayesint[,"ci_hi"],
                       keep_all_snps=TRUE,
                       cores = 20)
 saveRDS(out_snps, file = "./QTLscan/addscan_urine/Addsnps_alb_all.rds")
