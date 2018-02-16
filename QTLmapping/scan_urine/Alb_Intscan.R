@@ -51,6 +51,13 @@ samples$cr <- pheno[,2]
 addcovar <- model.matrix(~ Sex + Cohort.Age.mo + Generation + Cohort + cr.u.all , data = samples)
 intcovar <- model.matrix(~ Cohort.Age.mo, data = samples)
 
+# get max lod
+chr <- max(lod, map)$chr
+
+# define peak and genes
+query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
+bayesint <- bayes_int(lod, map, chr)
+
 # scan
 lod <- scan1(genoprobs=probs,
              kinship=K,
@@ -74,8 +81,7 @@ perm <- scan1perm(genoprobs=probs,
 saveRDS(perm, file = "./QTLscan/addscan_urine/Intperm_alb_all.rds")
 
 # Get coef
-# get max lod
-chr <- max(lod, map)$chr
+
 # calc coef
 coef <- scan1coef(genoprobs = probs[,chr],
                   kinship = K[chr],
@@ -86,10 +92,7 @@ coef <- scan1coef(genoprobs = probs[,chr],
 # save coef
 saveRDS(coef, file = "./QTLscan/addscan_urine/Intcoef_alb_all.rds")
 
-# Get genes in lod peak interval
-query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-bayesint <- bayes_int(lod, map, chr)
-
+# Get genes in lod peak interva
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
                       pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
@@ -103,3 +106,31 @@ out_snps <- scan1snps(genoprobs = probs,
                       keep_all_snps=TRUE,
                       cores = 20)
 saveRDS(out_snps, file = "./QTLscan/addscan_urine/Intsnps_alb_all.rds")
+
+# Need close ups
+out_snps <- scan1snps(genoprobs = probs,
+                      map = map,
+                      pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
+                      kinship =K[[chr]],
+                      addcovar = addcovar[,-1],
+                      intcovar=intcovar[,-1],
+                      query_func=query_variants,
+                      chr=chr,
+                      start=15,
+                      end=17,
+                      keep_all_snps=TRUE,
+                      cores = 20)
+saveRDS(out_snps, file = "./QTLscan/addscan_urine/Intsnps_alb_all2.rds")
+out_snps <- scan1snps(genoprobs = probs,
+                      map = map,
+                      pheno = as.matrix(pheno[,"ma.u.all", drop = FALSE]),
+                      kinship =K[[chr]],
+                      addcovar = addcovar[,-1],
+                      intcovar=intcovar[,-1],
+                      query_func=query_variants,
+                      chr=chr,
+                      start=24,
+                      end=26,
+                      keep_all_snps=TRUE,
+                      cores = 20)
+saveRDS(out_snps, file = "./QTLscan/addscan_urine/Intsnps_alb_all3.rds")

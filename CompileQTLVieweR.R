@@ -54,7 +54,8 @@ annots.mrna <- annots.mrna %>% select(-c(nearest_snp, middle_point))
 covar <- covar[,-1]
 covar.factors <- data.frame(column.name = colnames(covar),
                             display.name = c("Sex", "Age", "G11","G12","G8","G9","Sex*Age"))
-expr <- expr.mrna
+#expr <- expr.mrna
+expr.mrna <- expr.mrna[,annots.mrna$id]
 
 # Find nearest marker for additive QTL lod peaks
 lod.peaks <- read.csv("./QTLscan/output/eQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
@@ -128,16 +129,16 @@ dataset.protein <- list("annots" = annots.protein,
                      "covar" = covar,
                      "covar.factors" = covar.factors,
                      "datatype" = datatype,
-                     "expr" = expr.mrna,
+                     "expr" = expr.protein,
                      "lod.peaks" = lod.peaks,
                      "samples" = samples)
 
-# save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
+# save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201802_YT.Rdata")
 
 # Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
 rm(list = ls())
-load("./RNAseq_data/DO188b_kidney_201711.Rdata")
+load("./RNAseq_data/DO188b_kidney_201802_YT.Rdata")
 source("./Scripts/qtlDataCheck.R")
 
 CheckVariables()

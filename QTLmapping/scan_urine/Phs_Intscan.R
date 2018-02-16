@@ -81,7 +81,7 @@ saveRDS(coef, file = "./QTLscan/addscan_urine/Intcoef_phs_all.rds")
 
 # Get genes in lod peak interval
 query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-bayesint <- bayes_int(lod, map, chr)
+bayesint <- bayes_int(lod, map, chr) # interval too large, need to modify
 
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
@@ -92,7 +92,7 @@ out_snps <- scan1snps(genoprobs = probs,
                       query_func=query_variants,
                       chr=chr,
                       start=bayesint[,"ci_lo"],
-                      end=bayesint[,"ci_hi"],
+                      end=bayesint[,"pos"]+10,
                       keep_all_snps=TRUE,
                       cores = 20)
 
