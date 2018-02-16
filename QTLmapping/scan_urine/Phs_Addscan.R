@@ -29,7 +29,6 @@ genoprobs <- genoprobs[pheno$Mouse.ID,,]
 samples <- samples[pheno$Mouse.ID,]
 samples$cr.u.all <- pheno$cr.u.all
 samples <- samples[-which(is.na(samples$Cohort.Age.mo)),]
-samples$Cohort.Age.mo <- as.numeric(samples$Cohort.Age.mo)
 
 # resubset: Total should be 308
 genoprobs <- genoprobs[as.character(samples$Mouse.ID),,]
@@ -76,18 +75,20 @@ saveRDS(coef, file = "./QTLscan/addscan_urine/Addcoef_phs_all.rds")
 
 # Get genes in lod peak interval
 query_variants <- create_variant_query_func("./qtl2_sqlite/cc_variants.sqlite")
-peak_Mbp <- max(lod, map)$pos
-peak_chr <- max(lod, map)$chr
+bayesint <- bayes_int(lod, map, chr)
 
 out_snps <- scan1snps(genoprobs = probs,
                       map = map,
                       pheno = as.matrix(pheno[,"phs.u.all", drop = FALSE]),
-                      kinship =K[[peak_chr]],
+                      kinship =K[[chr]],
                       addcovar = addcovar[,-1],
+                      intcovar=intcovar[,-1],
                       query_func=query_variants,
-                      chr=peak_chr,
-                      start=peak_Mbp-1,
-                      end=peak_Mbp+1,
+                      chr=chr,
+                      start=bayesint[,"ci_lo"],
+                      end=bayesint[,"ci_hi"],
                       keep_all_snps=TRUE,
                       cores = 20)
+
+#Cant get genes in interval, too many genes!
 saveRDS(out_snps, file = "./QTLscan/addscan_urine/Addsnps_phs_all.rds")
