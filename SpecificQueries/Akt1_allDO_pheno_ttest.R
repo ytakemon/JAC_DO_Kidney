@@ -94,6 +94,8 @@ Pheno$phs.cr.6 <- Pheno$phs.u.6 / Pheno$cr.u.6
 Pheno$phs.cr.12 <- Pheno$phs.u.12 / Pheno$cr.u.12
 Pheno$phs.cr.18 <- Pheno$phs.u.18 / Pheno$cr.u.18
 
+Pheno <- Pheno[Pheno$study == "Cross-sectional",]
+
 PhenoM <- Pheno[Pheno$Sex == "M",]
 PhenoF <- Pheno[Pheno$Sex == "F",]
 
@@ -323,6 +325,13 @@ Pheno_time_Alb[Pheno_time_Alb$Age == "ma.cr.18",]$Age <- "18mo"
 
 df <- summarySE(Pheno_time_Alb, measurevar = "value", groupvars = c("Age", "Allele", "Sex"))
 df$Age <- factor(df$Age, level = c("6mo", "12mo", "18mo"))
+df$Allele <- factor(df$Allele, level = c("NZO/NZO", "NZO/Other", "Other/Other"))
+#Create empty vector for NZO/NZO to get colour
+empty <- df[12,]
+empty$Allele <- "NZO/NZO"
+empty$N <- 1
+empty[,5:8] <- c(NA, NA, NA, NA)
+df <- rbind(df, empty)
 Alb <- ggplot(df, aes(x = Age, y = value, group = Allele, colour = Allele))+
       geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.1, position = position_dodge(0.1))+
       geom_line(position = position_dodge(0.1)) +
@@ -330,7 +339,7 @@ Alb <- ggplot(df, aes(x = Age, y = value, group = Allele, colour = Allele))+
       facet_grid(. ~ Sex)+
       theme_bw()+
       labs(title = "Log1p(Alb/Cr ratio) by Allele and Sex",
-           subtitle =  paste0("Males: NZO/NZO = ",sum(df[df$Sex == "M" & df$Allele == "NZO/NZO",]$N),
+           subtitle =  paste0("Males: NZO/NZO = ",sum(df[df$Sex == "M" & df$Allele == "NZO/NZO",]$N - 1),
                               ", NZO/Other = ", sum(df[df$Sex == "M" & df$Allele == "NZO/Other",]$N),
                               ", Other/Other = ", sum(df[df$Sex == "M" & df$Allele == "Other/Other",]$N), ")", "\n",
                               "Females: NZO/NZO = ", sum(df[df$Sex == "F" & df$Allele == "NZO/NZO",]$N),
@@ -394,7 +403,7 @@ Phs <- ggplot(df, aes(x = Age, y = value, group = Allele, colour = Allele))+
            x = "Time Point")+
       scale_color_aaas()
 
-pdf("./Plot/AktAllele_PhenoCompare_time2.pdf", width = 20, height = 6)
+pdf("./Plot/AktAllele_PhenoCompare_time2_crossonly.pdf", width = 20, height = 6)
 grid.arrange(Mg, Alb, Phs, ncol = 3)
 dev.off()
 
