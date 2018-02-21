@@ -76,6 +76,7 @@ Samples_akt$Age <- factor(Samples_akt$Age, levels(Samples_akt$Age)[c(3,1,2)])
 pdf("./Plot/Akt1Allele_Akt1exp_by_Age.pdf", width = 12, height = 7)
 ggplot(Samples_akt, aes(x = Age, y = Akt1_raw, colour = geno)) +
   geom_smooth(method = "lm", se = FALSE, aes(group = geno, colour = geno)) +
+  geom_point(position = position_dodge(0.5))+
   theme_bw() +
   labs( title = "Akt1 mRNA expression by genotype",
         subtitle = paste0("Female: 93, (NZO/NZO=0 , NZO/Other=9 , Other/Other=84 ) \nMale: 95, (NZO/NZO=3 , NZO/Other=12 , Other/Other=80 )"),
@@ -89,6 +90,7 @@ dev.off()
 pdf("./Plot/Akt1Allele_Akt1prot_by_Age.pdf", width = 12, height = 7)
 ggplot(Samples_akt, aes(x = Age, y = Akt1_prot_raw, colour = geno)) +
   geom_smooth(method = "lm", se = FALSE, aes(group = geno, colour = geno)) +
+  geom_point(position = position_dodge(0.5))+
   theme_bw() +
   labs( title = "Akt1 protein expression by genotype",
         subtitle = paste0("Female: 93, (NZO/NZO=0 , NZO/Other=9 , Other/Other=84 ) \nMale: 95, (NZO/NZO=3 , NZO/Other=12 , Other/Other=80 )"),

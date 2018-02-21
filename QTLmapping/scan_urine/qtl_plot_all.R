@@ -47,6 +47,9 @@ for (pheno in pheno_list){
   int_chr <- max(int_lod, map_all)$chr
   Age_chr <- max(Age_lod, map_all)$chr
 
+  #map_all_nox <- map_all[1:19]
+  #max(Age_lod, map_all_nox)
+
   # QTL plot
   list <- c("add", "int", "Age")
   # All add
