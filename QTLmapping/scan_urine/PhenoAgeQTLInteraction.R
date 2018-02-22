@@ -23,19 +23,28 @@ Upheno_sub <- Upheno_sub %>%
               select(Mouse.ID, acr, pcr)
 
 # Define the following variables
-pheno <- "alb"
-gene_select <- "Akt1"
-level_select <- "mRNA"
+type <- "age" #c("age","add","int")
+pheno <- "Alb" #c("Alb","Phs")
 chr_select <- "12"
 
-if (pheno == "alb"){
+if (pheno == "Alb"){
   file <- paste0("./QTLscan/addscan_urine/Intscan_alb_all.rds")
-} else if (pheno == "phs"){
+  file2 <- paste0("./QTLscan/addscan_urine/Addscan_alb_all.rds")
+} else if (pheno == "Phs"){
   file <- paste0("./QTLscan/addscan_urine/Intscan_phs_all.rds")
+  file2 <- paste0("./QTLscan/addscan_urine/Addscan_phs_all.rds")
 }
 
 # Fit
-fit <- readRDS(file)
+if(type == "age"){
+  intfit <- readRDS(file)
+  addfit <- readRDS(file2)
+  fit <- intfit - addfit
+} else if(type == "int"){
+  fit <- readRDS(file)
+} else if(type == "add"){
+  fit <- readRDS(fitl2)
+}
 fit <- as.data.frame(fit)
 
 # Max Marker
@@ -53,7 +62,7 @@ Upheno_sub <- bind_cols(Upheno_sub,
 # Subset genoprobs
 probs <- genoprobs[Upheno_sub$Mouse.ID,,]
 # calculate divation form mean
-if(pheno == "alb") y <- Upheno_sub$acr else y <- Upheno_sub$pcr
+if(pheno == "Alb") y <- Upheno_sub$acr else y <- Upheno_sub$pcr
 y[Upheno_sub$Sex == "M"] <- y[Upheno_sub$Sex == "M"] - mean(y[Upheno_sub$Sex == "M"], na.rm = TRUE)
 y[Upheno_sub$Sex == "F"] <- y[Upheno_sub$Sex == "F"] - mean(y[Upheno_sub$Sex == "F"], na.rm = TRUE)
 
@@ -74,12 +83,15 @@ dt <- data.frame(Allele = LETTERS[rep(1:8,3)],
            betase = unlist(se),
            Tstat = unlist(tstat))
 
-ggplot(dt, aes(x = as.numeric(Allele) + as.numeric(Age)/15-2/15, y = beta, colour = Age)) +
-      geom_errorbar(aes(ymin=beta - betase, ymax=beta + betase), width=.1) +
-      geom_point(aes(size=abs(Tstat))) + xlab("Allele") +
-      ylab("beta +/- SE") +
+pdf(paste0("./QTLscan/output/plots/Urine_",pheno,"_AlleleEffect_byAge_chr", chr_select,".pdf"), width = 12, height = 6)
+ggplot(dt, aes(x = as.numeric(Allele), y = beta, colour = Age)) +
+      geom_errorbar(aes(ymin=beta - betase, ymax=beta + betase), width=.3, position = position_dodge(0.3)) +
+      geom_point(aes(size=abs(Tstat)), position = position_dodge(0.3)) +
+      xlab("Allele") +
+      ylab(paste0("log1p(Alb/Cr) (beta +/- SE)")) +
       scale_x_continuous(breaks=c(1:8), labels=LETTERS[1:8]) +
       geom_abline(intercept = 0, slope = 0, colour=I("grey")) +
-      ggtitle(paste(max.marker, gene_select)) +
+      ggtitle(paste0("log1p(Alb/Cr) : ", max.marker, " (Chr",chr_select,":",max.pos, " Mbp)")) +
       theme(panel.border = element_rect(linetype = "solid", fill=NA, colour = "grey")) +
       scale_color_aaas()
+dev.off()
