@@ -1,3 +1,4 @@
+library(ggplot2)
 library(dplyr)
 library(ggsci)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
@@ -18,14 +19,14 @@ Slc_df$Slc9a3_prot_raw <- raw.protein[, pid]
 
 
 pdf("./Plot/Slc9a3cor_byAge.pdf", width = 12, height = 7)
-ggplot(Slc_df, aes(x = Slc9a3_mrna_raw, y = Slc9a3_prot_raw, colour = Age)) +
+ggplot(Slc_df, aes(x = Slc9a3_mrna, y = Slc9a3_prot, colour = Age)) +
       geom_smooth(method = "lm", se = FALSE, aes(group = Age, colour = Age)) +
       geom_point() +
       theme_bw() +
       labs( title = "Slc9a3 mRNA v. Protein Expression by Age",
             subtitle = paste0("Female: 93 (6mo=33, 12mo=31, 18mo=29) \n Male: 95(6mo=30, 12mo=31, 18mo=34)"),
-            y = "SLC9A3 expression (protein)",
-            x = "Slc9a3 expression (mRNA)") +
+            y = "SLC9A3 expression (Rank normalized protein)",
+            x = "Slc9a3 expression (Rank normalized mRNA)") +
       facet_grid(. ~ Sex) +
       scale_colour_aaas()
 dev.off()
