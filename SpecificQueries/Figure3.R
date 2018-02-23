@@ -140,7 +140,7 @@ r2c4 <- ggplot(df, aes(x = Slc34a3_protein, y = Phs, colour = Age)) +
           geom_point() +
           coord_cartesian(ylim = c(0,1000))+
           theme_bw() +
-          labs(y = "Phs/Cr",
+          labs(y = "Phosphate",
                x = "Slc34a3 mRNA") +
           theme(panel.background = element_blank(),
                 panel.grid.minor = element_blank(),
