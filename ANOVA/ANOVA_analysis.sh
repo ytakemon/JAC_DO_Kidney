@@ -3,9 +3,9 @@
 # ANOVA: Changes in mRNA/Protein with Age / Sex as linear ----------------------
 # ANOVA analysis using Petr's Rscirpt (takes < 30mins)
 # https://github.com/simecek/TheAgingProteome/blob/master/code/anova_tests.R
-cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/ANOVA
+cd /projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Scripts/ANOVA
 # qsub -v I="input.Rdata output.csv",script=rscript_name
-qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_output.csv",script=anova_tests_pairs Rsubmit_args.sh
+qsub -v I="../../RNAseq_data/DO188b_kidney_noprobs.RData ../../Anova_output/kidney_anova_output.csv",script=ANOVA/anova_tests_pairs Rsubmit_args.sh
 # Calculate fdr/pval-BH for every p-value calculated from Petr's anova code
 # qsub -v I="anova_output.csv output.csv",script=rscript_name
 qsub -v I="kidney_anova_output.csv kidney_anova_fdr_output.csv",script=Kidney_ANOVA_fdr Rsubmit_args.sh
