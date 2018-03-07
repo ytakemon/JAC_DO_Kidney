@@ -5,12 +5,12 @@ load("./RNAseq_data/DO188b_kidney.RData")
 library(dplyr)
 
 # parameters
-addscan.dir <- "./QTLscan/addscan_mrna_perAge/6mo/"
+addscan.dir <- "./QTLscan/addscan_mrna_perAge/12mo/"
 file.name <- function(i) paste0(annot.mrna$id[i],"_",annot.mrna$symbol[i],".rds")
 
 LODtheshold_additive <- 6
 
-output.file <- "./QTLscan/output/6mo_eQTLBestperGene.csv"
+output.file <- "./QTLscan/output/12mo_eQTLBestperGene.csv"
 
 output <- annot.mrna[,c(1:5,9)]
 output$AdditiveLOD <- output$AdditivePos <-  output$AdditiveChr <- NA
