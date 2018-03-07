@@ -2,15 +2,15 @@
 library(tidyverse)
 library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-eQTL_best <- read_csv("./QTLscan/output/12mo_eQTLBestperGene.csv")
+pQTL_best <- read_csv("./QTLscan/output/6mo_pQTLBestperGene.csv")
 
-# Set LOD threshold 6,8,10
-LODthreshold <- 10
+# Set LOD threshold
+LODthreshold <- 8
 
-# Using eQTL_best to create plot
+# Using pQTL_best to create plot
 # need to reorder "chr" factors
 chr_full <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","Y", "MT")
-AddQTL <- eQTL_best %>%
+AddQTL <- pQTL_best %>%
             mutate(
               chr = factor(chr, levels = chr_full),
               AdditiveChr = factor(AdditiveChr, levels= chr_full)
@@ -21,7 +21,7 @@ AddQTL <- eQTL_best %>%
 # Annotate postion with genes and save file for sharing
 save <- arrange(AddQTL, AdditiveChr, AdditivePos)
 # save annotated list for sharing
-#write.csv(save, "./QTLscan/output/Threshold6_eQTL_6mo.csv", row.names = FALSE, quote = FALSE)
+#write.csv(save, "./QTLscan/output/Threshold6_pQTL_6mo.csv", row.names = FALSE, quote = FALSE)
 
 
 # Convert transcript and qtl position relative to chromosome positions
@@ -63,12 +63,12 @@ for (i in 1:length(chrtick)){
   }
 }
 
-#to adjust eQTL plot a bit to the right to match density
+#to adjust pQTL plot a bit to the right to match density
 chrtick_halfy <- chrtick_half
 names(chrtick_halfy)[20] <- "X  "
 
-# eQTL plot
-eQTL <- ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
+# pQTL plot
+pQTL <- ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
@@ -80,7 +80,7 @@ eQTL <- ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
                          expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "12 month eQTLs") +
+      labs( title = "6 month pQTLs") +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
@@ -106,12 +106,12 @@ density <- ggplot(AddQTL, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 #plot help: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
-#pdf("./QTLscan/output/plots/eQTL_Additive_thr8.pdf", width = 9, heigh =9)
-#eQTL
+#pdf("./QTLscan/output/plots/pQTL_Additive_thr8.pdf", width = 9, heigh =9)
+#pQTL
 #dev.off()
 
-pdf("./QTLscan/output/plots/12mo_eQTL_thr10_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/6mo_pQTL_thr8_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
-print(eQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
+print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
 dev.off()

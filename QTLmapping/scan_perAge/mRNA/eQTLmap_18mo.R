@@ -5,7 +5,7 @@ setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 eQTL_best <- read_csv("./QTLscan/output/18mo_eQTLBestperGene.csv")
 
 # Set LOD threshold 6,8,10
-LODthreshold <- 10
+LODthreshold <- 6
 
 # Using eQTL_best to create plot
 # need to reorder "chr" factors
@@ -21,7 +21,7 @@ AddQTL <- eQTL_best %>%
 # Annotate postion with genes and save file for sharing
 save <- arrange(AddQTL, AdditiveChr, AdditivePos)
 # save annotated list for sharing
-#write.csv(save, "./QTLscan/output/Threshold6_eQTL_6mo.csv", row.names = FALSE, quote = FALSE)
+#write.csv(save, "./QTLscan/output/Threshold6_eQTL_18mo.csv", row.names = FALSE, quote = FALSE)
 
 
 # Convert transcript and qtl position relative to chromosome positions
