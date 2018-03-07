@@ -5,7 +5,7 @@ setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 pQTL_best <- read_csv("./QTLscan/output/12mo_pQTLBestperGene.csv")
 
 # Set LOD threshold 6,8,10
-LODthreshold <- 6
+LODthreshold <- 15
 
 # Using pQTL_best to create plot
 # need to reorder "chr" factors
@@ -110,7 +110,7 @@ density <- ggplot(AddQTL, aes(q_gbm, colour = "grey", fill = "grey")) +
 #pQTL
 #dev.off()
 
-pdf("./QTLscan/output/plots/12mo_pQTL_thr10_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/12mo_pQTL_thr15_density.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
