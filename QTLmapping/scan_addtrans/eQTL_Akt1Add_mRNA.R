@@ -17,7 +17,7 @@ list <- read.csv("./QTLscan/output/Threshold6_eQTL_intAge.csv", header = TRUE, s
 list <- list[list$IntAgeChr == 12, ]
 list <- list$symbol
 
-# Identify gene name
+# Pull Akt id
 trans <- "Akt1"
 other.ids <- function(gene.name, level) {
   if (level == "mRNA") {
