@@ -21,7 +21,7 @@ eQTL_best$IntAge_point <- paste(eQTL_best$IntAgeChr, eQTL_best$IntAgePos, sep = 
 eQTL_best$IngSex_point <- paste(eQTL_best$IntSexChr, eQTL_best$IntSexPos, sep = ".")
 
 # Set LOD threshold
-LODthreshold_diff <- 6
+LODthreshold_diff <- 8
 
 # Plot Interactive-Age eQTLs
 # Subset Int-Age LOD above total/full and diff
@@ -78,8 +78,8 @@ chrtick_halfy <- chrtick_half
 names(chrtick_halfy)[20] <- "X  "
 
 # eQTL plot
-eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
-      geom_point(alpha = 0.2) +
+eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm, color = IntAgeLODDiff)) +
+      geom_point(alpha = 0.8) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
@@ -87,7 +87,8 @@ eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
       scale_y_continuous("Gene position",
                          breaks = chrtick_halfy,
                          limits = c(min(Int_age$t_gbm), max(Int_age$t_gbm)),
-                         expand = c(0,0)) +
+                         expand = c(0,0),
+                        sec.axis = dup_axis()) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       labs( title = "Interactive-Age eQTLs") +
@@ -96,17 +97,37 @@ eQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
-            panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
+            legend.position = "top",
+            panel.border = element_rect(colour = "black", size = 0.2, fill = NA)) +
+      scale_colour_gradient2(low = "blue", high = "red", mid = "blue", midpoint = mean(Int_age$IntAgeLODDiff))
+
+interval <- seq(0,max(Int_age$q_gbm), by = 10)
+interval <- interval + 5
+avgLOD <- NULL
+for ( i in interval){
+  df <- Int_age %>% filter((q_gbm > (i-5)) & (q_gbm < (i+5)))
+  if(nrow(df) == 0){
+    avgLOD <- c(avgLOD,0)
+  } else{
+    avgLOD <- c(avgLOD, mean(df$IntAgeLODDiff))
+  }
+}
+df <- data.frame(interval = interval, avgLOD = avgLOD)
+z <- c(0,0)
+df <- rbind(z, df)
 
 density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
       geom_histogram(breaks = seq(0,max(Int_age$q_gbm), by = 10)) +
+      geom_line(data = df, aes(x = interval, y = avgLOD*3), colour = "black") +
       scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
                          expand = c(0,0)) +
-      scale_y_continuous(name ="Density", breaks = seq(0,300, by = 20)) +
+      scale_y_continuous(name ="Density",
+                         breaks = seq(0,300, by = 10),
+                         sec.axis = sec_axis(trans = ~. / 3, "Agerage LOD")) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
@@ -116,11 +137,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 #plot help: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
-pdf("./QTLscan/output/plots/eQTL_IntAge_thr8.pdf", width = 9, heigh =9)
-eQTL
-dev.off()
-
-pdf("./QTLscan/output/plots/eQTL_IntAge_thr6_density.pdf", width = 9, heigh =10)
+pdf("./QTLscan/output/plots/eQTL_IntAge_thr8_density_colour.pdf", width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(eQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
