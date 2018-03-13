@@ -97,16 +97,19 @@ eQTL <- ggplot(AddQTL, aes(x= q_gbm, y= t_gbm, colour = AdditiveLOD)) +
 interval <- seq(0,max(AddQTL$q_gbm), by = 10)
 interval <- interval + 5
 avgLOD <- NULL
+count <- NULL
 for ( i in interval){
   df <- AddQTL %>% filter((q_gbm > (i-5)) & (q_gbm < (i+5)))
   if(nrow(df) == 0){
     avgLOD <- c(avgLOD,0)
+    count <- c(count, 0)
   } else{
     avgLOD <- c(avgLOD, mean(df$AdditiveLOD))
+    count <- c(count, nrow(df))
   }
 }
-df <- data.frame(interval = interval, avgLOD = avgLOD)
-z <- c(0,0)
+df <- data.frame(interval = interval, avgLOD = avgLOD, count = count)
+z <- c(0,0,0)
 df <- rbind(z, df)
 
 density <- ggplot(AddQTL, aes(q_gbm, colour = "grey", fill = "grey")) +
