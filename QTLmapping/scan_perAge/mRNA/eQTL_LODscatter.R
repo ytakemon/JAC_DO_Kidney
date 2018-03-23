@@ -180,3 +180,39 @@ print(both12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 1:8))
 print(local12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 9:13))
 print(distant12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 14:18))
 dev.off()
+
+CreateTable_local <- function(PeakComp, threshold){
+  table <- PeakComp %>% filter(peak == "local") %>%
+    mutate(LODdiff = AdditiveLOD2 - AdditiveLOD) %>%
+    filter(LODdiff > threshold | LODdiff < -threshold) %>%
+    select(-t_gbm, -q_gbm)
+  return(table)
+}
+
+# Create table
+Table6v18 <- CreateTable_local(PeakComp6v18, 8) %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+Table6v12 <- CreateTable_local(PeakComp6v12, 8) %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr12mo = AdditiveChr2,
+    AdditiveLOD12mo = AdditiveLOD2,
+    AdditivePos12mo = AdditivePos2)
+Table12v18 <- CreateTable_local(PeakComp12v18, 8) %>%
+  rename(AdditiveChr12mo = AdditiveChr,
+    AdditiveLOD12mo = AdditiveLOD,
+    AdditivePos12mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+
+# Write table
+write.csv(Table6v18, file = "./QTLscan/output/eQTL_LODdiff8_6v18.csv", row.names = FALSE)
+write.csv(Table6v12, file = "./QTLscan/output/eQTL_LODdiff8_6v12.csv", row.names = FALSE)
+write.csv(Table12v18, file = "./QTLscan/output/eQTL_LODdiff8_12v18.csv", row.names = FALSE)
