@@ -8,8 +8,6 @@ library(dplyr)
 addscan.dir <- "./QTLscan/addscan_mrna_perAge/18mo/"
 file.name <- function(i) paste0(annot.mrna$id[i],"_",annot.mrna$symbol[i],".rds")
 
-LODtheshold_additive <- 6
-
 output.file <- "./QTLscan/output/18mo_eQTLBestperGene.csv"
 
 output <- annot.mrna[,c(1:5,9)]

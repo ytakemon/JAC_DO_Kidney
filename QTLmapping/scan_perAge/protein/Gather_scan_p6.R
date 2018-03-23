@@ -8,8 +8,6 @@ library(dplyr)
 addscan.dir <- "./QTLscan/addscan_prot_perAge/6mo/"
 file.name <- function(i) paste0(annot.protein$id[i],"_",annot.protein$symbol[i],".rds")
 
-LODtheshold_additive <- 6
-
 output.file <- "./QTLscan/output/6mo_pQTLBestperGene.csv"
 
 output <- annot.protein[,c(1:6,10)]
@@ -30,6 +28,5 @@ for (i in 1:nrow(output)) {
          arrange(-AdditiveLOD)
 
   output[i, c("AdditiveChr", "AdditivePos", "AdditiveLOD")] <- dt2[1,]
-  to.be.added <-  as.data.frame(dt2 %>% filter(AdditiveLOD > LODtheshold_additive))
 }
 write.csv(output, file=output.file, row.names=FALSE)
