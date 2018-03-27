@@ -34,7 +34,7 @@ for (p in plist) {
                start = 0,
                end = 200,
                keep_all_snps = TRUE,
-               cores=10, reml=TRUE)
+               cores=20, reml=TRUE)
 
   # save lod object
   file_name <- paste0("./SNPscan/addscansnp_mrna/", annot.mrna$id[p], "_", annot.mrna$symbol[p], ".rds")

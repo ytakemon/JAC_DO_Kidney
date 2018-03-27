@@ -20,7 +20,7 @@ for (p in plist) {
 
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
 
-  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples[present, ])
+  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
 
   # Perform scan1snps
   snpsOut <- scan1snps(genoprobs=probs,
@@ -33,7 +33,7 @@ for (p in plist) {
                start = 0,
                end = 200,
                keep_all_snps = TRUE,
-               cores=10, reml=TRUE)
+               cores=20, reml=TRUE)
 
   # save lod object
   file_name <- paste0("./SNPscan/addscansnp_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
