@@ -180,3 +180,67 @@ print(both12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 1:8))
 print(local12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 9:13))
 print(distant12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 14:18))
 dev.off()
+
+CreateTable <- function(PeakComp, threshold, type){
+  table <- PeakComp %>% filter(peak == type) %>%
+    mutate(LODdiff = AdditiveLOD2 - AdditiveLOD) %>%
+    filter(LODdiff > threshold | LODdiff < -threshold) %>%
+    select(-t_gbm, -q_gbm)
+  return(table)
+}
+
+# Create table
+#local
+Table6v18_local <- CreateTable(PeakComp6v18, 6, "local") %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+Table6v12_local <- CreateTable(PeakComp6v12, 6, "local") %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr12mo = AdditiveChr2,
+    AdditiveLOD12mo = AdditiveLOD2,
+    AdditivePos12mo = AdditivePos2)
+Table12v18_local <- CreateTable(PeakComp12v18, 6, "local") %>%
+  rename(AdditiveChr12mo = AdditiveChr,
+    AdditiveLOD12mo = AdditiveLOD,
+    AdditivePos12mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+#distant
+Table6v18_distant <- CreateTable(PeakComp6v18, 6, "distant") %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+Table6v12_distant <- CreateTable(PeakComp6v12, 6, "distant") %>%
+  rename(AdditiveChr6mo = AdditiveChr,
+    AdditiveLOD6mo = AdditiveLOD,
+    AdditivePos6mo = AdditivePos,
+    AdditiveChr12mo = AdditiveChr2,
+    AdditiveLOD12mo = AdditiveLOD2,
+    AdditivePos12mo = AdditivePos2)
+Table12v18_distant <- CreateTable(PeakComp12v18, 6, "distant") %>%
+  rename(AdditiveChr12mo = AdditiveChr,
+    AdditiveLOD12mo = AdditiveLOD,
+    AdditivePos12mo = AdditivePos,
+    AdditiveChr18mo = AdditiveChr2,
+    AdditiveLOD18mo = AdditiveLOD2,
+    AdditivePos18mo = AdditivePos2)
+
+# Write table
+#local
+write.csv(Table6v18_local, file = "./QTLscan/output/pQTL_LODdiff6_6v18_local.csv", row.names = FALSE)
+write.csv(Table6v12_local, file = "./QTLscan/output/pQTL_LODdiff6_6v12_local.csv", row.names = FALSE)
+write.csv(Table12v18_local, file = "./QTLscan/output/pQTL_LODdiff6_12v18_local.csv", row.names = FALSE)
+#distant
+write.csv(Table6v18_distant, file = "./QTLscan/output/pQTL_LODdiff6_6v18_distant.csv", row.names = FALSE)
+write.csv(Table6v12_distant, file = "./QTLscan/output/pQTL_LODdiff6_6v12_distant.csv", row.names = FALSE)
+write.csv(Table12v18_distant, file = "./QTLscan/output/pQTL_LODdiff6_12v18_distant.csv", row.names = FALSE)
