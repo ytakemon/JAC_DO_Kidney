@@ -19,6 +19,12 @@ plist <- plist[plist<=ncol(expr.protein)]
 for (p in plist) {
 
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
+  file_name <- paste0("./SNPscan/intscansnp_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+
+  # in case wall time runs out and the rest need to still be run
+  if(!file.exists(file_name)){
+    next
+  }
 
   addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
   intcovar <- model.matrix(~ Age, data=annot.samples)
@@ -38,6 +44,5 @@ for (p in plist) {
                cores=20, reml=TRUE)
 
   # save lod object
-  file_name <- paste0("./SNPscan/intscansnp_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(snpsOut, file=file_name)
 }
