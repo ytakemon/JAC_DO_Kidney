@@ -22,7 +22,7 @@ for (p in plist) {
   file_name <- paste0("./SNPscan/intscansnp_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
 
   # in case wall time runs out and the rest need to still be run
-  if(!file.exists(file_name)){
+  if(file.exists(file_name)){
     next
   }
 

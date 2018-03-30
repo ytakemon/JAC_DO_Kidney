@@ -182,6 +182,9 @@ print(distant12v18, vp = viewport(layout.pos.row = 9:12, layout.pos.col = 14:18)
 dev.off()
 
 CreateTable <- function(PeakComp, threshold, type){
+  #PeakComp <- PeakComp6v18
+  #threshold <- 6
+  #type <- "local"
   table <- PeakComp %>% filter(peak == type) %>%
     mutate(LODdiff = AdditiveLOD2 - AdditiveLOD) %>%
     filter(LODdiff > threshold | LODdiff < -threshold) %>%
@@ -198,6 +201,17 @@ Table6v18_local <- CreateTable(PeakComp6v18, 6, "local") %>%
     AdditiveChr18mo = AdditiveChr2,
     AdditiveLOD18mo = AdditiveLOD2,
     AdditivePos18mo = AdditivePos2)
+
+plot <- Table6v18_local %>% filter(peak == "local") %>%
+  ggplot(., aes(x = AdditiveLOD6mo, y = AdditiveLOD18mo))+
+  geom_point(alpha = 0.3) +
+  scale_colour_aaas() +
+  geom_abline(intercept = 0, slope = 1, color="black") +
+  labs( title = paste(age1, "and", age2, "month", qtlType, "(",peaktype,"only)"),
+    subtitle = paste(nrow(PeakComp %>% filter(peak == peaktype)), "genes"))+
+  scale_x_continuous(name = paste(age1,"month",qtlType,"LOD scores"))+
+  scale_y_continuous(name = paste(age2,"month",qtlType,"LOD scores"))
+
 Table6v12_local <- CreateTable(PeakComp6v12, 6, "local") %>%
   rename(AdditiveChr6mo = AdditiveChr,
     AdditiveLOD6mo = AdditiveLOD,
