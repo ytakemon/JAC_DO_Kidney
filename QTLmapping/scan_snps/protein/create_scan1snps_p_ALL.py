@@ -1,5 +1,5 @@
-batch_size = 1000
-N = 6716 
+batch_size = 500
+N = 6716
 shell_script = 'scan1snps_p.sh'
 f = open('scan1snps_p_ALL.sh', 'w+')
 

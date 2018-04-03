@@ -1,6 +1,7 @@
 plist <- as.numeric(commandArgs(trailingOnly = TRUE))
 
 cat(paste("Mapping", length(plist), "genes", "\n"))
+print(Sys.time())
 print(plist)
 
 library(qtl2)
@@ -16,16 +17,13 @@ query_func <- create_variant_query_func(snpdb)
 
 plist <- plist[plist<=ncol(expr.protein)]
 
+# create output file for lod score harvest
+output <- annot.protein[plist,]
+output$AdditiveLOD  <- output$AdditivePos <- output$AdditiveChr <- NA
+
 for (p in plist) {
 
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
-  file_name <- paste0("./SNPscan/addscansnp_prot/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
-
-  # in case wall time runs out and the rest need to still be run
-  if(file.exists(file_name)){
-    next
-  }
-
   addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
 
   # Perform scan1snps
@@ -38,9 +36,16 @@ for (p in plist) {
                chr =c(1:19,"X"),
                start = 0,
                end = 200,
-               keep_all_snps = TRUE,
+               keep_all_snps = FALSE,
                cores=20, reml=TRUE)
 
-  # save lod object
-  saveRDS(snpsOut, file=file_name)
+  # save highest lod object
+  rsid <-rownames(snpsOut$lod)[which.max(snpsOut$lod)]
+  # assign to output file
+  output[which(p==plist),]$AdditiveLOD <- snpsOut$lod[which.max(snpsOut$lod)]
+  output[which(p==plist),]$AdditiveChr <- snpsOut$snpinfo[snpsOut$snpinfo$snp_id == rsid,]$chr
+  output[which(p==plist),]$AdditivePos <- snpsOut$snpinfo[snpsOut$snpinfo$snp_id == rsid,]$pos
 }
+
+write.csv(output, file = paste0("./SNPscan/addscansnp_prot/maxLODscan_batch_",plist[1],".csv"),row.names = FALSE)
+print(Sys.time())

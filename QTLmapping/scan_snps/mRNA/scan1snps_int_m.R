@@ -54,3 +54,8 @@ for (p in plist) {
 
 write.csv(output, file = paste0("./SNPscan/intscansnp_mrna/maxLODscan_batch_",plist[1],".csv"),row.names = FALSE)
 print(Sys.time())
+
+# Following warning messages will appear and its fine:
+#Warning messages:
+#1: In scan1snps(genoprobs = probs, map = map, kinship = Glist, pheno = expr.mrna[,  :
+#  If length(chr) > 1, start end end are ignored.
