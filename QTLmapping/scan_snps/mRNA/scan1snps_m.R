@@ -1,6 +1,7 @@
 plist <- as.numeric(commandArgs(trailingOnly = TRUE))
 
 cat(paste("Mapping", length(plist), "genes", "\n"))
+print(Sys.time())
 print(plist)
 
 library(qtl2)
@@ -14,20 +15,19 @@ probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
 map <- map_df_to_list(map = snps, pos_column = "bp")
 query_func <- create_variant_query_func(snpdb)
 
+# check list to not exceed list
 plist <- plist[plist<=ncol(expr.mrna)]
 
-for (p in plist) {
+# create output file for lod score harvest
+output <- annot.mrna[plist,-ncol(annot.mrna)]
+output$AdditiveLOD  <- output$AdditivePos <- output$AdditiveChr <- NA
 
+for (p in plist) {
+  # print message
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
   file_name <- paste0("./SNPscan/addscansnp_mrna/", annot.mrna$id[p], "_", annot.mrna$symbol[p], ".rds")
 
-  # in case wall time runs out and the rest need to still be run
-  if(file.exists(file_name)){
-    next
-  }
-
   addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples)
-
   # Perform scan1snps
   # If query_func is given, but start and end are empty, it should calcualte for all chromosomes.
   snpsOut <- scan1snps(genoprobs=probs,
@@ -39,9 +39,16 @@ for (p in plist) {
                chr =c(1:19,"X"),
                start = 0,
                end = 200,
-               keep_all_snps = TRUE,
+               keep_all_snps = FALSE,
                cores=20, reml=TRUE)
 
-  # save lod object
-  saveRDS(snpsOut, file=file_name)
+  # save highest lod object
+  rsid <-rownames(snpsOut$lod)[which.max(snpsOut$lod)]
+  # assign to output file
+  output[which(p==plist),]$AdditiveLOD <- snpsOut$lod[which.max(snpsOut$lod)]
+  output[which(p==plist),]$AdditiveChr <- snpsOut$snpinfo[snpsOut$snpinfo$snp_id == rsid,]$chr
+  output[which(p==plist),]$AdditivePos <- snpsOut$snpinfo[snpsOut$snpinfo$snp_id == rsid,]$pos
 }
+
+write.csv(output, file = paste0("./SNPscan/addscansnp_mrna/maxLODscan_batch_",plist[1],".csv"),row.names = FALSE)
+print(Sys.time())
