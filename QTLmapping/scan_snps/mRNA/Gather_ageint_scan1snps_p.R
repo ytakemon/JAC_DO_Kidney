@@ -7,10 +7,10 @@ options(dplyr.width = Inf)
 library(tidyverse)
 
 # parameters
-addscan_dir <- "./SNPscan/addscansnp_mrna"
-intscan_dir <- "./SNPscan/intscansnp_mrna"
-Add_output_file <- "./SNPscan/scan1snps_m_Add_BestperGene.csv"
-IntAge_output_file <- "./SNPscan/scan1snps_m_AgeInt_BestperGene.csv"
+addscan_dir <- "./SNPscan/addscansnp_prot"
+intscan_dir <- "./SNPscan/intscansnp_prot"
+Add_output_file <- "./SNPscan/scan1snps_p_Add_BestperGene.csv"
+IntAge_output_file <- "./SNPscan/scan1snps_p_AgeInt_BestperGene.csv"
 
 gatherdf <- function(dir, pattern){
   file_list <- list.files(dir,pattern,full.names=TRUE)
@@ -29,9 +29,7 @@ gatherdf <- function(dir, pattern){
 
 addLOD <- gatherdf(dir = addscan_dir, pattern = "maxLODscan_batch_")
 fullLOD <- gatherdf(dir = intscan_dir, pattern = "maxLODscan_batch_")
-if(!identical(addLOD$id, fullLOD$id)){
-  print("error: ")
-}
+
 # combine
 output <- addLOD %>% mutate(
   FullChr = fullLOD$FullChr,
@@ -43,9 +41,9 @@ output <- addLOD %>% mutate(
 )
 
 # get relevant columns
-output_add <- output %>% select(id, symbol, chr, start, end, strand, biotype,
+output_add <- output %>% select(id, gene_id, symbol, chr, start, end, strand, biotype,
   AdditiveChr, AdditivePos, AdditiveLOD)
-output_ageint <- output %>% select(id, symbol, chr, start, end, strand, biotype,
+output_ageint <- output %>% select(id, gene_id, symbol, chr, start, end, strand, biotype,
   IntAgeChr, IntAgePos, FullLOD, IntAgeLODDiff)
 
 # write table
