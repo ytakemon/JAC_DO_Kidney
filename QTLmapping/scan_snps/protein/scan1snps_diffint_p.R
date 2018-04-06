@@ -71,9 +71,9 @@ for (p in plist) {
   ) %>% filter(diff_lod == max(diff_lod))
 
   # assign to output file
-  output[which(p==plist),]$AgeIntLOD <- LODcomp$diff_lod
-  output[which(p==plist),]$AgeIntChr <- snpsOut_add$snpinfo[snpsOut_add$snpinfo$snp_id == LODcomp$rsid,]$chr
-  output[which(p==plist),]$AgeIntPos <- snpsOut_add$snpinfo[snpsOut_add$snpinfo$snp_id == LODcomp$rsid,]$pos
+  output[which(p==plist),]$AgeIntLOD <- LODcomp$diff_lod[1]
+  output[which(p==plist),]$AgeIntChr <- snpsOut_add$snpinfo[snpsOut_add$snpinfo$snp_id == LODcomp$rsid[1],]$chr
+  output[which(p==plist),]$AgeIntPos <- snpsOut_add$snpinfo[snpsOut_add$snpinfo$snp_id == LODcomp$rsid[1],]$pos
 }
 
 write.csv(output, file = paste0("./SNPscan/diffscansnp_prot/maxLODscan_batch_",plist[1],".csv"),row.names = FALSE)
