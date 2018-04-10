@@ -7,16 +7,21 @@ options(dplyr.width = Inf)
 library(tidyverse)
 
 # parameters
-diffscan_dir <- "./SNPscan/diffscansnp_mrna_addAkt1_m"
-IntAge_output_file <- "./SNPscan/scan1snps_m_diffAgeInt_addAkt1_m_BestperGene.csv"
-
+diffscan_dir <- "./SNPscan/diffscansnp_mrna_addAkt1_p"
 gatherdf <- function(dir, pattern){
   file_list <- list.files(dir,pattern,full.names=TRUE)
 
   #read and gather
   output <- NULL
   for(i in file_list){
-    one <- read_csv(i) %>% mutate(chr = as.character(chr))
+    one <- readr::read_csv(i) %>%
+      mutate(chr = as.character(chr),
+        AgeIntChr = as.character(AgeIntChr))
+
+    if(!is.null(output)){
+      output$AgeIntChr <- as.character(output$AgeIntChr)
+    }
+
     output <- bind_rows(output,one)
   }
 
@@ -25,7 +30,36 @@ gatherdf <- function(dir, pattern){
   return(output)
 }
 
-diffLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
+# gather all scans
+medLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
+
+# get non mediated list
+initialLOD <- readr::read_csv("./SNPscan/scan1snps_m_diffAgeInt_BestperGene_thr5.csv", guess_max = 4200) %>%
+  filter(AgeIntChr == "12") %>% arrange(id)
+
+# check
+identical(medLOD$id, initialLOD$id)
+
+# combine and compare lod scores
+compare <- initialLOD %>% mutate(
+  Akt1MedChr = medLOD$AgeIntChr,
+  Akt1MedPos = medLOD$AgeIntPos,
+  Akt1MedLOD = medLOD$AgeIntLOD,
+  LODdrop = AgeIntLOD - Akt1MedLOD
+)
 
 # write table
-write_csv(diffLOD, IntAge_output_file)
+write_csv(compare, "./SNPscan/scan1snps_m_Akt1_p_mediation_LODcomapre.csv")
+
+# plot lod scores
+pdf("./SNPscan/scan1snps_m_Akt1_p_mediation_LODcompare.pdf", width = 9, height = 9)
+ggplot(compare, aes(x=AgeIntLOD, Akt1MedLOD))+
+  geom_point(alpha= 0.5)+
+  geom_abline(intercept = 0, slope = 1, colour = "red")+
+  geom_abline(intercept = -2, slope = 1, colour = "blue")+
+  scale_x_continuous(name = "LOD score of Age Interactive transcriptome SNP scan", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1))+
+  scale_y_continuous(name = "LOD score of (X | Akt1 protein)") +
+  theme_bw()+
+  labs(title = "mRNA SNPscan @Chr12 w/ Akt1 protein mediation",
+       subtitle = paste0("Total genes: ", nrow(compare)))
+dev.off()

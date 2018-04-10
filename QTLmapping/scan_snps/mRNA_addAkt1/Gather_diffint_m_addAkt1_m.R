@@ -8,11 +8,7 @@ library(tidyverse)
 
 # parameters
 diffscan_dir <- "./SNPscan/diffscansnp_mrna_addAkt1_m"
-IntAge_output_file <- "./SNPscan/scan1snps_m_diffAgeInt_addAkt1_m_BestperGene.csv"
-
 gatherdf <- function(dir, pattern){
-  dir <- diffscan_dir
-  pattern <- "maxLOD"
   file_list <- list.files(dir,pattern,full.names=TRUE)
 
   #read and gather
@@ -34,59 +30,36 @@ gatherdf <- function(dir, pattern){
   return(output)
 }
 
-diffLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
+# gather all scans
+medLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
 
-# write table
-write_csv(diffLOD, IntAge_output_file)
-
-
-
-
-
-
-
-
-
-
-
-
-
-initLOD <- readr::read_csv("./SNPscan/scan1snps_m_diffAgeInt_BestperGene_thr5.csv", guess_max = 4200) %>%
+# get non mediated list
+initialLOD <- readr::read_csv("./SNPscan/scan1snps_m_diffAgeInt_BestperGene_thr5.csv", guess_max = 4200) %>%
   filter(AgeIntChr == "12") %>% arrange(id)
 
-compare <- initiLOD %>%
+# check
+identical(medLOD$id, initialLOD$id)
 
+# combine and compare lod scores
+compare <- initialLOD %>% mutate(
+  Akt1MedChr = medLOD$AgeIntChr,
+  Akt1MedPos = medLOD$AgeIntPos,
+  Akt1MedLOD = medLOD$AgeIntLOD,
+  LODdrop = AgeIntLOD - Akt1MedLOD
+)
 
+# write table
+write_csv(compare, "./SNPscan/scan1snps_m_Akt1_m_mediation_LODcomapre.csv")
 
-
-
-Chr12_list <- readr::read_csv("./SNPscan/scan1snps_m_diffAgeInt_BestperGene_thr5.csv", guess_max = 4200) %>%
-  filter(AgeIntChr == "12")
-sub_annot.mrna <- annot.mrna %>% filter(id %in% Chr12_list$id) #dim(sub_annot.mrna) 349 genes
-sub_expr.mrna <- expr.mrna[,Chr12_list$id]
-
-
-
-# output.file1 <- "./QTLscan/output/eQTLBestperGeneAddAkt1thr6_chr12.csv"
-list_add <- read.csv(file = paste(output.file1), header = TRUE, stringsAsFactors = FALSE)
-list_add <- arrange(list_add, id)
-
-compare <- list[,colnames(list) %in% c("id", "symbol", "IntAgeChr", "IntAgePos", "IntAgeLODDiff")]
-compare$addIntAgeChr <- list_add$IntAgeChr
-compare$addIntAgePos <- list_add$IntAgePos
-compare$addIntAgeLODDiff <- list_add$IntAgeLODDiff
-compare <- compare[complete.cases(compare$addIntAgeChr),]
-write.csv(compare, file="./QTLscan/output/eQTLintAkt1thr6_chr12.csv", row.names = FALSE)
-
-# Plot Chr12 LOD scores
-pdf("./QTLscan/output/plots/eQTL_Akt1Mediation_chr12_thr6.pdf", width = 9, heigh =9)
-ggplot(compare, aes(x=IntAgeLODDiff,  y=addIntAgeLODDiff)) +
-  geom_point(alpha=0.5) +
-  geom_abline(intercept = 0, slope = 1, color="red") +
-  geom_abline(intercept = -2, slope = 1, color="blue") +
-  scale_x_continuous(name = "LOD score Interactive age eQTL-diff", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1)) +
-  scale_y_continuous(name = "LOD score (X | Akt1)", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1)) +
-  theme_bw() +
-  labs(title="eQTL Chr12 Genes Akt1 Mediation",
-       subtitle = paste0("Chr 12 total: ", nrow(compare), " genes, threshold > 6 "))
+# plot lod scores
+pdf("./SNPscan/scan1snps_m_Akt1_m_mediation_LODcompare.pdf", width = 9, height = 9)
+ggplot(compare, aes(x=AgeIntLOD, Akt1MedLOD))+
+  geom_point(alpha= 0.5)+
+  geom_abline(intercept = 0, slope = 1, colour = "red")+
+  geom_abline(intercept = -2, slope = 1, colour = "blue")+
+  scale_x_continuous(name = "LOD score of Age Interactive transcriptome SNP scan", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1))+
+  scale_y_continuous(name = "LOD score of (X | Akt1 mRNA)") +
+  theme_bw()+
+  labs(title = "mRNA SNPscan @Chr12 w/ Akt1 mRNA mediation",
+       subtitle = paste0("Total genes: ", nrow(compare)))
 dev.off()
