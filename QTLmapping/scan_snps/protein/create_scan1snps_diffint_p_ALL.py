@@ -1,4 +1,4 @@
-batch_size = 500
+batch_size = 100
 N = 6716
 shell_script = 'scan1snps_diffint_p.sh'
 f = open('scan1snps_diffint_p_ALL.sh', 'w+')

@@ -1,4 +1,4 @@
-#PBS -l nodes=1:ppn=20,walltime=72:00:00
+#PBS -l nodes=1:ppn=10,walltime=10:00:00
 
 module load R/3.4.3
 

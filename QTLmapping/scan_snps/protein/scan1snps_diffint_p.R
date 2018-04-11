@@ -27,7 +27,7 @@ for (p in plist) {
   # print message
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
 
-  addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples)
+  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
   intcovar <- model.matrix(~ Age, data=annot.samples)
   # Perform scan1snps
   # If query_func is given, but start and end are empty, it should calcualte for all chromosomes.
@@ -41,7 +41,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=20, reml=TRUE)
+                    cores=10, reml=TRUE)
 
   snpsOut_full <- scan1snps(genoprobs=probs,
                     map = map,
@@ -54,7 +54,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=20, reml=TRUE)
+                    cores=10, reml=TRUE)
 
   # line up both snp scan
   if(!identical(rownames(snpsOut_add$lod), rownames(snpsOut_full$lod)) & nrow(snpsOut_add$lod) == nrow(snpsOut_full$lod)){
