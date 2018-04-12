@@ -41,7 +41,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=10, reml=TRUE)
+                    cores=20, reml=TRUE)
 
   snpsOut_full <- scan1snps(genoprobs=probs,
                     map = map,
@@ -54,7 +54,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=10, reml=TRUE)
+                    cores=20, reml=TRUE)
 
   # line up both snp scan
   if(!identical(rownames(snpsOut_add$lod), rownames(snpsOut_full$lod)) & nrow(snpsOut_add$lod) == nrow(snpsOut_full$lod)){
@@ -68,7 +68,7 @@ for (p in plist) {
     rsid = rownames(snpsOut_add$lod),
     full_lod = snpsOut_full$lod[,1],
     diff_lod = full_lod - add_lod,
-  ) %>% filter(diff_lod == max(diff_lod))
+  ) %>% filter(diff_lod == max(diff_lod, na.rm = TRUE))
 
   # assign to output file
   output[which(p==plist),]$AgeIntLOD <- LODcomp$diff_lod[1]
@@ -83,3 +83,13 @@ print(Sys.time())
 #Warning messages:
 #1: In scan1snps(genoprobs = probs, map = map, kinship = Glist, pheno = expr.protein[,  :
 #  If length(chr) > 1, start end end are ignored.
+
+
+# problem found: p
+[1] 5112
+
+
+# plist  <- was okay
+ [1] 5170 5171 5172 5173 5174 5175 5176 5177 5178 5179 5180 5181 5182 5183 5184
+[16] 5185 5186 5187 5188 5189 5190 5191 5192 5193 5194 5195 5196 5197 5198 5199
+[31] 5200

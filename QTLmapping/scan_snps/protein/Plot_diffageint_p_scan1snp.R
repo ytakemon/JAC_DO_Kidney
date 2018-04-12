@@ -2,22 +2,22 @@
 library(tidyverse)
 library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-m_best <- read.csv("./SNPscan/scan1snps_p_diffAgeInt_BestperGene.csv")
-LODthreshold_diff <- 4
+p_best <- read.csv("./SNPscan/scan1snps_p_diffAgeInt_BestperGene.csv")
+LODthreshold_diff <- 5
 
-# Using m_best to create plot
+# Using p_best to create plot
 # need to reorder "chr" factors
 chr_full <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","Y", "MT")
-m_best$chr <- factor(m_best$chr, levels = chr_full)
-m_best$AgeIntChr <- factor(m_best$AgeIntChr, levels= chr_full)
+p_best$chr <- factor(p_best$chr, levels = chr_full)
+p_best$AgeIntChr <- factor(p_best$AgeIntChr, levels= chr_full)
 
 # Subset out chr 1-19,X from data
 chr <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
-m_best <- m_best[m_best$chr %in% chr, ]
+p_best <- p_best[p_best$chr %in% chr, ]
 
 # Plot Interactive-Age pQTLs
 # Subset Int-Age LOD above total/full and diff
-Int_age <- m_best[(m_best$AgeIntLOD > LODthreshold_diff),] # above diff threshold
+Int_age <- p_best[(p_best$AgeIntLOD > LODthreshold_diff),] # above diff threshold
 
 # Annotate Interactive-Age postion with genes and save file for sharing
 save_int_age <- arrange(Int_age, AgeIntChr, AgeIntPos)
