@@ -17,7 +17,7 @@ map <- map_df_to_list(map = snps, pos_column = "bp")
 query_func <- create_variant_query_func(snpdb)
 
 # subset to AgeIntChr == 12 list
-Chr7_list <- readr::read_csv("./SNPscan/scan1snps_p_diffAgeInt_BestperGene_thr4.csv",
+Chr7_list <- readr::read_csv("./SNPscan/scan1snps_p_diffAgeInt_BestperGene_thr5.csv",
   guess_max = 4610) %>%
   filter(AgeIntChr == "7")
 sub_annot.protein <- annot.protein %>% filter(id %in% Chr7_list$id) #dim(sub_annot.protein) 349 genes
@@ -37,7 +37,7 @@ for (p in plist) {
   # print message
   cat("Scanning ",which(p==plist)," out of ",length(plist),"\n")
 
-  addcovar <- model.matrix(~ Sex + Age + Generation + Med, data=annot.samples)
+  addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel + Med, data=annot.samples)
   intcovar <- model.matrix(~ Age, data=annot.samples)
   # Perform scan1snps
   # If query_func is given, but start and end are empty, it should calcualte for all chromosomes.
@@ -51,7 +51,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=20, reml=TRUE)
+                    cores=10, reml=TRUE)
 
   snpsOut_full <- scan1snps(genoprobs=probs,
                     map = map,
@@ -64,7 +64,7 @@ for (p in plist) {
                     start = 0,
                     end = 200,
                     keep_all_snps = FALSE,
-                    cores=20, reml=TRUE)
+                    cores=10, reml=TRUE)
 
   # line up both snp scan
   if(!identical(rownames(snpsOut_add$lod), rownames(snpsOut_full$lod)) & nrow(snpsOut_add$lod) == nrow(snpsOut_full$lod)){
@@ -78,7 +78,7 @@ for (p in plist) {
     rsid = rownames(snpsOut_add$lod),
     full_lod = snpsOut_full$lod[,1],
     diff_lod = full_lod - add_lod,
-  ) %>% filter(diff_lod == max(diff_lod))
+  ) %>% filter(diff_lod == max(diff_lod, na.rm = TRUE))
 
   # assign to output file
   output[which(p==plist),]$AgeIntLOD <- LODcomp$diff_lod[1]
