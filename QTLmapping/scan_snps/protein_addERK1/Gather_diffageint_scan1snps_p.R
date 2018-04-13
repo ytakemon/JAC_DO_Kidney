@@ -16,7 +16,8 @@ gatherdf <- function(dir, pattern){
   #read and gather
   output <- NULL
   for(i in file_list){
-    one <- read_csv(i) %>% mutate(chr = as.character(chr))
+    one <- read_csv(i) %>% mutate(chr = as.character(chr),
+      AgeIntChr = as.character(AgeIntChr))
     output <- bind_rows(output,one)
   }
 
