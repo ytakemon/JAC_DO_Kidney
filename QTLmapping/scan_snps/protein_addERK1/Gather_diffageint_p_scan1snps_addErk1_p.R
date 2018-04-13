@@ -30,7 +30,7 @@ medLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
 # write table
 write_csv(medLOD, IntAge_output_file)
 
-# get non mediated list 
+# get non mediated list
 initialLOD <- readr::read_csv("./SNPscan/scan1snps_p_diffAgeInt_BestperGene_thr5.csv",
   guess_max = 4610) %>%
   filter(AgeIntChr == "7")
@@ -53,14 +53,14 @@ compare <- initialLOD %>% mutate(
 write_csv(compare, "./SNPscan/scan1snps_p_Erk1_p_mediation_LODcomapre.csv")
 
 # plot lod scores
-pdf("./SNPscan/scan1snps_m_Erk1_p_mediation_LODcompare.pdf", width = 9, height = 9)
+pdf("./SNPscan/scan1snps_p_Erk1_p_mediation_LODcompare.pdf", width = 9, height = 9)
 ggplot(compare, aes(x=AgeIntLOD, y =Erk1_p_MedLOD))+
   geom_point(alpha= 0.5)+
   geom_abline(intercept = 0, slope = 1, colour = "red")+
   geom_abline(intercept = -2, slope = 1, colour = "blue")+
   scale_x_continuous(name = "LOD score of Age Interactive transcriptome SNP scan", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1), limits = c(5,9))+
-  scale_y_continuous(name = "LOD score of (X | Erk1 mRNA)", limits = c(2,9)) +
+  scale_y_continuous(name = "LOD score of (X | Erk1 protein)", limits = c(2,9)) +
   theme_bw()+
-  labs(title = "mRNA SNPscan @Chr7 w/ Erk1 mRNA mediation",
+  labs(title = "Protein SNPscan @Chr7 w/ Erk1 protein mediation",
        subtitle = paste0("Total genes: ", nrow(compare)))
 dev.off()

@@ -63,6 +63,6 @@ ggplot(compare, aes(x=AgeIntLOD, y =Erk1_m_MedLOD))+
   scale_x_continuous(name = "LOD score of Age Interactive transcriptome SNP scan", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1), limits = c(5,9))+
   scale_y_continuous(name = "LOD score of (X | Erk1 mRNA)", limits = c(2,9)) +
   theme_bw()+
-  labs(title = "mRNA SNPscan @Chr7 w/ Erk1 mRNA mediation",
+  labs(title = "Protein SNPscan @Chr7 w/ Erk1 mRNA mediation",
        subtitle = paste0("Total genes: ", nrow(compare)))
 dev.off()
