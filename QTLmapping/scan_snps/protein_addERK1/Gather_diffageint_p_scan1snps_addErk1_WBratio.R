@@ -7,8 +7,8 @@ options(dplyr.width = Inf)
 library(tidyverse)
 
 # parameters
-diffscan_dir <- "./SNPscan/diffscansnp_prot_addErk1_WBphos"
-IntAge_output_file <- "./SNPscan/scan1snps_p_diffAgeInt_addErk1_WBphos_BestperGene.csv"
+diffscan_dir <- "./SNPscan/diffscansnp_prot_addErk1_WBtotal"
+IntAge_output_file <- "./SNPscan/scan1snps_p_diffAgeInt_addErk1_WBtotal_BestperGene.csv"
 
 gatherdf <- function(dir, pattern){
   file_list <- list.files(dir,pattern,full.names=TRUE)
@@ -50,17 +50,17 @@ compare <- initialLOD %>% mutate(
 )
 
 # write table
-write_csv(compare, "./SNPscan/scan1snps_p_Erk1_WBphos_mediation_LODcomapre.csv")
+write_csv(compare, "./SNPscan/scan1snps_p_Erk1_WBtotal_mediation_LODcomapre.csv")
 
 # plot lod scores
-pdf("./SNPscan/scan1snps_p_Erk1_WBphos_mediation_LODcompare.pdf", width = 9, height = 9)
+pdf("./SNPscan/scan1snps_p_Erk1_WBtotal_mediation_LODcompare.pdf", width = 9, height = 9)
 ggplot(compare, aes(x=AgeIntLOD, y =Erk1_WBphos_MedLOD))+
   geom_point(alpha= 0.5)+
   geom_abline(intercept = 0, slope = 1, colour = "red")+
   geom_abline(intercept = -2, slope = 1, colour = "blue")+
   scale_x_continuous(name = "LOD score of Age Interactive transcriptome SNP scan", breaks = seq(0, 12, by = 1), labels = seq(0, 12, by = 1), limits = c(5,9))+
-  scale_y_continuous(name = "LOD score of (X | phos-Erk1 WB)", limits = c(2,9)) +
+  scale_y_continuous(name = "LOD score of (X | total-Erk1 WB)", limits = c(2,9)) +
   theme_bw()+
-  labs(title = "Protein SNPscan @Chr7 w/ phos-Erk1 WB mediation",
+  labs(title = "Protein SNPscan @Chr7 w/ total-Erk1 WB mediation",
        subtitle = paste0("Total genes: ", nrow(compare)))
 dev.off()
