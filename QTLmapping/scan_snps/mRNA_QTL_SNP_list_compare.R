@@ -10,4 +10,9 @@ eQTL_list[eQTL_list$id %in% intersect(eQTL_list$id, SNP_list$id),]
 
 
 
-hist(eQTL_list[eQTL_list$id %in% intersect(eQTL_list$id, SNP_list$id),]$IntAgePos * 1e-6)
+
+
+
+
+
+df <- readr::read_csv("./SNPscan/scan1snps_m_Akt1_m_mediation_LODcomapre.csv") %>% filter(LODdrop > 2)
