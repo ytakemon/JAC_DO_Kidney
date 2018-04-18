@@ -17,11 +17,11 @@ snps$chr <- as.character(snps$chr)
 snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
-addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples)
+addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
 intcovar <- model.matrix(~ Age, data = annot.samples)
 
-plist <- plist[plist<=ncol(expr.mrna)]
-output <- annot.mrna[plist,]
+plist <- plist[plist<=ncol(expr.protein)]
+output <- annot.protein[plist,]
 
 MaxChr <- NULL
 for (p in plist) {
@@ -31,7 +31,7 @@ for (p in plist) {
   # scan additive model:
   LODadd <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[,p],
+               pheno=expr.protein[,p],
                addcovar=addcovar[,-1],
                cores=10,
                reml=TRUE)
@@ -39,7 +39,7 @@ for (p in plist) {
   # scan full model:
   LODfull <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[,p],
+               pheno=expr.protein[,p],
                addcovar=addcovar[,-1],
                intcovar=intcovar[,-1],
                cores=10,
@@ -74,8 +74,8 @@ for (p in plist) {
   MaxChr <- rbind(MaxChr,maxchr) # } #test loop
 
   # save lod object
-  filename_add <- paste0("./QTLscan/scanBestChr_mrna/addscan/", annot.mrna$id[p], "_", annot.mrna$symbol[p], ".rds")
-  filename_full <- paste0("./QTLscan/scanBestChr_mrna/fullscan/", annot.mrna$id[p], "_", annot.mrna$symbol[p], ".rds")
+  filename_add <- paste0("./QTLscan/scanBestChr_protein/addscan/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+  filename_full <- paste0("./QTLscan/scanBestChr_protein/fullscan/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(LODadd, file=filename_add)
   saveRDS(LODfull, file=filename_full)
 }
@@ -88,6 +88,6 @@ output <- output %>% mutate(
   IntAgeMaxLODDiff = MaxChr$maxLODDiff
 )
 
-filename_intmax <- paste0("./QTLscan/scanBestChr_mrna/intmaxchr/maxLODscan_batch_",plist[1],".csv")
+filename_intmax <- paste0("./QTLscan/scanBestChr_protein/intmaxchr/maxLODscan_batch_",plist[1],".csv")
 write_csv(output, path = filename_intmax)
 print(Sys.time())
