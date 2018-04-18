@@ -1,5 +1,4 @@
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(ggsci)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 load("./RNAseq_data/DO188b_kidney.RData")

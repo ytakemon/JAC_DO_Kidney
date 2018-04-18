@@ -88,7 +88,7 @@ df <- get.gene("Slc9a3") %>%
   mutate(
     Fitted = fitted(lm(Protein ~ Sex+fAge+Sex:fAge+RNA, data=.)))
 
-df_sumary <- df %>%
+df_summary <- df %>%
   group_by(Sex, fAge) %>%
   summarize(mRNA=mean(RNA), sdRNA=sd(RNA),
     mProtein=mean(Protein), sdProtein=sd(Protein), N=n() ) %>%
