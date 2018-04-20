@@ -7,7 +7,7 @@ best <- read.csv("./QTLscan/scanBestChr_protein/BestChr_BestperGene_protein.csv"
 # check distribution of LOD scores
 hist(best$IntAgeMaxLODDiff, breaks =100)
 # picking blunt threshold
-LODthreshold_diff <- 5
+LODthreshold_diff <- 8.6
 
 # Using best to create plot
 # need to reorder "chr" factors
