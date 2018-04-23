@@ -16,11 +16,11 @@ snps$chr <- as.character(snps$chr)
 snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
-addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples)
+addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
 intcovar <- model.matrix(~ Age, data = annot.samples)
 
-plist <- plist[plist<=ncol(expr.mrna)]
-output <- annot.mrna[plist,]
+plist <- plist[plist<=ncol(expr.protein)]
+output <- annot.protein[plist,]
 
 Max <- NULL
 for (p in plist) {
@@ -30,7 +30,7 @@ for (p in plist) {
   # scan additive model:
   LODadd <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[,p],
+               pheno=expr.protein[,p],
                addcovar=addcovar[,-1],
                cores=10,
                reml=TRUE)
@@ -38,7 +38,7 @@ for (p in plist) {
   # scan full model:
   LODfull <- scan1(genoprobs=probs,
                kinship=Glist,
-               pheno=expr.mrna[,p],
+               pheno=expr.protein[,p],
                addcovar=addcovar[,-1],
                intcovar=intcovar[,-1],
                cores=10,
@@ -67,6 +67,6 @@ output <- output %>% mutate(
   IntAgeLODDiff = Max$IntAgeLODDiff
 )
 
-filename <- paste0("./QTLscan/scanBestMarker_mrna/maxLODscan/maxLODscan_batch_",plist[1],".csv")
+filename <- paste0("./QTLscan/scanBestMarker_protein/maxLODscan/maxLODscan_batch_",plist[1],".csv")
 write_csv(output, path = filename)
 print(Sys.time())
