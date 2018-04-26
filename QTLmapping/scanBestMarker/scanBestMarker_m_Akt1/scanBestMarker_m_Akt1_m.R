@@ -12,8 +12,12 @@ load("./RNAseq_data/DO188b_kidney.RData")
 
 # subset to IntAgeChr == 12 list
 Chr12_list <- readr::read_csv("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna_thr8.csv", guess_max = 4200) %>%
-  filter(IntAgeChr == "12")
-sub_annot.mrna <- annot.mrna %>% filter(id %in% Chr12_list$id) #dim(sub_annot.mrna) 153
+  filter(IntAgeChr == "12") %>%
+  arrange(id)
+Chr12_list$markers <- paste0(Chr12_list$IntAgeChr, "_",Chr12_list$IntAgePos * 1e6)
+
+# subset data
+sub_annot.mrna <- annot.mrna %>% filter(id %in% Chr12_list$id) %>% arrange(id) #dim(sub_annot.mrna) 153
 sub_expr.mrna <- expr.mrna[,Chr12_list$id]
 
 # prepare data for qtl2
@@ -29,6 +33,7 @@ addcovar <- model.matrix(~ Sex + Age + Generation + Med, data=annot.samples)
 intcovar <- model.matrix(~ Age, data = annot.samples)
 
 plist <- plist[plist<=ncol(sub_expr.mrna)]
+markers <- Chr12_list$markers[plist]
 output <- sub_annot.mrna[plist,]
 Max <- NULL
 for (p in plist) {
@@ -59,8 +64,7 @@ for (p in plist) {
     diff$AddLOD <- add[,1]
     diff$IntAgeLODDiff <- diff$FullLOD - diff$AddLOD
     diff$IntAgeChr <- str_split_fixed(rownames(diff),"_",2)[,1] # get chr
-    diff <- diff[diff$IntAgeChr %in% "12",]
-    max <- diff[which(diff$IntAgeLODDiff == max(diff$IntAgeLODDiff, na.rm = TRUE)[1])[1],]
+    max <- diff[rownames(diff) %in% Chr12_list$markers[p],] # Identify marker from original scan
     max$IntAgePos <- snps[snps$marker == rownames(max),]$bp
     return(max)
   }
