@@ -23,7 +23,9 @@ WB_clean <- WB[complete.cases(WB[,pheno]),] %>%
 # subset to IntAgeChr == 7 list
 Chr7_list <- readr::read_csv("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protein_thr8.csv", guess_max = 4200) %>%
   filter(IntAgeChr == "7")
+Chr7_list$markers <- paste0(Chr7_list$IntAgeChr, "_",Chr7_list$IntAgePos * 1e6)
 
+# subset data
 sub_annot.protein <- filter(annot.protein, id %in% Chr7_list$id) #dim(sub_annot.protein) 262 genes
 sub_expr.protein <- expr.protein[,Chr7_list$id]
 sub_expr.protein <- sub_expr.protein[rownames(sub_expr.protein) %in% WB_clean$Mouse.ID,]
@@ -72,8 +74,8 @@ for (p in plist) {
     colnames(diff) <- "FullLOD"
     diff$AddLOD <- add[,1]
     diff$IntAgeLODDiff <- diff$FullLOD - diff$AddLOD
-    max <- diff[which(diff$IntAgeLODDiff == max(diff$IntAgeLODDiff, na.rm = TRUE)[1])[1],]
-    max$IntAgeChr <- str_split_fixed(rownames(max),"_",2)[,1]
+    diff$IntAgeChr <- str_split_fixed(rownames(diff),"_",2)[,1] # get chr
+    max <- diff[rownames(diff) %in% Chr7_list$markers[p],] # Identify marker from original scan
     max$IntAgePos <- snps[snps$marker == rownames(max),]$bp
     return(max)
   }
