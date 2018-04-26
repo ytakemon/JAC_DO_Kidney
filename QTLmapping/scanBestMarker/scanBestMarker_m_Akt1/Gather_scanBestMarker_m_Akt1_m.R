@@ -51,7 +51,7 @@ compare <- initialLOD %>% mutate(
 write_csv(compare, "./QTLscan/scanBestMarker_mrna/maxLODscan_Akt1_m/scanBestMarker_m_Akt1_m_mediation_LODcomapre.csv")
 
 # plot lod scores
-pdf("./SNPscan/scan1snps_m_Akt1_m_mediation_LODcompare.pdf", width = 9, height = 9)
+pdf("./QTLscan/scanBestMarker_mrna/maxLODscan_Akt1_m/scan1snps_m_Akt1_m_mediation_LODcompare.pdf", width = 9, height = 9)
 ggplot(compare, aes(x=IntAgeLODDiff, Akt1MedLOD))+
   geom_point(alpha= 0.5)+
   geom_abline(intercept = 0, slope = 1, colour = "red")+
