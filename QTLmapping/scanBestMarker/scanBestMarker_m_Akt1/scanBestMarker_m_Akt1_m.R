@@ -58,8 +58,9 @@ for (p in plist) {
     colnames(diff) <- "FullLOD"
     diff$AddLOD <- add[,1]
     diff$IntAgeLODDiff <- diff$FullLOD - diff$AddLOD
+    diff$IntAgeChr <- str_split_fixed(rownames(diff),"_",2)[,1] # get chr
+    diff <- diff[diff$IntAgeChr %in% "12",]
     max <- diff[which(diff$IntAgeLODDiff == max(diff$IntAgeLODDiff, na.rm = TRUE)[1])[1],]
-    max$IntAgeChr <- str_split_fixed(rownames(max),"_",2)[,1]
     max$IntAgePos <- snps[snps$marker == rownames(max),]$bp
     return(max)
   }
