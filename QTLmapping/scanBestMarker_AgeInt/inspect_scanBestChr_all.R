@@ -22,7 +22,7 @@ data_thr10_p <- filter(data, IntAgeChr == "7", IntAgeLODDiff > 10) %>% arrange(-
 
 # prepare for qtl plot
 snps$chr <- as.character(snps$chr)
-snps$chr[snps$chr=="X"] <- "20"
+snps$chr[snps$chr=="20"] <- "X"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
 # plotting function
@@ -49,7 +49,7 @@ QTLplot <- function(id,symbol,type,model){
 
   #plot
   pdf(paste0(out,"QTLplot_",symbol,"_",type,"_",model,".pdf"),height=3,width=7)
-  plot_scan1(scan, map, ylim = c(0,16))
+  plot_scan1(scan, map, ylim = c(0,25))
   title(paste0(id," ",symbol, " (",type,") ", model,"scan model" ))
   dev.off()
 }

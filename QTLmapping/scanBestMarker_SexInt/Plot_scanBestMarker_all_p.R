@@ -7,7 +7,7 @@ best <- read.csv("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protei
 # check distribution of LOD scores
 hist(best$IntAgeLODDiff, breaks =100)
 # picking blunt threshold
-LODthreshold_diff <- 9
+LODthreshold_diff <- 8.5
 
 # Using best to create plot
 # need to reorder "chr" factors
@@ -24,8 +24,8 @@ best <- best[best$chr %in% chr, ]
 Int_age <- best[(best$IntAgeLODDiff > LODthreshold_diff),] # above diff threshold
 
 # Annotate Interactive-Age postion with genes and save file for sharing
-save_int_age <- arrange(Int_age, IntAgeChr, IntAgePos)
-write_csv(save_int_age, path = paste0("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protein_thr",LODthreshold_diff,".csv"))
+#save_int_age <- arrange(Int_age, IntAgeChr, IntAgePos)
+#write_csv(save_int_age, path = paste0("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protein_thr",LODthreshold_diff,".csv"))
 
 
 # Convert transcript and qtl position relative to chromosome positions
@@ -72,8 +72,8 @@ chrtick_halfy <- chrtick_half
 names(chrtick_halfy)[20] <- "X  "
 
 # eQTL plot
-mPlot <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm, color = IntAgeLODDiff)) +
-      geom_point(alpha = 0.8) +
+mPlot <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
+      geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
@@ -81,19 +81,17 @@ mPlot <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm, color = IntAgeLODDiff)) +
       scale_y_continuous("Gene position",
                          breaks = chrtick_halfy,
                          limits = c(min(Int_age$t_gbm), max(Int_age$t_gbm)),
-                         expand = c(0,0),
-                        sec.axis = dup_axis()) +
+                         expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "Interactive-Age mRNA QTLscan by Marker") +
+      labs( title = "Interactive-Age pQTLscan by Marker") +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
             legend.position = "top",
-            panel.border = element_rect(colour = "black", size = 0.2, fill = NA)) +
-      scale_colour_gradient2(low = "blue", high = "red", mid = "blue", midpoint = mean(Int_age$IntAgeLODDiff))
+            panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 interval <- seq(0,max(Int_age$q_gbm), by = 10)
 interval <- interval + 5
@@ -112,7 +110,6 @@ df <- rbind(z, df)
 
 density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
       geom_histogram(breaks = seq(0,max(Int_age$q_gbm), by = 10)) +
-      geom_line(data = df, aes(x = interval, y = avgLOD*3), colour = "black") +
       scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_x_continuous("QTL position",
@@ -120,8 +117,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
                          limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
                          expand = c(0,0)) +
       scale_y_continuous(name ="Density",
-                         breaks = seq(0,450, by = 20),
-                         sec.axis = sec_axis(trans = ~. / 3, "Agerage LOD")) +
+                         breaks = seq(0,450, by = 10)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),

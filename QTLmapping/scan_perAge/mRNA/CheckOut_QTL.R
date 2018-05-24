@@ -105,7 +105,7 @@ pQTL_PeakComp12v18 <- CompQTL(pQTL_12mo, pQTL_18mo)
 
 # Create necessary objects for plotting map
 snps$chr <- as.character(snps$chr)
-snps$chr[snps$chr=="X"] <- "20"
+snps$chr[snps$chr=="20"] <- "X"
 probs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
 map <- map_df_to_list(map = snps, pos_column = "bp")
 K <- calc_kinship(probs, type = "loco", cores = 10)

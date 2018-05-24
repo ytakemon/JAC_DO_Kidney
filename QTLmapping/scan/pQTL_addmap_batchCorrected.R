@@ -1,30 +1,30 @@
 # R/3.4.1
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
+library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-eQTL_best <- read.csv("./QTLscan/output/eQTLBestperGene.csv")
+pQTL_best <- read.csv("./QTLscan/output/pQTLAllAdditive_pbatch.csv")
 
-# Using eQTL_best to create plot
+# Using pQTL_best to create plot
 # need to reorder "chr" factors
 chr_full <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","Y", "MT")
-eQTL_best$chr <- factor(eQTL_best$chr, levels = chr_full)
-eQTL_best$AdditiveChr <- factor(eQTL_best$AdditiveChr, levels= chr_full)
+pQTL_best$chr <- factor(pQTL_best$chr, levels = chr_full)
+pQTL_best$AdditiveChr <- factor(pQTL_best$AdditiveChr, levels= chr_full)
 
 # Subset out chr 1-19,X from data
 chr <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
-eQTL_best <- eQTL_best[eQTL_best$chr %in% chr, ]
+pQTL_best <- pQTL_best[pQTL_best$chr %in% chr, ]
 
 # Combine chr&positions into one numerical verctor
-eQTL_best$Gene_point <- paste(eQTL_best$chr, eQTL_best$start, sep = ".")
-eQTL_best$Add_point <- paste(eQTL_best$AdditiveChr, eQTL_best$AdditivePos, sep = ".")
+pQTL_best$Gene_point <- paste(pQTL_best$chr, pQTL_best$start, sep = ".")
+pQTL_best$Add_point <- paste(pQTL_best$AdditiveChr, pQTL_best$AdditivePos, sep = ".")
 
 
 # Set LOD threshold
-LODthreshold <- 8
+LODthreshold <- 8.5
 
-# Plot Interactive-Age eQTLs
+# Plot Interactive-Age pQTLs
 # Subset Int-Age LOD above total/full and diff
-AddQTL <- eQTL_best[(eQTL_best$AdditiveLOD > LODthreshold),] # above diff threshold
+AddQTL <- pQTL_best[(pQTL_best$AdditiveLOD > LODthreshold),] # above diff threshold
 
 # Convert transcript and qtl position relative to chromosome positions
 # Convert to megabases
@@ -65,9 +65,7 @@ for (i in 1:length(chrtick)){
   }
 }
 
-# eQTL plot
-pdf("./QTLscan/output/plots/AddeQTL_thr8.pdf", width = 6, heigh =6)
-ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
+mPlot <-  ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
       geom_point(alpha = 0.2) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
@@ -79,10 +77,34 @@ ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
                          expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "Additive eQTLs (LOD threshold > 8)") +
+      labs( title = "Additive pQTLs (LOD threshold > 8.5)") +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
+
+density <- ggplot(AddQTL, aes(q_gbm, colour = "grey", fill = "grey")) +
+      geom_histogram(breaks = seq(0,max(AddQTL$q_gbm), by = 10)) +
+      scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
+      scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
+      scale_x_continuous("QTL position",
+                         breaks = chrtick_half,
+                         limits = c(min(AddQTL$q_gbm), max(AddQTL$q_gbm)),
+                         expand = c(0,0)) +
+      scale_y_continuous(name ="Density",
+                         breaks = seq(0,450, by = 20)) +
+      geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
+      theme_bw() +
+      theme(plot.title = element_text(hjust = 0.5),
+            panel.background = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
+
+# pQTL plot
+pdf("./QTLscan/output/plots/Add_pQTL_thr8.5.pdf", width = 9, height =10)
+pushViewport(viewport( layout = grid.layout(10,10)))
+print(mPlot, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
+print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
 dev.off()
