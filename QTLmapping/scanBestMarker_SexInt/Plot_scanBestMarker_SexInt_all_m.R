@@ -5,7 +5,7 @@ setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
 m_best <- read.csv("./QTLscan/scanBestMarker_SexInt_mrna/BestMarker_SexInt_BestperGene_mrna.csv")
 
 # check distribution of LOD scores
-hist(m_best$IntAgeLODDiff, breaks =100)
+hist(m_best$IntSexLODDiff, breaks =100)
 # picking blunt threshold
 LODthreshold_diff <- 7.5
 
@@ -13,18 +13,18 @@ LODthreshold_diff <- 7.5
 # need to reorder "chr" factors
 chr_full <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","Y", "MT")
 m_best$chr <- factor(m_best$chr, levels = chr_full)
-m_best$IntAgeChr <- factor(m_best$IntAgeChr, levels= chr_full)
+m_best$IntSexChr <- factor(m_best$IntSexChr, levels= chr_full)
 
 # Subset out chr 1-19,X from data
 chr <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
 m_best <- m_best[m_best$chr %in% chr, ]
 
-# Plot Interactive-Age eQTLs
-# Subset Int-Age LOD above total/full and diff
-Int_age <- m_best[(m_best$IntAgeLODDiff > LODthreshold_diff),] # above diff threshold
+# Plot Interactive-Sex eQTLs
+# Subset Int-Sex LOD above total/full and diff
+Int_age <- m_best[(m_best$IntSexLODDiff > LODthreshold_diff),] # above diff threshold
 
-# Annotate Interactive-Age postion with genes and save file for sharing
-#save_int_age <- arrange(Int_age, IntAgeChr, IntAgePos)
+# Annotate Interactive-Sex postion with genes and save file for sharing
+#save_int_age <- arrange(Int_age, IntSexChr, IntSexPos)
 #write_csv(save_int_age, path = paste0("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna_thr",LODthreshold_diff,".csv"))
 
 
@@ -35,7 +35,7 @@ chrsum <- c(0, cumsum(chrlen))
 names(chrsum) = names(chrlen)
 
 t.gmb <- Int_age$start * 1e-6 # Transcript
-q.gmb <- Int_age$IntAgePos # qtl
+q.gmb <- Int_age$IntSexPos # qtl
 
 # Cumulative sum of previosu positions
 for(i in c(2:19, "X")) {
@@ -43,7 +43,7 @@ for(i in c(2:19, "X")) {
   wh <- which(Int_age$chr == i)
   t.gmb[wh] <- t.gmb[wh] + chrsum[i]
 
-  wh <- which(Int_age$IntAgeChr == i)
+  wh <- which(Int_age$IntSexChr == i)
     q.gmb[wh] <- q.gmb[wh] + chrsum[i]
 }
 Int_age$t_gbm <- t.gmb
