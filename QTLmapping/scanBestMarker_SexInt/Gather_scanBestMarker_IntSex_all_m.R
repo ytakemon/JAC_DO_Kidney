@@ -7,8 +7,8 @@ options(dplyr.width = Inf)
 library(tidyverse)
 
 # parameters
-diffscan_dir <- "./QTLscan/scanBestMarker_mrna/maxLODscan"
-IntAge_output_file <- "./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna.csv"
+diffscan_dir <- "./QTLscan/scanBestMarker_SexInt_mrna/maxLODscan"
+SexInt_output_file <- "./QTLscan/scanBestMarker_SexInt_mrna/BestMarker_SexInt_BestperGene_mrna.csv"
 
 gatherdf <- function(dir, pattern){
   file_list <- list.files(dir,pattern,full.names=TRUE)
@@ -27,5 +27,10 @@ gatherdf <- function(dir, pattern){
 
 diffLOD <- gatherdf(dir = diffscan_dir, pattern = "maxLODscan_batch_")
 
+# Oops I have to rename the Interaction to Sex!
+diffLOD <- diffLOD %>% rename(IntSexChr = IntAgeChr,
+  IntSexPos = IntAgePos,
+  IntSexLODDiff = IntAgeLODDiff)
+
 # write table
-write_csv(diffLOD, IntAge_output_file)
+write_csv(diffLOD, SexInt_output_file)

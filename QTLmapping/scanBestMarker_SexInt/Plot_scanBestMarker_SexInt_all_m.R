@@ -2,7 +2,7 @@
 library(tidyverse)
 library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-m_best <- read.csv("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna.csv")
+m_best <- read.csv("./QTLscan/scanBestMarker_SexInt_mrna/BestMarker_SexInt_BestperGene_mrna.csv")
 
 # check distribution of LOD scores
 hist(m_best$IntAgeLODDiff, breaks =100)
@@ -84,7 +84,7 @@ mPlot <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
                          expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "Interactive-Age eQTLscan by Marker") +
+      labs( title = "Interactive-Sex eQTLscan by Marker") +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
@@ -92,21 +92,6 @@ mPlot <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm)) +
             panel.grid.major = element_blank(),
             legend.position = "top",
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
-
-interval <- seq(0,max(Int_age$q_gbm), by = 10)
-interval <- interval + 5
-avgLOD <- NULL
-for ( i in interval){
-  df <- Int_age %>% filter((q_gbm > (i-5)) & (q_gbm < (i+5)))
-  if(nrow(df) == 0){
-    avgLOD <- c(avgLOD,0)
-  } else{
-    avgLOD <- c(avgLOD, mean(df$IntAgeLODDiff))
-  }
-}
-df <- data.frame(interval = interval, avgLOD = avgLOD)
-z <- c(0,0)
-df <- rbind(z, df)
 
 density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
       geom_histogram(breaks = seq(0,max(Int_age$q_gbm), by = 10)) +
@@ -127,7 +112,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 #plot help: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
-pdf(paste0("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna_thr",LODthreshold_diff,".pdf"), width = 9, heigh =10)
+pdf(paste0("./QTLscan/scanBestMarker_SexInt_mrna/BestMarker_SexInt_BestperGene_mrna_thr",LODthreshold_diff,".pdf"), width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(mPlot, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
