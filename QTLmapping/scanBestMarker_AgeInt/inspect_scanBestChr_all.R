@@ -26,7 +26,7 @@ snps$chr[snps$chr=="20"] <- "X"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
 # plotting function
-QTLplot <- function(id,symbol,type,model){
+QTLplot <- function(id,symbol,type,model,ylim){
   if(type == "mrna"){
     out <- "./QTLscan/scanBestMarker_mrna/QTLplotValid/"
     if(model == "add"){  # The data are the same as the by chr scans
@@ -49,19 +49,21 @@ QTLplot <- function(id,symbol,type,model){
 
   #plot
   pdf(paste0(out,"QTLplot_",symbol,"_",type,"_",model,".pdf"),height=3,width=7)
-  plot_scan1(scan, map, ylim = c(0,25))
+  plot_scan1(scan, map, ylim = ylim)
   title(paste0(id," ",symbol, " (",type,") ", model,"scan model" ))
   dev.off()
 }
 
-QTLplot(data_thr8_m$id[1],data_thr8_m$symbol[1], "mrna", "add")
-QTLplot(data_thr8_m$id[1],data_thr8_m$symbol[1], "mrna", "full")
-QTLplot(data_thr8_m$id[2],data_thr8_m$symbol[2], "mrna", "add")
-QTLplot(data_thr8_m$id[2],data_thr8_m$symbol[2], "mrna", "full")
-QTLplot(data_thr8_m$id[3],data_thr8_m$symbol[3], "mrna", "add")
-QTLplot(data_thr8_m$id[3],data_thr8_m$symbol[3], "mrna", "full")
-QTLplot(data_thr8_m$id[4],data_thr8_m$symbol[4], "mrna", "add")
-QTLplot(data_thr8_m$id[4],data_thr8_m$symbol[4], "mrna", "full")
+QTLplot(data_thr8_m$id[1],data_thr8_m$symbol[1], "mrna", "add", c(0,25))
+QTLplot(data_thr8_m$id[1],data_thr8_m$symbol[1], "mrna", "full", c(0,25))
+QTLplot(data_thr8_m$id[2],data_thr8_m$symbol[2], "mrna", "add", c(0,12))
+QTLplot(data_thr8_m$id[2],data_thr8_m$symbol[2], "mrna", "full", c(0,12))
+QTLplot(data_thr8_m$id[3],data_thr8_m$symbol[3], "mrna", "add", c(0,15))
+QTLplot(data_thr8_m$id[3],data_thr8_m$symbol[3], "mrna", "full", c(0,15))
+QTLplot(data_thr8_m$id[4],data_thr8_m$symbol[4], "mrna", "add", c(0,20))
+QTLplot(data_thr8_m$id[4],data_thr8_m$symbol[4], "mrna", "full", c(0,20))
+QTLplot(data_thr8_m$id[5],data_thr8_m$symbol[5], "mrna", "add", c(0,25))
+QTLplot(data_thr8_m$id[5],data_thr8_m$symbol[5], "mrna", "full", c(0,25))
 
 QTLplot(data_thr10_p$id[1],data_thr10_p$symbol[1], "protein", "add")
 QTLplot(data_thr10_p$id[1],data_thr10_p$symbol[1], "protein", "full")
