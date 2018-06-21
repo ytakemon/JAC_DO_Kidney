@@ -9,6 +9,7 @@ library(biomaRt)
 library(KEGGREST)
 library(org.Mm.eg.db)
 library(doParallel)
+library(stringr)
 
 # set up directories
 basedir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/"
@@ -136,7 +137,6 @@ safe.fxn = function(expr, kegg.list, y.vec, file.prefix, model = "default",
 
 } # safe.fxn()
 
-
 # Set up covariates
 covariates <- model.matrix(~ Sex + Age + Generation, data = annot.samples)[,-1]
 stopifnot(colnames(mrna) == rownames(covariates))
@@ -158,17 +158,15 @@ safe.fxn( expr = expr.res,
           file.prefix = paste0(outdir, "SexAgeInteraction"),
           model = "inter.model")
 
-# Collect all tables generated
-files <- list.files(path = "./Pathways", pattern = "_table.rds$", full.names = TRUE)
-for (file in files){
-  table <- readRDS(file)
-  obj <- readRDS(sub("_table", "", file))
-  err <- as.matrix(obj@global.error)
-  table <- merge(table, err, by = "row.names")
-  rownames(table) <- table[,1]
-  colnames(table)[5] <- "FDR_BH"
-  table <- table[,-1]
-  table[,4] <- format(table[,4], digit = 4)
-  table <- table[order(table[,3]),]
-  write.table(table, file = sub("rds$","txt", file), sep = "\t", quote = FALSE, row.names = FALSE)
-}
+# Create and save as .txt
+file <- paste0("./Pathways/SexAgeInteraction_table.rds")
+table <- readRDS(file)
+obj <- readRDS(sub("_table", "", file))
+err <- as.matrix(obj@global.error)
+table <- merge(table, err, by = "row.names")
+rownames(table) <- table[,1]
+colnames(table)[5] <- "FDR_BH"
+table <- table[,-1]
+table[,4] <- format(table[,4], digit = 4)
+table <- table[order(table[,3]),]
+write.table(table, file = sub("rds$","txt", file), sep = "\t", quote = FALSE, row.names = FALSE)

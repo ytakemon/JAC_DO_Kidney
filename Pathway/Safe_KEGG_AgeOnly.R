@@ -89,26 +89,6 @@ for (i in seq_along(kegg.paths)){
 # Register parallel back end.
 
 # Custom function fors sex * age interaction.
-local.inter.model = function(X.mat, y.vec, ...) {
-
-  sex  = as.numeric(substring(y.vec, 1, 1))
-  diet = as.numeric(substring(y.vec, 3, 3))
-  local.covar = model.matrix(~ Sex + Age + Sex*Age, data = annot.samples)[,-1]
-
-  return(
-    function(data, vector = local.covar, ...) {
-
-      # Sex + Age model
-      qry = qr(local.covar[,1:3])
-      resid.null = apply(data, 1, function(z) { qr.resid(qry, z) })
-      # Sex + Age + Sex*Age model
-      qry = qr(local.covar)
-      resid.full = apply(data, 1, function(z) { qr.resid(qry, z) })
-      return(-ncol(data) * log(colSums(resid.full^2) / colSums(resid.null^2)))
-    }
-  )
-} # local.inter.model()
-
 safe.fxn = function(expr, kegg.list, y.vec, file.prefix, model = "default",
            Z.mat = NULL) {
 
@@ -157,3 +137,16 @@ safe.fxn( expr = expr.res,
           y.vec = y.vec,
           file.prefix = paste0(outdir, "AgeOnly"),
           model = "default")
+
+# Create and save as .txt
+file <- paste0("./Pathways/AgeOnly_table.rds")
+table <- readRDS(file)
+obj <- readRDS(sub("_table", "", file))
+err <- as.matrix(obj@global.error)
+table <- merge(table, err, by = "row.names")
+rownames(table) <- table[,1]
+colnames(table)[5] <- "FDR_BH"
+table <- table[,-1]
+table[,4] <- format(table[,4], digit = 4)
+table <- table[order(table[,3]),]
+write.table(table, file = sub("rds$","txt", file), sep = "\t", quote = FALSE, row.names = FALSE)
