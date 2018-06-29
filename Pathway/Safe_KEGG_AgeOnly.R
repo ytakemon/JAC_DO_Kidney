@@ -135,11 +135,11 @@ y.vec <- covariates[,"Age"]
 safe.fxn( expr = expr.res,
           kegg.list = kegg.paths,
           y.vec = y.vec,
-          file.prefix = paste0(outdir, "AgeOnly"),
+          file.prefix = paste0(outdir, "m_AgeOnly"),
           model = "default")
 
 # Create and save as .txt
-file <- paste0("./Pathways/AgeOnly_table.rds")
+file <- paste0("./Pathways/m_AgeOnly_table.rds")
 table <- readRDS(file)
 obj <- readRDS(sub("_table", "", file))
 err <- as.matrix(obj@global.error)

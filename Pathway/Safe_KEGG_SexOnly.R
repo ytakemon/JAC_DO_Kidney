@@ -134,11 +134,11 @@ y.vec <- covariates[,"SexM"]
 safe.fxn( expr = expr.res,
           kegg.list = kegg.paths,
           y.vec = y.vec,
-          file.prefix = paste0(outdir, "SexOnly"),
+          file.prefix = paste0(outdir, "m_SexOnly"),
           model = "default")
 
 # Create and save as .txt
-file <- paste0("./Pathways/SexOnly_table.rds")
+file <- paste0("./Pathways/m_SexOnly_table.rds")
 table <- readRDS(file)
 obj <- readRDS(sub("_table", "", file))
 err <- as.matrix(obj@global.error)

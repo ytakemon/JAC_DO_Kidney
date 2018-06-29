@@ -1,5 +1,6 @@
 # SAFE - KEGG analysis adapted from Dan Gatti's svenson_SAFE_KEGG.R
 # qsub -v script=Safe_KEGG_SexAgeInteraction Rsubmit_args.sh
+# R/3.4.4
 library(dplyr)
 library(safe)
 library(GOstats)
@@ -122,7 +123,7 @@ safe.fxn = function(expr, kegg.list, y.vec, file.prefix, model = "default",
   stopifnot(rownames(expr) == C.mat$row.names)
 
   results = safe(X.mat = expr, y.vec = y.vec, C.mat = C.mat, local = model,
-            alpha = 1.0, error = "FDR.BH", method = "bootstrap", Pi.mat = 1000, parallel = TRUE)
+            alpha = 1.0, error = "FDR.BH", method = "bootstrap", Pi.mat = 10000, parallel = TRUE)
 
   saveRDS(results, file = paste0(file.prefix, ".rds"))
 
@@ -155,11 +156,19 @@ y.vec <- apply(covariates[,c("Age","SexM")], 1, paste0, collapse = ":")
 safe.fxn( expr = expr.res,
           kegg.list = kegg.paths,
           y.vec = y.vec,
-          file.prefix = paste0(outdir, "SexAgeInteraction"),
+          file.prefix = paste0(outdir, "m_SexAgeInteraction"),
           model = "inter.model")
 
+expr.res = expr.mrna
+for(i in 1:nrow(expr.mrna)) {
+
+  mod = lm(expr.mrna[i,] ~ covar[,3:8])
+  expr.res[i,] = residuals(mod)
+
+} # for(i)
+
 # Create and save as .txt
-file <- paste0("./Pathways/SexAgeInteraction_table.rds")
+file <- paste0("./Pathways/m_SexAgeInteraction_table.rds")
 table <- readRDS(file)
 obj <- readRDS(sub("_table", "", file))
 err <- as.matrix(obj@global.error)
