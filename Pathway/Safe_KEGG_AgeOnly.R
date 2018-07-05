@@ -23,12 +23,12 @@ ensembl <- hub[[names(hub)[hub$title == "Mus_musculus.GRCm38.82.gtf"]]]
 
 # load in rankZ normalied expression data
 load("./RNAseq_data/DO188b_kidney.RData")
-rm(genoprobs, G, Glist, N, raw.protein, raw.mrna, snps)
+rm(genoprobs, G, Glist, N, raw.protein, snps)
 
 # Subset Ensembl data
 ensembl <- ensembl[ensembl$type == "gene"]
-ensembl <- ensembl[ensembl$gene_id %in% colnames(expr.mrna)]
-mrna <- expr.mrna[,ensembl$gene_id]
+ensembl <- ensembl[ensembl$gene_id %in% colnames(raw.mrna)]
+mrna <- raw.mrna[,ensembl$gene_id]
 stopifnot(colnames(mrna) == ensembl$gene_id)
 
 # Get Entrez IDs for the Ensembl IDs in our data. KEGG uses Entrez Gene IDs.
@@ -57,7 +57,7 @@ kegg.paths <- split(kegg$ensembl, kegg$path)
 # Calculate the sex group mean for each KEGG pathway
 sex <- factor(annot.samples$Sex)
 names(sex) <- rownames(annot.samples)
-mrna <- t(expr.mrna)
+mrna <- t(raw.mrna)
 stopifnot(names(sex) == colnames(mrna))
 
 kegg_means <- matrix(data = 0,
@@ -148,5 +148,5 @@ rownames(table) <- table[,1]
 colnames(table)[5] <- "FDR_BH"
 table <- table[,-1]
 table[,4] <- format(table[,4], digit = 4)
-table <- table[order(table[,3]),]
+table <- table[order(table[,4]),]
 write.table(table, file = sub("rds$","txt", file), sep = "\t", quote = FALSE, row.names = FALSE)
