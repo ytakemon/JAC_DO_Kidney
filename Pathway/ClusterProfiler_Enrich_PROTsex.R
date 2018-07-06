@@ -59,7 +59,7 @@ go_cc <- enrichGO( gene = gene_df$ENTREZID,
                  qvalueCutoff = 0.05,
                  readable = TRUE)
 
-go_result <- go_bp@result
+go_result <- go_cc@result
 write.csv(go_result, "./Pathways/PROT_EnrichGOcc_Sex.csv", row.names = FALSE)
 
 # KEGG over-representation test
