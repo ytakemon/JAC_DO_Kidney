@@ -114,14 +114,16 @@ clusterGO <- function(list, GObpN, GOccN, KeggN){
 }
 
 # Calculate each group
-sublist <- list[grep(glob2rx("*PROT*Enrich*Age*.csv$"), list)]
+set.seed(123)
+
+sublist <- list[grep(glob2rx("*PROT*Enrich*Age.csv$"), list)]
 clusterGO(sublist, GObpN = 5, GOccN = 18, KeggN = 93 )
 
-sublist <- list[grep(glob2rx("*PROT*Enrich*Sex*.csv$"), list)]
-clusterGO(sublist, GObpN = 21, GOccN = 15, KeggN = NA )
+sublist <- list[grep(glob2rx("*PROT*Enrich*Sex.csv$"), list)]
+clusterGO(sublist, GObpN = 14, GOccN = 27, KeggN = 80 )
 
-sublist <- list[grep(glob2rx("*RNA*Enrich*Age*.csv$"), list)]
-clusterGO(sublist, GObpN = NA, GOccN = 15, KeggN = 54 )
+sublist <- list[grep(glob2rx("*RNA*Enrich*Age.csv$"), list)]
+clusterGO(sublist, GObpN = 147, GOccN = 15, KeggN = 54 )
 
-sublist <- list[grep(glob2rx("*RNA*Enrich*Sex*.csv$"), list)]
-clusterGO(sublist, GObpN = 14, GOccN = 27, KeggN = NA )
+sublist <- list[grep(glob2rx("*RNA*Enrich*Sex.csv$"), list)]
+clusterGO(sublist, GObpN = 21, GOccN = 15, KeggN = 78 )
