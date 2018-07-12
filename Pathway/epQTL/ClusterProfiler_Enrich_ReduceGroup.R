@@ -42,7 +42,7 @@ makeJaccard <- function(file){
 }
 
 # get list of all files, calcualte their Jaccard disance and make plots
-list <- list.files("./Pathways", pattern ="AgeSlope", full.names = TRUE)
+list <- list.files("./Pathways", pattern ="QTLscan_chr", full.names = TRUE)
 list <- list[grep(".csv$", list)]
 
 # Loop through each file
@@ -77,72 +77,4 @@ for(i in 1:length(list)){
   }
 }
 
-# Beyond this point, manually determine number of groups visually by plots.
-# Create function to cluster data
-clusterGO <- function(list, GObpN, GOccN, KeggN){
-
-  for(type in c("GObp", "GOcc", "KEGG")){
-    # get file
-    file <- list[grep(type, list)]
-    data <- read_csv(file)
-    if(nrow(data) == 0){
-      next
-    } else if(nrow(data) == 1){
-      basename <- str_sub(file,,-5)
-      write.csv(data, file = paste0(basename, "_clustered.csv"), row.names = FALSE)
-      next
-    }
-
-    # calculte Jaccard distance
-    Jdist <- makeJaccard(file)
-    hc <- hclust(dist(as.matrix(Jdist)))
-
-    # Cluster
-    if(type == "GObp"){
-      if(is.na(GObpN)){
-        next
-      }
-      clust <- cutree(hc, k = GObpN)
-    } else if(type == "GOcc"){
-      if(is.na(GOccN)){
-        next
-      }
-      clust <- cutree(hc, k = GOccN)
-    } else if(type == "KEGG"){
-      if(is.na(KeggN)){
-        next
-      }
-      clust <- cutree(hc, k = KeggN)
-    }
-
-    # Assign cluster group
-    data$ClusterN <- NA
-    for(i in 1:nrow(data)){
-      data$ClusterN[i] <- clust[data$ID[i]][[1]]
-    }
-    data <- arrange(data, ClusterN)
-    # save data
-
-    basename <- str_sub(file,,-5)
-    write.csv(data, file = paste0(basename, "_clustered.csv"), row.names = FALSE)
-  }
-}
-
-# Calculate each group
-set.seed(123)
-
-# get list of all files, calcualte their Jaccard disance and make plots
-list <- list.files("./Pathways", pattern ="AgeSlope", full.names = TRUE)
-list <- list[grep(".csv$", list)]
-
-sublist <- list[grep(glob2rx("*Enrich*IncRNA_IncProt.csv$"), list)]
-clusterGO(sublist, GObpN = 42, GOccN = 13, KeggN = 13 )
-
-sublist <- list[grep(glob2rx("*Enrich*DecRNA_DecProt.csv$"), list)]
-clusterGO(sublist, GObpN = NA, GOccN = 11, KeggN = 2 )
-
-sublist <- list[grep(glob2rx("*Enrich*IncRNA_DecProt.csv$"), list)]
-clusterGO(sublist, GObpN = NA, GOccN = 3, KeggN = NA)
-
-sublist <- list[grep(glob2rx("*Enrich*DecRNA_IncProt.csv$"), list)]
-clusterGO(sublist, GObpN = NA, GOccN = 2, KeggN = NA )
+# Cannot reduce, 0 or 1 pathway

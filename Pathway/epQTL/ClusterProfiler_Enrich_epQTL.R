@@ -5,41 +5,62 @@ library(org.Mm.eg.db)
 library(dplyr)
 
 # set up directories
-basedir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kgene_idney/"
+basedir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/"
 setwd(basedir)
 
-# Define interst:
-type <- "protein"
-chr <- "7"
-thr <- 7
+# for both mRNA and protein
+for( type in c("mrna", "protein")){
 
-# Load data
-if(type == "mrna"){
-  ScanResult <- read.csv("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna.csv", stringsAsFactors = FALSE)
-} else if(type == "protein"){
-  ScanResult <- read.csv("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protein.csv", stringsAsFactors = FALSE)
-}
+  # Load data
+  if(type == "mrna"){
 
-# subset for only genes in chromosome:
-chrList <- ScanResult[ScanResult$IntAgeChr == chr & ScanResult$IntAgeLODDiff > thr,]
+    print(type)
 
-# Get universe list:
-universe_df <- bitr(as.character(ScanResult$gene_id),
-                    fromType = "ENSEMBL",
-                    toType = c("ENTREZID", "SYMBOL"),
-                    OrgDb = org.Mm.eg.db)
+    # get data and specify query
+    ScanResult <- read.csv("./QTLscan/scanBestMarker_mrna/BestMarker_BestperGene_mrna.csv", stringsAsFactors = FALSE)
+    thr <- 7
+    chr <- "12"
 
-# Warning message:
-# In bitr(as.character(ScanResult$gene_id), fromType = "ENSEMBL",  :
-#  1.83% of input gene IDs are fail to map...
+    # subset for only genes in chromosome:
+    chrList <- ScanResult[ScanResult$IntAgeChr == chr & ScanResult$IntAgeLODDiff > thr,]
 
-  gene_df <- bitr(as.character(chrList$gene_id),
+    # define gene lists
+    universe_list <- ScanResult$id
+    gene_list <- chrList$id
+
+  } else if(type == "protein"){
+
+    print(type)
+
+    # get data and specify query
+    ScanResult <- read.csv("./QTLscan/scanBestMarker_protein/BestMarker_BestperGene_protein.csv", stringsAsFactors = FALSE)
+    thr <- 8
+    chr <- "7"
+
+    # subset for only genes in chromosome:
+    chrList <- ScanResult[ScanResult$IntAgeChr == chr & ScanResult$IntAgeLODDiff > thr,]
+
+    # define gene lists
+    universe_list <- ScanResult$gene_id
+    gene_list <- chrList$gene_id
+  }
+
+  # Get universe list:
+  universe_df <- bitr(as.character(universe_list),
+                      fromType = "ENSEMBL",
+                      toType = c("ENTREZID", "SYMBOL"),
+                      OrgDb = org.Mm.eg.db)
+  # Warning message:
+  # In bitr(as.character(universe_list), fromType = "ENSEMBL",  :
+  #  1.83% of input gene IDs are fail to map...
+  gene_df <- bitr(as.character(gene_list),
                     fromType = "ENSEMBL",
                     toType = c("ENTREZID", "SYMBOL"),
                     OrgDb = org.Mm.eg.db)
 
   # GO over-representation test
   # GO:bp
+  print("GObp pathways analysis")
   go_bp <- enrichGO( gene = gene_df$ENTREZID,
                    universe = universe_df$ENTREZID,
                    OrgDb = org.Mm.eg.db,
@@ -50,6 +71,7 @@ universe_df <- bitr(as.character(ScanResult$gene_id),
                    readable = TRUE)
 
   # GO:cc
+  print("GOcc pathways analysis")
   go_cc <- enrichGO( gene = gene_df$ENTREZID,
                    universe = universe_df$ENTREZID,
                    OrgDb = org.Mm.eg.db,
@@ -60,6 +82,7 @@ universe_df <- bitr(as.character(ScanResult$gene_id),
                    readable = TRUE)
 
   # KEGG over-representation test
+  print("KEGG pathway analysis")
   kegg <- enrichKEGG( gene = gene_df$ENTREZID,
                         organism = "mmu",
                         pvalueCutoff = 0.05)
@@ -85,9 +108,10 @@ universe_df <- bitr(as.character(ScanResult$gene_id),
   }
 
   go_result <- go_bp@result
-  write.csv(go_result, paste0("./Pathways/",type,"QTLscan_chr",chr,"_thr",thr,"_EnrichGObp.csv"), row.names=FALSE)
+  write.csv(go_result, paste0("./Pathways/",type,"_QTLscan_chr",chr,"_thr",thr,"_EnrichGObp.csv"), row.names=FALSE)
 
   go_result <- go_cc@result
-  write.csv(go_result, paste0("./Pathways/",type,"QTLscan_chr",chr,"_thr",thr,"_EnrichGOcc.csv"), row.names=FALSE)
+  write.csv(go_result, paste0("./Pathways/",type,"_QTLscan_chr",chr,"_thr",thr,"_EnrichGOcc.csv"), row.names=FALSE)
 
-  write.csv(kegg_result, paste0("./Pathways/",type,"QTLscan_chr",chr,"_thr",thr,"_EnrichKEGG.csv"), row.names=FALSE)
+  write.csv(kegg_result, paste0("./Pathways/",type,"_QTLscan_chr",chr,"_thr",thr,"_EnrichKEGG.csv"), row.names=FALSE)
+}
