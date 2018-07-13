@@ -40,14 +40,19 @@ for(direction in c("IncRNA_IncProt", "DecRNA_DecProt", "IncRNA_DecProt", "DecRNA
       slope_GObp <- read.csv(subList[grep("GObp", subList)], stringsAsFactors = FALSE)
       GObp_intersect <- intersect(anova_GObp$ID, slope_GObp$ID)
       slope_GObp$Overlap_ANOVA <- FALSE
-
+      # if exists
       if(length(GObp_intersect) != 0){
         for(term in GObp_intersect){
           slope_GObp[slope_GObp$ID == term, ]$Overlap_ANOVA <- TRUE
         }
       }
+      # save
       basename_bp <- str_sub(subList[grep("GObp", subList)],,-5)
-      write.csv(slope_GObp, paste0(basename_bp,"_compared.csv"), row.names = FALSE)
+      if(type == "mrna"){
+        write.csv(slope_GObp, paste0(basename_bp,"_mrnaANOVA_compared.csv"), row.names = FALSE)
+      } else if(type == "protein"){
+        write.csv(slope_GObp, paste0(basename_bp,"_proteinANOVA_compared.csv"), row.names = FALSE)
+      }
     }
 
     # compare GO:cc
@@ -56,14 +61,19 @@ for(direction in c("IncRNA_IncProt", "DecRNA_DecProt", "IncRNA_DecProt", "DecRNA
       slope_GOcc <- read.csv(subList[grep("GOcc", subList)], stringsAsFactors = FALSE)
       GOcc_intersect <- intersect(anova_GOcc$ID, slope_GOcc$ID)
       slope_GOcc$Overlap_ANOVA <- FALSE
-
+      # if exists
       if(length(GOcc_intersect) != 0){
         for(term in GOcc_intersect){
           slope_GOcc[slope_GOcc$ID == term, ]$Overlap_ANOVA <- TRUE
         }
       }
+      # save
       basename_cc <- str_sub(subList[grep("GOcc", subList)],,-5)
-      write.csv(slope_GOcc, paste0(basename_cc,"_compared.csv"), row.names = FALSE)
+      if(type == "mrna"){
+        write.csv(slope_GOcc, paste0(basename_cc,"_mrnaANOVA_compared.csv"), row.names = FALSE)
+      } else if(type == "protein"){
+        write.csv(slope_GOcc, paste0(basename_cc,"_proteinANOVA_compared.csv"), row.names = FALSE)
+      }
     }
 
     # compare KEGG
@@ -72,14 +82,19 @@ for(direction in c("IncRNA_IncProt", "DecRNA_DecProt", "IncRNA_DecProt", "DecRNA
       slope_KEGG <- read.csv(subList[grep("KEGG", subList)], stringsAsFactors = FALSE)
       KEGG_intersect <- intersect(anova_KEGG$ID, slope_KEGG$ID)
       slope_KEGG$Overlap_ANOVA <- FALSE
-
+      # if exists
       if(length(KEGG_intersect) != 0){
         for(term in KEGG_intersect){
           slope_KEGG[slope_KEGG$ID == term, ]$Overlap_ANOVA <- TRUE
         }
       }
+      # save
       basename_KEGG <- str_sub(subList[grep("KEGG", subList)],,-5)
-      write.csv(slope_KEGG, paste0(basename_KEGG,"_compared.csv"), row.names = FALSE)
+      if(type == "mrna"){
+        write.csv(slope_KEGG, paste0(basename_KEGG,"_mrnaANOVA_compared.csv"), row.names = FALSE)
+      } else if (type == "protein"){
+        write.csv(slope_KEGG, paste0(basename_KEGG,"_proteinANOVA_compared.csv"), row.names = FALSE)
+      }
     }
   }
 }
