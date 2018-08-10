@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl)
 library(corrplot)
-
+library(ggsci)
 # change global options
 options(tibble.width = Inf)
 
@@ -114,7 +114,6 @@ for(i in c("all", 6, 12, 18)){
 # Pull out genes for mRNA comparison
 
 get.gene <- function(gene.symbol){
-
   # pull covariates and convert to factors
   # note Age is numeric and fAge is factor
   Mouse.ID <- rownames(annot.samples)
@@ -147,73 +146,82 @@ combine_genes <- function(gene1, gene2, type){
   df1 <- get.gene(gene1)
   df2 <- get.gene(gene2)
   # combine and rename columns
-  if(type == RNA){
+  if(type == "mRNA"){
     df1 <- df1[,c("Mouse.ID","Sex","Age","fAge","RNA")]
     df2 <- df2[,c("Mouse.ID","Sex","Age","fAge","RNA")]
     df <- cbind(df1, df2$RNA)
-    colnames(df) <- c("Mouse.ID","Sex","Age","fAge",paste0(gene1,"_RNA"), paste0(gene2,"_RNA"))
-  } else {
-    if(length(colnames(df1)) == 6 & length(colnames(df2)) == 6)){
+    colnames(df) <- c("Mouse.ID","Sex","Age","fAge","Gene1","Gene2")
+  } else if(type == "Protein"){
+    if(length(colnames(df1)) == 6 & length(colnames(df2)) == 6){
       df1 <- df1[,c("Mouse.ID","Sex","Age","fAge","Protein")]
       df2 <- df2[,c("Mouse.ID","Sex","Age","fAge","Protein")]
       df <- cbind(df1, df2$Protein)
-      colnames(df) <- c("Mouse.ID","Sex","Age","fAge",paste0(gene1,"_Protein", paste0(gene2"_Protein"))
+      colnames(df) <- c("Mouse.ID","Sex","Age","fAge","Gene1","Gene2")
     } else if(length(colnames(df1)) < 6 & length(colnames(df2)) == 6){
       df1 <- df1[,c("Mouse.ID","Sex","Age","fAge")]
       df2 <- df2[,c("Mouse.ID","Sex","Age","fAge","Protein")]
       df <- cbind(df1, df2$Protein)
-      colnames(df) <- c("Mouse.ID","Sex","Age","fAge", paste0(gene2"_Protein"))
+      colnames(df) <- c("Mouse.ID","Sex","Age","fAge", paste0(gene2,"_Protein"))
     } else if(length(colnames(df1)) == 6 & length(colnames(df2)) < 6){
       df1 <- df1[,c("Mouse.ID","Sex","Age","fAge","Protein")]
-      colnames(df) <- c("Mouse.ID","Sex","Age","fAge", paste0(gene1"_Protein"))
+      colnames(df) <- c("Mouse.ID","Sex","Age","fAge", paste0(gene1,"_Protein"))
     }
-    # return values of RNA and Protei from both genes
-    df
   }
+  # return values of RNA and Protei from both genes
+  df
+}
+
+createPlot <- function(gene1, gene2, type){
+  df <- combine_genes(gene1, gene2, type)
+
+  # check point
+  if(ncol(df) < 6){
+    # spit out df and stop
+    df
+    stop("Need two genes for comparison")
+  }
+
+  df <- df %>%
+    mutate(Fitted = fitted(lm(Gene2 ~ Gene1 + Sex + fAge + Sex:fAge, data=.)))
+  df_summary <- df %>%
+    group_by(Sex, fAge) %>%
+    summarise(mGene1 = mean(Gene1), sdGene1 = sd(Gene1),
+             mGene2 = mean(Gene2), sdGene2 = sd(Gene2),
+             N = n()) %>%
+    mutate(seGene1 = sdGene1/sqrt(N), seGene2 = sdGene2/sqrt(N))
+  df_plot <- ggplot(df_summary, aes(x = mGene1, y = mGene2, colour = fAge, shape = Sex), size = 4) +
+    geom_point(size = 4) +
+    geom_errorbar(aes(ymin = mGene2 - seGene2, ymax = mGene2 + seGene2), size = 1)+
+    geom_errorbarh(aes(xmin = mGene1 - seGene1, xmax = mGene1 + seGene1), size = 1)+
+    geom_point(data = df, aes(x = Gene1, y = Gene2))+
+    geom_line(data = df, aes(x = Gene1, y = Fitted))+
+    xlab(paste(gene1, type))+
+    ylab(paste(gene2, type))+
+    theme_bw() +
+    scale_colour_aaas()
+  # return plot
+  df_plot
 }
 
 # same direction
 # Proximal tub - Proximal tub
 # Ass1 and Acsm2
-df <- combine_genes("Ass1","Acsm2") %>%
-        mutate(Fitted = fitted(lm(Ass1_RNA ~ Acsm2_RNA+Sex+fAge+Sex:fAge))) %>%
-        ggplot(., aes(x=Ass1_RNA, y=Acsm2_RNA, color=fAge, shape=Sex), size=4) +
-          geom_point(size=2) +
-          facet_wrap(~Age)
-
+plot1 <- createPlot("Ass1","Acsm2", type = "mRNA")
+pdf("~/Desktop/temp/Ass1_Acsm2_mRNA_comparison.pdf", height = 5, width = 6)
+plot1
+dev.off()
 # Prox - Oxphos
-df2 <- combine_genes("Ass1","Pink1") %>%
-        mutate(Fitted = fitted(lm(Ass1_RNA ~ Pink1_RNA+Sex+fAge+Sex:fAge))) %>%
-        ggplot(., aes(x=Ass1_RNA, y=Pink1_RNA, color=fAge, shape=Sex), size=4) +
-          geom_point(size=2) +
-          facet_wrap(~Age)
+plot2 <- createPlot("Ass1","Pink1", type = "mRNA")
+pdf("~/Desktop/temp/Ass1_Pink1_mRNA_comparison.pdf", height = 5, width = 6)
+plot2
+dev.off()
 # Prox - Glom
-df3 <- combine_genes("Ass1","Podxl") %>%
-        mutate(Fitted = fitted(lm(Ass1_RNA ~ Podxl_RNA+Sex+fAge+Sex:fAge))) %>%
-        ggplot(., aes(x=Ass1_RNA, y=Podxl_RNA, color=fAge, shape=Sex), size=4) +
-          geom_point(size=2) +
-          facet_wrap(~Age)
+plot3 <- createPlot("Ass1","Podxl", type = "mRNA")
+pdf("~/Desktop/temp/Ass1_Podxl_mRNA_comparison.pdf", height = 5, width = 6)
+plot3
+dev.off()
 # Oxphos - Glom
-df4 <- combine_genes("Pink1","Podxl") %>%
-        mutate(Fitted = fitted(lm(Pink1_RNA ~ Podxl_RNA+Sex+fAge+Sex:fAge))) %>%
-        ggplot(., aes(x=Pink1_RNA, y=Podxl_RNA, color=fAge, shape=Sex), size=4) +
-          geom_point(size=2) +
-          facet_wrap(~Age)
-
-
-df <- combine_genes("Ass1","Acsm2") %>%
-  mutate(Fitted = fitted(lm(Acsm2_RNA ~ Ass1_RNA++fAge+Sex:fAge, data =.)))
-df_summary <- df %>%
-  group_by(Sex, fAge) %>%
-  summarise(mAss1_RNA = mean(Ass1_RNA), sdAss1_RNA = sd(Ass1_RNA),
-            mAcsm2_RNA = mean(Acsm2_RNA), sdAcsm2_RNA = sd(Acsm2_RNA),
-            N = n() ) %>%
-  mutate(seAss1_RNA = sdAss1_RNA/sqrt(N), seAcsm2_RNA = sdAcsm2_RNA/sqrt(N))
-df_plot <- ggplot(df_summary, aes(x= mAss1_RNA, y= mAcsm2_RNA, colour = fAge, shape = Sex), size = 4) +
-  geom_point(size=4)+
-  geom_errorbar(aes(ymin= mAcsm2_RNA - seAcsm2_RNA, ymax = mAcsm2_RNA + seAcsm2_RNA), size = 1)+
-  geom_errorbarh(aes(xmin= mAss1_RNA - seAss1_RNA, xmax = mAss1_RNA + seAss1_RNA), size = 1)+
-  geom_point(data = df, aes(x=Ass1_RNA, y=Acsm2_RNA))+
-  geom_line(data = df, aes(x=Ass1_RNA, y=Fitted))+
-  theme_bw()+
-  scale_colour_aaas()
+plot4 <- createPlot("Pink1","Podxl", type = "mRNA")
+pdf("~/Desktop/temp/Pink1_Podxl_mRNA_comparison.pdf", height = 5, width = 6)
+plot4
+dev.off()
