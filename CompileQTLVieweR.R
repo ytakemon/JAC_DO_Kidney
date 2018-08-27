@@ -1,12 +1,10 @@
 # R/3.4.1
 # Refer to: https://github.com/churchill-lab/qtl-viewer/blob/master/docs/QTLViewerDataStructures.md
-# Compiling Rdata: ./DO188b_kidney_201711.Rdata
 library(qtl2)
 library(qtl2convert)
 library(dplyr)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
 load("./RNAseq_data/DO188b_kidney.RData")
-# load("./RNAseq_data/DO188b_kidney_201711.Rdata")
 
 # Need the following in this .Rdata file:
 # genome.build
@@ -50,7 +48,6 @@ annots.mrna <- annots.mrna[annots.mrna$duplicated == FALSE,]
 rownames(annots.mrna) <- annots.mrna$id
 annots.mrna <- annots.mrna %>% select(-c(nearest_snp, middle_point))
 
-
 covar <- covar[,-1]
 covar.factors <- data.frame(column.name = colnames(covar),
                             display.name = c("Sex", "Age", "G11","G12","G8","G9","Sex*Age"))
@@ -58,16 +55,36 @@ covar.factors <- data.frame(column.name = colnames(covar),
 expr.mrna <- expr.mrna[,annots.mrna$id]
 
 # Find nearest marker for additive QTL lod peaks
-lod.peaks <- read.csv("./QTLscan/output/eQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
-colnames(lod.peaks)[1] <- "annot.id"
-lod.peaks$marker.id <- NA
-lod.peaks$AdditivePos <- lod.peaks$AdditivePos * 1e-6 # Convert to megabases
+additive <- read.csv("./QTLscan/output/eQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
+colnames(additive)[1] <- "annot.id"
+colnames(additive)[9] <- "lod"
+additive$marker.id <- NA
+additive$AdditivePos <- additive$AdditivePos * 1e-6 # Convert to megabases
 # match nearest marker
-for (i in 1:length(lod.peaks$marker.id)){
-  chr <- lod.peaks$AdditiveChr[i]
+for (i in 1:length(additive$marker.id)){
+  chr <- additive$AdditiveChr[i]
   sub <- markers[markers$chr == chr,]
-  lod.peaks$marker.id[i] <- sub$marker[which.min(abs(sub$pos - lod.peaks$AdditivePos[i]))]
+  additive$marker.id[i] <- sub$marker[which.min(abs(sub$pos - additive$AdditivePos[i]))]
 }
+#Check
+is.data.frame(additive)
+
+# interactive lod peaks
+age_int <- read.csv("./QTLscan/output/eQTLAllInteractiveAge.csv", header = TRUE, stringsAsFactors = FALSE)
+colnames(age_int)[1] <- "annot.id"
+colnames(age_int)[9] <- "lod"
+age_int$marker.id <- NA
+age_int$IntAgePos <- age_int$IntAgePos * 1e-6 # Convert to megabases
+# match nearest marker
+for (i in 1:length(age_int$marker.id)){
+  chr <- age_int$IntAgeChr[i]
+  sub <- markers[markers$chr == chr,]
+  age_int$marker.id[i] <- sub$marker[which.min(abs(sub$pos - age_int$IntAgePos[i]))]
+}
+# Check
+is.data.frame(age_int)
+lod.peaks <- list("additive" = additive,
+                  "age_int" = age_int)
 
 samples <- as.data.frame(annot.samples)
 colnames(samples)[1] <- "id"
@@ -114,16 +131,35 @@ annots.protein <- annots.protein %>% select(-c(nearest_snp, middle_point))
 expr <- expr.protein
 
 # Find nearest marker for additive QTL lod peaks
-lod.peaks <- read.csv("./QTLscan/output/pQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
-colnames(lod.peaks)[1] <- "annot.id"
-lod.peaks$marker.id <- NA
-lod.peaks$AdditivePos <- lod.peaks$AdditivePos * 1e-6 # Convert to megabases
+additive <- read.csv("./QTLscan/output/pQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
+colnames(additive)[1] <- "annot.id"
+colnames(additive)[9] <- "lod"
+additive$marker.id <- NA
+additive$AdditivePos <- additive$AdditivePos * 1e-6 # Convert to megabases
 # match nearest marker
-for (i in 1:length(lod.peaks$marker.id)){
-  chr <- lod.peaks$AdditiveChr[i]
+for (i in 1:length(additive$marker.id)){
+  chr <- additive$AdditiveChr[i]
   sub <- markers[markers$chr == chr,]
-  lod.peaks$marker.id[i] <- sub$marker[which.min(abs(sub$pos - lod.peaks$AdditivePos[i]))]
+  additive$marker.id[i] <- sub$marker[which.min(abs(sub$pos - additive$AdditivePos[i]))]
 }
+#Check
+is.data.frame(additive)
+# interactive lod peaks
+age_int <- read.csv("./QTLscan/output/pQTLAllInteractiveAge.csv", header = TRUE, stringsAsFactors = FALSE)
+colnames(age_int)[1] <- "annot.id"
+colnames(age_int)[9] <- "lod"
+age_int$marker.id <- NA
+age_int$IntAgePos <- age_int$IntAgePos * 1e-6 # Convert to megabases
+# match nearest marker
+for (i in 1:length(age_int$marker.id)){
+  chr <- age_int$IntAgeChr[i]
+  sub <- markers[markers$chr == chr,]
+  age_int$marker.id[i] <- sub$marker[which.min(abs(sub$pos - age_int$IntAgePos[i]))]
+}
+# Check
+is.data.frame(age_int)
+lod.peaks <- list("additive" = additive,
+                  "age_int" = age_int)
 
 dataset.protein <- list("annots" = annots.protein,
                      "covar" = covar,
@@ -133,7 +169,7 @@ dataset.protein <- list("annots" = annots.protein,
                      "lod.peaks" = lod.peaks,
                      "samples" = samples)
 
-# save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201802_YT.Rdata")
+save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201808_YT.Rdata")
 
 # Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
