@@ -7,7 +7,7 @@ setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/")
 load("./RNAseq_data/DO188b_kidney.RData")
 
 # Need the following in this .Rdata file:
-# genome.build
+# ensembl.version
 # genoprobs
 # K
 # map
@@ -25,7 +25,7 @@ load("./RNAseq_data/DO188b_kidney.RData")
 # dataset.protein: (see dataset.mrna for list)
 # dataset.phenotype: (see dataset.mrna for list)
 
-genome.build <- as.character("GRCm38")
+ensembl.version <- 82
 genoprobs <- probs_doqtl_to_qtl2(genoprobs, snps, pos_column = "bp")
 K <- calc_kinship(genoprobs, type = "loco")
 map <- map_df_to_list(map = snps, pos_column = "bp")
@@ -35,22 +35,26 @@ markers$pos <- markers$pos * 1e-6 # convert to megabases
 # dataset.mrna: --------------------------------------------------------------
 datatype <- "mRNA"
 
-annots.mrna <- annot.mrna
-annots.mrna <- annots.mrna[!(annots.mrna$chr %in% c("MT","Y")),]
-annots.mrna$nearest.marker.id <- NA
+annots.mrna <- annot.mrna %>%
+  filter(!(chr %in% c("MT","Y"))) %>%
+  mutate(nearest.marker.id = NA)
+
 for (i in 1:length(annots.mrna$nearest_snp)){
   annots.mrna$nearest.marker.id[i] <- markers$marker[annots.mrna$nearest_snp[i]]
 }
-annots.mrna$start <- annots.mrna$start * 1e-6 # convert to megabases
-annots.mrna$end <- annots.mrna$end * 1e-6 # convert to megabases
-annots.mrna$middle <- annots.mrna$middle_point * 1e-6 # convert to megabases
-annots.mrna <- annots.mrna[annots.mrna$duplicated == FALSE,]
-rownames(annots.mrna) <- annots.mrna$id
-annots.mrna <- annots.mrna %>% select(-c(nearest_snp, middle_point))
+annots.mrna <- annots.mrna %>%
+  mutate(
+    start = start * 1e-6, #convert to megabases
+    end = end * 1e-6, #convert to megabases
+    middle = middle_point * 1e-6, #convert to megabases
+  ) %>%
+  filter(duplicated == FALSE) %>%
+  rename( gene_id = id) %>%
+  select(-c(nearest_snp, middle_point))
 
-covar <- covar[,-1]
-covar.factors <- data.frame(column.name = colnames(covar),
-                            display.name = c("Sex", "Age", "G11","G12","G8","G9","Sex*Age"))
+rownames(annots.mrna) <- annots.mrna$gene_id
+
+
 #expr <- expr.mrna
 expr.mrna <- expr.mrna[,annots.mrna$id]
 
@@ -90,44 +94,59 @@ samples <- as.data.frame(annot.samples)
 colnames(samples)[1] <- "id"
 
 # Grab raw data from EMASE (total gene expression): sample id x mrna annot.
-raw <- data.frame(matrix(NA, nrow = length(samples$id), ncol = nrow(annots.mrna)))
-rownames(raw) <- samples$id
-colnames(raw) <- rownames(annots.mrna)[order(rownames(annots.mrna))]
-emase_dir <- "/hpcdata/gac/projects/JAC_DO_Kidney_RNASeq/emase_m4_gbrs/"
+#raw <- data.frame(matrix(NA, nrow = length(samples$id), ncol = nrow(annots.mrna)))
+#rownames(raw) <- samples$id
+#colnames(raw) <- rownames(annots.mrna)[order(rownames(annots.mrna))]
+#emase_dir <- "/hpcdata/gac/projects/JAC_DO_Kidney_RNASeq/emase_m4_gbrs/"
+#
+#for (i in 1:nrow(raw)){
+#  file <- paste0(emase_dir, rownames(raw)[i], ".emase.genes.effective_read_counts")
+#  file <- read.delim(file, stringsAsFactors = FALSE)
+#  file <- file[file$locus %in% rownames(annots.mrna),]
+#
+#  raw[i,] <- file$total
+#  print(paste0(i," out of ", nrow(raw)))
+#}
+#raw <- as.matrix(raw)
 
-for (i in 1:nrow(raw)){
-  file <- paste0(emase_dir, rownames(raw)[i], ".emase.genes.effective_read_counts")
-  file <- read.delim(file, stringsAsFactors = FALSE)
-  file <- file[file$locus %in% rownames(annots.mrna),]
+# covars
+covar <- covar[,-1]
+covar.factors <- data.frame(
+  column.name = c("Sex", "Age", "Generation"),
+  display.name = c("Sex", "Age", "Generation"),
+  int.covar = c(NA, "factor", NA),
+  lod.peaks = c(NA, "age_int", NA),
+  covar.name = c(NA,"Age", NA),
+  stringsAsFactors = FALSE)
 
-  raw[i,] <- file$total
-  print(paste0(i," out of ", nrow(raw)))
-}
-raw <- as.matrix(raw)
 
 dataset.mrna <- list("annots" = annots.mrna,
                     "covar" = covar,
                     "covar.factors" = covar.factors,
                     "datatype" = datatype,
-                    "expr" = expr.mrna,
+                    "rankz" = expr.mrna,
                     "lod.peaks" = lod.peaks,
-                    "raw" = raw,
                     "samples" = samples)
 
 # save(genome.build, genoprobs, K, map, markers, dataset.mrna, file = "./RNAseq_data/DO188b_kidney_201711.Rdata")
 # dataset.protein: -------------------------------------------------------------
 datatype <- "protein"
-annots.protein <- annot.protein
-annots.protein$nearest.marker.id <- NA
+
+annots.protein <- annot.protein %>%
+  mutate(nearest.marker.id = NA)
+
 for (i in 1:length(annots.protein$nearest_snp)){
   annots.protein$nearest.marker.id[i] <- markers$marker[annots.protein$nearest_snp[i]]
 }
-annots.protein$start <- annots.protein$start * 1e-6 # convert to megabases
-annots.protein$end <- annots.protein$end * 1e-6 # convert to megabases
-annots.protein$middle <- annots.protein$middle_point * 1e-6 # convert to megabases
-rownames(annots.protein) <- annots.protein$id
-annots.protein <- annots.protein %>% select(-c(nearest_snp, middle_point))
+annots.protein <- annots.protein %>% mutate(
+  start = start * 1e-6, # convert to megabases
+  end = end * 1e-6, # convert to megabases
+  middle = middle_point * 1e-6) %>%
+  select(-c(nearest_snp, middle_point)) %>%
+  rename(protein_id = id)
+rownames(annots.protein) <- annots.protein$protein_id
 
+# expression data
 expr <- expr.protein
 
 # Find nearest marker for additive QTL lod peaks
@@ -161,15 +180,25 @@ is.data.frame(age_int)
 lod.peaks <- list("additive" = additive,
                   "age_int" = age_int)
 
+# covar
+covar <- covar[,-1]
+covar.factors <- data.frame(
+  column.name = c("Sex", "Age", "Generation", "Protein.Batch", "Protein.Channel"),
+  display.name = c("Sex", "Age", "Generation", "Protein.Batch", "Protein.Channel"),
+  int.covar = c(NA, "numeric", NA, NA, NA),
+  lod.peaks = c(NA, "age_int", NA, NA, NA),
+  covar.name = c(NA, "Age", NA, NA, NA),
+  stringsAsFactors = FALSE)
+
 dataset.protein <- list("annots" = annots.protein,
                      "covar" = covar,
                      "covar.factors" = covar.factors,
                      "datatype" = datatype,
-                     "expr" = expr.protein,
+                     "rankz" = expr.protein,
                      "lod.peaks" = lod.peaks,
                      "samples" = samples)
 
-save(genome.build, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_201808_YT.Rdata")
+save(ensembl.version, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_20180830_YT.Rdata")
 
 # Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
