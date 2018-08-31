@@ -56,7 +56,7 @@ rownames(annots.mrna) <- annots.mrna$gene_id
 
 
 #expr <- expr.mrna
-expr.mrna <- expr.mrna[,annots.mrna$id]
+expr.mrna <- expr.mrna[,annots.mrna$gene_id]
 
 # Find nearest marker for additive QTL lod peaks
 additive <- read.csv("./QTLscan/output/eQTLAllAdditive.csv", header = TRUE, stringsAsFactors = FALSE) # additive only for now (from Matt)
