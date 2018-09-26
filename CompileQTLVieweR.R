@@ -1,4 +1,4 @@
-# R/3.4.1
+# R/3.4.4
 # Refer to: https://github.com/churchill-lab/qtl-viewer/blob/master/docs/QTLViewerDataStructures.md
 library(qtl2)
 library(qtl2convert)
@@ -183,11 +183,11 @@ lod.peaks <- list("additive" = additive,
 # covar
 covar <- covar[,-1]
 covar.factors <- data.frame(
-  column.name = c("Sex", "Age", "Generation", "Protein.Batch", "Protein.Channel"),
-  display.name = c("Sex", "Age", "Generation", "Protein.Batch", "Protein.Channel"),
-  int.covar = c(NA, "numeric", NA, NA, NA),
-  lod.peaks = c(NA, "age_int", NA, NA, NA),
-  covar.name = c(NA, "Age", NA, NA, NA),
+  column.name = c("Sex", "Age", "Generation"),
+  display.name = c("Sex", "Age", "Generation"),
+  int.covar = c(NA, "factor", NA),
+  lod.peaks = c(NA, "age_int", NA),
+  covar.name = c(NA, "Age", NA),
   stringsAsFactors = FALSE)
 
 dataset.protein <- list("annots" = annots.protein,
@@ -198,7 +198,7 @@ dataset.protein <- list("annots" = annots.protein,
                      "lod.peaks" = lod.peaks,
                      "samples" = samples)
 
-save(ensembl.version, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_20180830_YT.Rdata")
+save(ensembl.version, genoprobs, K, map, markers, dataset.mrna, dataset.protein, file = "./RNAseq_data/DO188b_kidney_20180926_YT.Rdata")
 
 # Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
