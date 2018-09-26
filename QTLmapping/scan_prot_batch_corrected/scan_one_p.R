@@ -39,6 +39,6 @@ for (p in plist) {
                cores=10, reml=TRUE)
 
   # save lod object
-  file_name <- paste0("./QTLscan/addscan_prot_pbatch/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
+  file_name <- paste0("./QTLscan/addscan_prot_nobatch/", annot.protein$id[p], "_", annot.protein$symbol[p], ".rds")
   saveRDS(lod, file=file_name)
 }
