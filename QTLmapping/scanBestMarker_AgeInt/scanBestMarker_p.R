@@ -16,7 +16,7 @@ snps$chr <- as.character(snps$chr)
 snps$chr[snps$chr=="X"] <- "20"
 map <- map_df_to_list(map = snps, pos_column = "bp")
 
-addcovar <- model.matrix(~ Sex + Age + Generation + Protein.Batch + Protein.Channel, data=annot.samples)
+addcovar <- model.matrix(~ Sex + Age + Generation, data=annot.samples)
 intcovar <- model.matrix(~ Age, data = annot.samples)
 
 plist <- plist[plist<=ncol(expr.protein)]
