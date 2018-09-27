@@ -6,7 +6,7 @@ load("./RNAseq_data/DO188b_kidney_noprobs.RData")
 library(dplyr)
 
 # parameters
-addscan.dir <- "./QTLscan/addscan_prot/"
+addscan.dir <- "./QTLscan/addscan_prot_pbatch/"
 intscan.dir.Age <- "./QTLscan/intscan_prot_pbatch/Age/"
 file.name <- function(i) paste0(annot.protein$id[i],"_",annot.protein$symbol[i],".rds")
 
@@ -14,9 +14,9 @@ LODtheshold_additive <- 7.5
 LODthreshold_total <- 10.5
 LODthreshold_diff <- 7.5
 
-output.file1 <- "./QTLscan/output/pQTLBestperGene_nobatch.csv"
-output.file2 <- "./QTLscan/output/pQTLAllAdditive_nobatch.csv"
-output.file3 <- "./QTLscan/output/pQTLAllInteractiveAge_nobatch.csv"
+output.file1 <- "./QTLscan/output/pQTLBestperGene_pbatch.csv"
+output.file2 <- "./QTLscan/output/pQTLAllAdditive_pbatch.csv"
+output.file3 <- "./QTLscan/output/pQTLAllInteractiveAge_pbatch.csv"
 
 output <- annot.protein[,c(1:6,10)]
 output$AdditiveLOD <- output$AdditivePos <-  output$AdditiveChr <- NA
