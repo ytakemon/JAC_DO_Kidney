@@ -78,6 +78,7 @@ slopeOUT <- mutate(slopeOUT,
   GroupD = Slope_sub$GroupD,
 )
 
+
 write.csv(slopeOUT, file = "~/Desktop/slopeOUT.csv", row.names = FALSE)
 # in RNAsig Only
 RNAonlyOUT <- filter(Gene2Include, INslope == FALSE & INanova_rnasig == TRUE)
