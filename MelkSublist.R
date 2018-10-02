@@ -68,7 +68,7 @@ Compile <- mutate(Compile,
 # Filter to list found in references ------------------------------------------
 Gene2Include <- filter(Compile, INslope == TRUE | INanova_rnasig == TRUE | INanova_protsig == TRUE)
 
-# in SlopeList
+# in SlopeList, lost previous anlaysis method here but it should be corrected to a for loop
 slopeOUT <- filter(Gene2Include, INslope == TRUE) %>% arrange(Symbol)
 Slope_sub <- filter(Slope, gene_id %in% slopeOUT$EnsID)
 slopeOUT <- mutate(slopeOUT,
