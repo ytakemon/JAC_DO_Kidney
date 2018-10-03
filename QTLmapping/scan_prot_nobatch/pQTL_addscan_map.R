@@ -83,8 +83,7 @@ pQTL <- ggplot(addScan, aes(x= q_gbm, y= t_gbm), color = AdditiveLOD) +
       scale_y_continuous("Gene position",
                          breaks = chrtick_half,
                          limits = c(min(addScan$t_gbm), max(addScan$t_gbm)),
-                         expand = c(0,0),
-                        sec.axis = dup_axis()) +
+                         expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       labs( title = "Additive scan pQTLs") +

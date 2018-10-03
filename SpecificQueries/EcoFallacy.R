@@ -5,7 +5,6 @@
 
 library(tidyverse)
 library(stringr)
-library(magrittr)
 library(ggsci)
 
 ######################################
@@ -319,4 +318,65 @@ ggplot(df_summary, aes(x=mRNA, y=mProtein, color=fAge, shape=Sex), size=4) +
         color = "Age") +
   theme_bw() +
   scale_colour_aaas()
+dev.off()
+
+####
+# Combine Slc5a12 and Flot1 into one figure
+# Figure 3A is Slc5a12 (top)
+# Fiugure 3B is Flot1 (bottom)
+
+# Slc5a12
+df <- get.gene("Slc5a12") %>%
+  mutate(
+    Fitted = fitted(lm(Protein ~ Sex+fAge+Sex:fAge+RNA, data=.)))
+
+df_summary <- df %>%
+  group_by(Sex, fAge) %>%
+  summarize(mRNA=mean(RNA), sdRNA=sd(RNA),
+    mProtein=mean(Protein), sdProtein=sd(Protein), N=n() ) %>%
+  mutate(seRNA = sdRNA/sqrt(N), seProtein = sdProtein/sqrt(N))
+
+Slc5a12 <- ggplot(df_summary, aes(x=mRNA, y=mProtein, color=fAge, shape=Sex), size=4) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=mProtein-seProtein, ymax=mProtein+seProtein),size=1) +
+  geom_errorbarh(aes(xmin=mRNA-seRNA, xmax=mRNA+seRNA),size=1) +
+  geom_point(data=df, aes(x=RNA, y=Protein)) +
+  geom_line(data=df, aes(x = RNA, y = Fitted)) +
+  labs( title = "Slc5a12 mRNA v. Protein Expression by Age",
+        subtitle = paste0("Female: 93 (6mo=33, 12mo=31, 18mo=29) \nMale: 95(6mo=30, 12mo=31, 18mo=34)"),
+        y = "SLC5A12 expression (Rank normalized protein)",
+        x = "Slc5a12 expression (Rank normalized mRNA)",
+        color = "Age") +
+  theme_bw() +
+  scale_colour_aaas()
+
+# Flot1
+df <- get.gene("Flot1") %>%
+  mutate(
+    Fitted = fitted(lm(Protein ~ Sex+fAge+Sex:fAge+RNA, data=.)))
+
+df_summary <- df %>%
+  group_by(Sex, fAge) %>%
+  summarize(mRNA=mean(RNA), sdRNA=sd(RNA),
+    mProtein=mean(Protein), sdProtein=sd(Protein), N=n() ) %>%
+  mutate(seRNA = sdRNA/sqrt(N), seProtein = sdProtein/sqrt(N))
+
+Flot1 <- ggplot(df_summary, aes(x=mRNA, y=mProtein, color=fAge, shape=Sex), size=4) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=mProtein-seProtein, ymax=mProtein+seProtein),size=1) +
+  geom_errorbarh(aes(xmin=mRNA-seRNA, xmax=mRNA+seRNA),size=1) +
+  geom_point(data=df, aes(x=RNA, y=Protein)) +
+  geom_line(data=df, aes(x = RNA, y = Fitted)) +
+  labs( title = "Flot1 mRNA v. Protein Expression by Age",
+        subtitle = paste0("Female: 93 (6mo=33, 12mo=31, 18mo=29) \nMale: 95(6mo=30, 12mo=31, 18mo=34)"),
+        y = "FLOT1 expression (Rank normalized protein)",
+        x = "Flot1 expression (Rank normalized mRNA)",
+        color = "Age") +
+  theme_bw() +
+  scale_colour_aaas()
+
+
+library(gridExtra)
+pdf("./Plot/Figure3_EcoFallacy.pdf", width = 5, height = 10)
+grid.arrange(Slc5a12, Flot1, ncol =1)
 dev.off()
