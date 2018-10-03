@@ -77,7 +77,7 @@ mPlot <-  ggplot(AddQTL, aes(x= q_gbm, y= t_gbm)) +
                          expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "Additive eQTLs (LOD threshold > 7.5)") +
+      labs( title = "Additive scan eQTLs") +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
             panel.grid.minor = element_blank(),
