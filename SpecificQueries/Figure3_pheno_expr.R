@@ -200,7 +200,7 @@ plot_r2c4 <- ggplot(df_r2c4_summary, aes(x=mRNA, y=mProtein, color=Age, shape=Se
   theme_bw() +
   scale_colour_aaas()
 
-#Slc34a1 Phos ~ protein
+#Lrp2 Alb ~ protein
 anova(lm(Alb ~ Sex+Age+Sex:Age+Lrp2_protein+Sex:Lrp2_protein+Age:Lrp2_protein, data=df))
 coefficients(lm(Alb ~ Sex+Age+Lrp2_protein, data=df))
 # Sig: Sex:Age

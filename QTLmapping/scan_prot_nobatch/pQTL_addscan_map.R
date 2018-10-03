@@ -3,63 +3,61 @@ library(ggplot2)
 library(dplyr)
 library(grid)
 setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-pQTL_best <- read.csv("./QTLscan/output/pQTLBestperGene_pbatch.csv")
+pQTL_best <- read.csv("./QTLscan/addscan_prot_nobatch/pQTLBestperGene_addscan_nobatch.csv")
 
 # Usinb pQTL_best to create plot
 # need to reorder "chr" factors
 chr_full <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","Y", "MT")
 pQTL_best$chr <- factor(pQTL_best$chr, levels = chr_full)
-pQTL_best$IntAgeChr <- factor(pQTL_best$IntAgeChr, levels= chr_full)
-pQTL_best$IntSexChr <- factor(pQTL_best$IntSexChr, levels= chr_full)
+pQTL_best$AdditiveChr <- factor(pQTL_best$AdditiveChr, levels= chr_full)
+
 # Subset out chr 1-19,X from data
 chr <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
 pQTL_best <- pQTL_best[pQTL_best$chr %in% chr, ]
 
-# Combine chr&positions into one numerical verctor
-pQTL_best$Gene_point <- paste(pQTL_best$chr, pQTL_best$start, sep = ".")
-pQTL_best$IntAge_point <- paste(pQTL_best$IntAgeChr, pQTL_best$IntAgePos, sep = ".")
-pQTL_best$IngSex_point <- paste(pQTL_best$IntSexChr, pQTL_best$IntSexPos, sep = ".")
 
+# check distribution of LOD scores
+hist(pQTL_best$AdditiveLOD, breaks =100)
 # Set LOD threshold
-LODthreshold_diff <- 8
+LODthreshold_diff <- 7.5
 
 # Plot Interactive-Age pQTLs
 # Subset Int-Age LOD above total/full and diff
-Int_age <- pQTL_best[(pQTL_best$IntAgeLODDiff >= LODthreshold_diff),] # above diff threshold
+addScan <- pQTL_best[(pQTL_best$AdditiveLOD >= LODthreshold_diff),] # above diff threshold
 
 
 # Annotate Interactive-Age postion with genes and save file for sharing
-save_int_age <- Int_age[,c("id", "gene_id","symbol","chr","start","end", "biotype", "IntAgeChr","IntAgePos","IntAgeLODDiff","IntAgeLODFull")]
-save_int_age <- arrange(save_int_age, IntAgeChr, IntAgePos)
+save_addScan <- addScan[,c("id", "gene_id","symbol","chr","start","end", "biotype", "AdditiveChr","AdditivePos","AdditiveLOD")]
+save_addScan <- arrange(save_addScan, AdditiveChr, AdditivePos)
 # save annotated list for sharing
-# write.csv(save_int_age, "./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", row.names = FALSE, quote = FALSE)
+# write.csv(save_addScan, "./QTLscan/output/Threshold6_pQTL_intAge_pbatch.csv", row.names = FALSE, quote = FALSE)
 
 # Convert transcript and qtl position relative to chromosome positions
 # Convert to megabases
-chrlen <- sapply(split(Int_age$end, Int_age$chr), max) * 1e-6
+chrlen <- sapply(split(addScan$end, addScan$chr), max) * 1e-6
 chrsum <- c(0, cumsum(chrlen))
 names(chrsum) = names(chrlen)
 
-t.gmb <- Int_age$start * 1e-6 # Transcript
-q.gmb <- Int_age$IntAgePos * 1e-6 # qtl
+t.gmb <- addScan$start * 1e-6 # Transcript
+q.gmb <- addScan$AdditivePos * 1e-6 # qtl
 
 # Cumulative sum of previosu positions
 for(i in c(2:19, "X")) {
 
-  wh <- which(Int_age$chr == i)
+  wh <- which(addScan$chr == i)
   t.gmb[wh] <- t.gmb[wh] + chrsum[i]
 
-  wh <- which(Int_age$IntAgeChr == i)
+  wh <- which(addScan$AdditiveChr == i)
     q.gmb[wh] <- q.gmb[wh] + chrsum[i]
 }
-Int_age$t_gbm <- t.gmb
-Int_age$q_gbm <- q.gmb
+addScan$t_gbm <- t.gmb
+addScan$q_gbm <- q.gmb
 
 # Custom lablels & lines
 # Only display chr1:19,X
 chrtick <- chrsum[1:20]
 # Shift thick to half way point
-max <- max(Int_age$q_gbm)
+max <- max(addScan$q_gbm)
 chrtick_half <- NULL
 for (i in 1:length(chrtick)){
   if (i == 20){
@@ -76,20 +74,19 @@ for (i in 1:length(chrtick)){
 chrtick_halfy <- chrtick_half
 names(chrtick_halfy)[20] <- "X  "
 
-pQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm), color = IntAgeLODDiff)) +
+pQTL <- ggplot(addScan, aes(x= q_gbm, y= t_gbm), color = AdditiveLOD) +
       geom_point(alpha = 0.8) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
-                         limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
+                         limits = c(min(addScan$q_gbm), max(addScan$q_gbm)),
                          expand = c(0,0)) +
       scale_y_continuous("Gene position",
                          breaks = chrtick_half,
-                         limits = c(min(Int_age$t_gbm), max(Int_age$t_gbm)),
-                         expand = c(0,0),
-                        sec.axis = dup_axis()) +
+                         limits = c(min(addScan$t_gbm), max(addScan$t_gbm)),
+                         expand = c(0,0)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       geom_hline(yintercept = chrtick[2:20], colour = "grey", size = 0.2) +
-      labs( title = "Interactive-Age pQTLs") +
+      labs( title = "Additive scan pQTLs") +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
             panel.background = element_blank(),
@@ -97,35 +94,33 @@ pQTL <- ggplot(Int_age, aes(x= q_gbm, y= t_gbm), color = IntAgeLODDiff)) +
             panel.grid.major = element_blank(),
             legend.position = "top",
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))+
-      scale_colour_gradient2(low = "blue", high = "red", mid = "blue", midpoint = mean(Int_age$IntAgeLODDiff))
+      scale_colour_gradient2(low = "blue", high = "red", mid = "blue", midpoint = mean(addScan$AdditiveLOD))
 
-interval <- seq(0,max(Int_age$q_gbm), by = 10)
+interval <- seq(0,max(addScan$q_gbm), by = 10)
 interval <- interval + 5
 avgLOD <- NULL
 for ( i in interval){
-  df <- Int_age %>% filter((q_gbm > (i-5)) & (q_gbm < (i+5)))
+  df <- addScan %>% filter((q_gbm > (i-5)) & (q_gbm < (i+5)))
   if(nrow(df) == 0){
     avgLOD <- c(avgLOD,0)
   } else{
-    avgLOD <- c(avgLOD, mean(df$IntAgeLODDiff))
+    avgLOD <- c(avgLOD, mean(df$AdditiveLOD))
   }
 }
 df <- data.frame(interval = interval, avgLOD = avgLOD)
 z <- c(0,0)
 df <- rbind(z, df)
 
-density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
-      geom_histogram(breaks = seq(0,max(Int_age$q_gbm), by = 10)) +
-      geom_line(data = df, aes(x = interval, y = avgLOD*3), colour = "black") +
+density <- ggplot(addScan, aes(q_gbm, colour = "grey", fill = "grey")) +
+      geom_histogram(breaks = seq(0,max(addScan$q_gbm), by = 10)) +
       scale_colour_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_fill_manual(name = NA, values = c(grey = "grey"), guide = FALSE) +
       scale_x_continuous("QTL position",
                          breaks = chrtick_half,
-                         limits = c(min(Int_age$q_gbm), max(Int_age$q_gbm)),
+                         limits = c(min(addScan$q_gbm), max(addScan$q_gbm)),
                          expand = c(0,0)) +
       scale_y_continuous(name ="Density",
-                        breaks = seq(0,100, by = 10),
-                        sec.axis = sec_axis(trans = ~. / 3, "Agerage LOD")) +
+                         breaks = seq(0,100, by = 10)) +
       geom_vline(xintercept = chrtick[2:20], colour = "grey", size = 0.2) +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5),
@@ -135,7 +130,7 @@ density <- ggplot(Int_age, aes(q_gbm, colour = "grey", fill = "grey")) +
             panel.border = element_rect(colour = "black", size = 0.2, fill = NA))
 
 # pQTL plot
-pdf("./QTLscan/output/plots/pQTL_IntAge_pbatch_thr8_density_colour.pdf", width = 9, heigh =10)
+pdf(paste0("./QTLscan/addscan_prot_nobatch/pQTLBestperGene_addscan_nobatch_thr",LODthreshold_diff,".pdf"), width = 9, heigh =10)
 pushViewport(viewport( layout = grid.layout(10,10)))
 print(pQTL, vp = viewport(layout.pos.row = 1:8, layout.pos.col = 1:10))
 print(density, vp = viewport(layout.pos.row = 9:10, layout.pos.col = 1:10))
