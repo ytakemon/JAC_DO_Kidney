@@ -203,7 +203,7 @@ save(ensembl.version, genoprobs, K, map, markers, dataset.mrna, dataset.protein,
 # Check format -----------------------------------------------------------------
 # Run check: https://github.com/churchill-lab/qtl-viewer/blob/master/scripts/qtlDataCheck.R
 rm(list = ls())
-load("./RNAseq_data/DO188b_kidney_201802_YT.Rdata")
+load("./RNAseq_data/DO188b_kidney_20180926_YT.Rdata")
 source("./Scripts/qtlDataCheck.R")
 
 CheckVariables()
