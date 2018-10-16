@@ -1,0 +1,5 @@
+Just run RUN_anova.sh
+
+Get ANOVA + slope for 6667 genes with both mRNA and protein data.
+Get test for all mRNA data
+Get test for all protein 

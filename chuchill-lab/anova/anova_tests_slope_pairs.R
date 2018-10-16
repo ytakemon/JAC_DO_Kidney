@@ -17,11 +17,6 @@ library(broom)
 
 args <- commandArgs(trailingOnly = TRUE)
 
-# for kidney
-
-# args <- list("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/RNAseq_data/DO188b_kidney_noprobs.RData", "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/kidney_anova_table.csv")
-#
-
 # two arguments expected (input and output files)
 stopifnot(length(args)==2)
 
