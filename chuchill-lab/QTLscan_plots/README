@@ -1,0 +1,5 @@
+Create plots from each scan:
+- eQTL_add.R : additive model.
+- eQTL_ageint.R: age-interactive model based on best marker system.
+- eQTL_sexint.R: sex-interacive model also based on best marker system.
+(repeat for pQTL)

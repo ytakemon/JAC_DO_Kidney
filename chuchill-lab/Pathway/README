@@ -1,0 +1,6 @@
+Using ClusterProfiler, find enrichment of GO biological processes, cellular
+components, and KEGG Pathways
+
+- ANOVA/ tests genes that were significantly changing with age in mRNA/proteins
+- epQTL/ tests genes in with QTL peaks in region of interest
+- Slope/ tests genes from each of the 4 corners 

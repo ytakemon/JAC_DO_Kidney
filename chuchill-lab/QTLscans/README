@@ -1,0 +1,15 @@
+Run QTLscans:
+- Additive model
+- Age interactive model
+- Sex interactive model
+
+Within each model are two directories for mRNA and protein, and within them are:
+(mrna example)
+
+- `XXXXX_all_m.py` : This scripts creates `XXXXX_all_m.sh` which will run multiple qsubs based on batch size
+
+- `XXXXX_all_m.sh`: This script should be run with `bash XXXXX_all_m.sh`, which will start submitting multiple qsub to scan QTLs.
+
+- `XXXXX_one_m.sh`: Script that will run Rscript below
+
+- `XXXXX_one_m.R` : Contains script using R/qtl2 to scan for model.

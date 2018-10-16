@@ -1,0 +1,11 @@
+README document created by Yuka Takemon (yuka.takemon@gmail.com)
+for future reference:
+
+- `anova/` contains script for ANOVA anova tests along with slope calculation
+-  `Pathway/` contains scripts to run ClusterProfiler to identify enriched GO and KEGG pathways
+-  `QTLpermute/` contains script to run permutation for additive model of QTL
+- `QTLscans/` contains scripts to run additive, age-, and sex-interactive QTL scans
+- `QTLscan_plots` contains scripts to create eQTL and pQTL maps from QTLscan output
+- `CompileQTLVieweR.R` contains code used to compile data into QTLVieweR format for Matt
+- `EcoFallacy.R` contains 2 genes that best represent the ecological fallacy between whole population and individual group trends with age
+- `SlopePlot.R` contains script used to create the slope plot using ANOVA output.
