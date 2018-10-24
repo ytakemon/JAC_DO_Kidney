@@ -149,11 +149,13 @@ m.cols <- c("id", "symbol", "chr", "start", "end", "strand", "biotype")
 m.output <- cbind(annot.mrna[,m.cols], m.result.table)
 m.output$sig.mRNA_Age.Sex <- (m.output$p.mRNA_Age.Sex < 0.05)
 m.output$sig.mRNA_Sex.Age <- (m.output$p.mRNA_Sex.Age < 0.05)
+m.output$sig.mRNA_AgeSexInt <- (m.output$p.mRNA_AgeSexInt < 0.05)
 
 p.cols <- c("id", "gene_id", "symbol", "chr", "start", "end", "strand", "biotype")
 p.output <- cbind(annot.protein[,p.cols], p.result.table)
 p.output$sig.Prot_Age.Sex <- (p.output$p.Prot_Age.Sex < 0.05)
 p.output$sig.Prot_Sex.Age <- (p.output$p.Prot_Sex.Age < 0.05)
+p.output$sig.Prot_AgeSexInt <- (p.output$p.Prot_AgeSexInt < 0.05)
 
 dir <- "/projects/korstanje-lab/ytakemon/JAC_DO_Kidney/Anova_output/"
 write.csv(m.output, paste0(dir, m.output.file), row.names=FALSE, quote = FALSE)
