@@ -59,6 +59,15 @@ anova_tests_2 <- function(x) {
   return(c(pvalues,coefs,slopes))
 }
 
+# Test for sex:age interaction
+anova_tests_int <- function(x) {
+  # full model with interaction
+  lm.x <- tidy(lm(x ~ Age * Sex + Generation, data=annot.samples))
+  pvalues <- subset(lm.x, term=="Age:Sex")$p.value
+
+  return(pvalues)
+}
+
 # Remove duplicates in mrna objects, duplicates were previously created becase
 # there were multiple annotated protein that corresponded to a transcript.
 # For this analysis, we are not combining rna to protein, thus duplicates need
@@ -68,11 +77,13 @@ expr.mrna <- expr.mrna[,!duplicated(colnames(expr.mrna))]
 
 mcols <- c("p.mRNA_Age.Sex", "p.mRNA_Sex.Age",
            "r.mRNA_Age.Sex", "r.mRNA_Sex.Age",
-           "m.mRNA_Age.Sex", "m.mRNA_Sex.Age")
+           "m.mRNA_Age.Sex", "m.mRNA_Sex.Age",
+           "p.mRNA_AgeSexInt")
 
 pcols <- c("p.Prot_Age.Sex", "p.Prot_Sex.Age",
            "r.Prot_Age.Sex", "r.Prot_Sex.Age",
-           "m.Prot_Age.Sex", "m.Prot_Sex.Age")
+           "m.Prot_Age.Sex", "m.Prot_Sex.Age",
+           "p.Prot_AgeSexInt")
 
 m.result.table <- matrix(NA, dim(expr.mrna)[2], length(mcols))
 p.result.table <- matrix(NA, dim(expr.protein)[2], length(pcols))
@@ -95,18 +106,31 @@ print("Testing for dependence between mRNA and Age/Sex...")
 for (i in 1:dim(expr.mrna)[2]) {
   if (i %% 100 == 0) print(i)
   m.result.table[i, which(colnames(m.result.table) %in% c("p.mRNA_Age.Sex","p.mRNA_Sex.Age",
-                                                          "r.mRNA_Age.Sex","r.mRNA_Sex.Age",
-                                                          "m.mRNA_Age.Sex","m.mRNA_Sex.Age"))] <- anova_tests_2(expr.mrna[,i])
+    "r.mRNA_Age.Sex","r.mRNA_Sex.Age",
+    "m.mRNA_Age.Sex","m.mRNA_Sex.Age"))] <- anova_tests_2(expr.mrna[,i])
+}
+
+print("Testing for interaction between mRNA and Age:Sex interaction...")
+for (i in 1:dim(expr.mrna)[2]) {
+  if (i %% 100 == 0) print(i)
+  m.result.table[i, "p.mRNA_AgeSexInt"] <- anova_tests_int(expr.mrna[,i])
 }
 
 # ANOVA for proteins
-print("Testing for dependence between mRNA and Age/Sex...")
+print("Testing for dependence between protein and Age/Sex...")
 for (i in 1:dim(expr.protein)[2]) {
   if (i %% 100 == 0) print(i)
   p.result.table[i, which(colnames(p.result.table) %in% c("p.Prot_Age.Sex","p.Prot_Sex.Age",
-                                                          "r.Prot_Age.Sex","r.Prot_Sex.Age",
-                                                          "m.Prot_Age.Sex","m.Prot_Sex.Age"))] <- anova_tests_2(expr.protein[,i])
+    "r.Prot_Age.Sex","r.Prot_Sex.Age",
+    "m.Prot_Age.Sex","m.Prot_Sex.Age"))] <- anova_tests_2(expr.protein[,i])
 }
+
+print("Testing for interaction between protein and Age:Sex...")
+for (i in 1:dim(expr.protein)[2]) {
+  if (i %% 100 == 0) print(i)
+  p.result.table[i, "p.Prot_AgeSexInt"] <- anova_tests_int(expr.protein[,i])
+}
+
 
 # reorder columns - p-values first, corelation coefs second
 
