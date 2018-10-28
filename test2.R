@@ -1,72 +1,91 @@
-library(tidyverse)
-library(gridExtra)
-library(ggsci)
-setwd("/projects/korstanje-lab/ytakemon/JAC_DO_Kidney")
-load("./shiny_annotation.RData")
-load("./RNAseq_data/DO188b_kidney.RData")
-Upheno <- read.delim("./Phenotype/phenotypes/formatted/JAC_CS_urine_chem_v1.txt", sep = "\t")
+mrna <- read.csv("~/Dropbox/JAX/TheAgingKidneyData/ANOVA/mrna.kidney_anova_table.csv")
+protein <- read.csv("~/Dropbox/JAX/TheAgingKidneyData/ANOVA/protein.kidney_anova_table.csv")
 
-pheno <- Upheno %>%
-         mutate(
-           Mouse.ID = mouse.id,
-           duplicated = (duplicated(Upheno$mouse.id) | duplicated(Upheno$mouse.id, fromLast = TRUE)),
-           Cre = cr.u,
-           Alb = ma.u,
-           Phs = phs.u) %>%
-         filter((Mouse.ID %in% annot.samples$Mouse.ID) & duplicated == FALSE) %>%
-         select(Mouse.ID, Alb, Phs, Cre)
+load("~/Dropbox/JAX/TheAgingKidneyData/RData/DO188b_kidney_noprobs.RData")
+samples <- annot.samples
 
 
-annot.samples <- annot.samples[annot.samples$Mouse.ID %in% pheno$Mouse.ID,]
-expr.mrna <- expr.mrna[rownames(expr.mrna) %in% pheno$Mouse.ID,]
-expr.protein <- expr.protein[rownames(expr.protein) %in% pheno$Mouse.ID,]
+gene <- c("Psmd2")
+mrna %>% filter(symbol %in% gene)
+#protein %>% filter(symbol == gene)
 
-# Identify gene name
-gene1m <- annot.mrna[annot.mrna$symbol == "Slc34a1",]$id
-gene1p <- annot.protein[annot.protein$symbol == "Slc34a1",]$id
-gene2m <- annot.mrna[annot.mrna$symbol == "Slc34a3",]$id
-gene2p <- annot.protein[annot.protein$symbol == "Slc34a3",]$id
-gene3m <- annot.mrna[annot.mrna$symbol == "Lrp2",]$id
-gene3p <- annot.protein[annot.protein$symbol == "Lrp2",]$id
+#plot
+samples %>% mutate(
+  expr = expr.mrna[,annot.mrna[annot.mrna$symbol == gene,]$id]) %>%
+  ggplot(., aes(x = as.factor(Age), y = expr, colour = Sex, by = Sex))+
+    geom_line()+
+    facet_wrap(~ Age)+
+    scale_fill_aaas()
 
-df <- annot.samples %>%
-      mutate(
-        Slc34a1_mRNA = expr.mrna[, gene1m],
-        Slc34a1_protein = expr.protein[, gene1p],
-        Slc34a3_mRNA = expr.mrna[, gene2m],
-        Slc34a3_protein = expr.protein[, gene2p],
-        Lrp2_mRNA = expr.mrna[, gene3m],
-        Lrp2_protein = expr.protein[, gene3p],
-        Sex = as.factor(Sex),
-        Generation = factor(Generation, levels = c("G8","G9","G10","G11","G12")),
-        Age = factor(as.character(Age), levels = c("6","12","18")),
-        Alb = pheno$Alb,
-        Phs = pheno$Phs,
-        Cre = pheno$Cre) %>%
-      select(Mouse.ID, Sex, Generation, Age, Slc34a1_mRNA, Slc34a1_protein, Slc34a3_mRNA, Slc34a3_protein, Lrp2_mRNA, Lrp2_protein, Alb, Phs, Cre)
+samples %>% mutate(
+  expr = expr.protein[,annot.protein[annot.protein$symbol == gene,]$id]) %>%
+  ggplot(., aes(x = Sex, y = expr, fill = Sex))+
+    geom_boxplot()+
+    facet_wrap(~ Age)+
+    scale_fill_aaas()
 
-data <- df %>%
-  mutate(AlbCreRatio = Alb/Cre * 100,
-        pass30 = AlbCreRatio > 30,
-        pass30 = as.factor(pass30)) %>%
-  filter(!is.na(pass30))
+Upheno <- read.delim("~/Dropbox/JAX/TheAgingKidneyData/Phenotype/JAC_CS_urine_chem_v1.txt", sep = "\t") %>%
+  filter(Age.Urine.Chem %in% c(6,12,18)) %>%
+  arrange(mouse.id) %>%
+  mutate(Age.Urine.Chem = as.factor(Age.Urine.Chem))
 
-lrp2_m <- ggplot(data, aes(x= pass30, y = Lrp2_mRNA, colour=Age))+
-              geom_boxplot()+
-              facet_wrap(~Sex)+
-              coord_flip()
+fit <- Upheno %>% na.omit() %>% aov(log(phs.cr.u) ~ Age.Urine.Chem, data = .)
+summary(fit)
+TukeyHSD(fit, "Age.Urine.Chem", conf.level = 0.95)
 
-lrp2_p <- ggplot(data, aes(x= pass30, y = Lrp2_protein, colour=Age))+
-              geom_boxplot()+
-              facet_wrap(~Sex)+
-              coord_flip()
+Upheno %>% na.omit() %>%
+  ggplot(., aes(x = as.factor(as.character(Age.Urine.Chem)), y = log(phs.cr.u), fill = Age.Urine.Chem))+
+    geom_boxplot()
 
-pdf("ACR_test_plot.pdf", height = 8, width = 10)
-grid.arrange(lrp2_m,lrp2_p, ncol =1)
+
+
+Upheno <- read.delim("~/Dropbox/JAX/TheAgingKidneyData/Phenotype/JAC_CS_urine_chem_v1.txt", sep = "\t") %>%
+mutate(mouse.id = as.character(mouse.id))
+
+annot <- read.csv("~/Dropbox/JAX/TheAgingKidneyData/Phenotype/JAC_DO_all_sampleinfo.csv") %>%
+filter(Mouse.ID %in% Upheno$mouse.id) %>%
+rename(mouse.id = Mouse.ID) %>%
+mutate(mouse.id = as.character(mouse.id))
+Upheno <- filter(Upheno, mouse.id %in% annot$mouse.id)
+
+
+upheno <- inner_join(Upheno, annot, by="mouse.id") %>%
+  mutate(Age.Urine.Chem = as.factor(Age.Urine.Chem))
+
+
+fit <- upheno %>%
+  filter(phs.cr.u != "NA" & Sex == "F") %>%
+  aov(log(cr.u) ~ Age.Urine.Chem, data = .)
+summary(fit)
+TukeyHSD(fit, "Age.Urine.Chem", conf.level = 0.95)
+
+pdf("~/Desktop/Phos_data_redo.pdf", width = 6, height =4)
+upheno %>%
+  na.omit() %>%
+  ggplot(., aes(x = Age.Urine.Chem, y = log(phs.cr.u), fill = Age.Urine.Chem))+
+  geom_boxplot()+
+  facet_wrap(~Sex)
 dev.off()
 
+# Age by sex interaction examples
+gene <- "Rps28"
+protein %>% filter(symbol %in% gene)
 
+plot <- samples %>% mutate(
+  expr = expr.protein[,annot.protein[annot.protein$symbol == gene,]$id]) %>%
+  ggplot(., aes(x = Age, y = expr, colour = Sex))+
+    geom_smooth(method = "lm", se = FALSE, aes(group = Sex, colour = Sex)) +
+    geom_point(position = position_jitterdodge(0.4)) +
+    theme_bw() +
+    labs(y = paste(gene, "protein"),
+         x = "Age") +
+    theme(panel.background = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_blank(),
+          axis.line = element_line(color = "black")) +
+    scale_colour_aaas()
 
-pdf("./Plot/Figure3.pdf", width = 20, height = 10)
-grid.arrange(r1c1,r1c2,plot_r1c3,plot_r1c4, r2c1,r2c2,plot_r2c3,plot_r2c4, r3c1,r3c2,plot_r3c3,plot_r3c4, ncol = 4)
+pdf(paste0("~/Desktop/temp/",gene,"_example.pdf"), width = 5, height =4)
+plot
 dev.off()
